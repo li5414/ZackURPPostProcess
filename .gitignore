@@ -1,0 +1,15 @@
+Library/
+Temp/
+obj/
+Logs/
+/Library
+.vs/
+*.csproj
+.DS_Store
+*.sln
+.idea
+*.apk
+Assets/StreamingAssets/build_info
+Assets/StreamingAssets/build_info.meta
+.vsconfig
+excel2luapy.exe
