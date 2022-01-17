@@ -6,6 +6,7 @@ Shader "Zack_URP_Post-Process/Scanner"
 		_ScannerCenter ("Scanner Center Position", vector) = (0, 0, 0, 0)
 		_ScannerParams ("Scanner Parameters", vector) = (1, 1, 0, 0)
 		_ScannerColor("Scanner Color", Color) = (0, 1, 0, 0)
+		_ScannerTex("Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -43,6 +44,9 @@ Shader "Zack_URP_Post-Process/Scanner"
 		float3 _ScannerParams;
 		// …®√Ë—’…´
 		float4 _ScannerColor;
+		// …®√ËœﬂŒ∆¿Ì
+		TEXTURE2D(_ScannerTex);
+		SAMPLER(sampler_ScannerTex);
 
 		Varyings vert(Attributes input)
 		{
@@ -83,8 +87,11 @@ Shader "Zack_URP_Post-Process/Scanner"
 			float percent = (validDistance - radiusInner) / _ScannerParams.y;
 
 			float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+			float4 scannerColor = _ScannerColor;
+			float2 scannerUV = abs((positionWS-_ScannerCenter).xz);
+			scannerColor = _ScannerColor * SAMPLE_TEXTURE2D(_ScannerTex, sampler_ScannerTex, scannerUV).r;
 
-			return  lerp(color, _ScannerColor, percent);	//float4(linearDepth, linearDepth, linearDepth, linearDepth);
+			return  lerp(color, scannerColor, percent);	//float4(linearDepth, linearDepth, linearDepth, linearDepth);
 		}
 
 		ENDHLSL

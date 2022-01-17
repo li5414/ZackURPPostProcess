@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ScannerRenderFeature
   m_EditorClassIdentifier: 
   m_Active: 1
+  evt: 500
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
