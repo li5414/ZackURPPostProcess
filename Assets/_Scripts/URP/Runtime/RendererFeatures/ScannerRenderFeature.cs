@@ -4,12 +4,12 @@ using UnityEngine.Rendering.Universal;
 
 public class ScannerRenderFeature : ScriptableRendererFeature
 {
+	public RenderPassEvent evt = RenderPassEvent.AfterRenderingTransparents;
     ScannerPass m_ScriptablePass;
 
     public override void Create()
     {
-        m_ScriptablePass = new ScannerPass();
-        m_ScriptablePass.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+        m_ScriptablePass = new ScannerPass(evt);
     }
 
     public override void AddRenderPasses(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, ref RenderingData renderingData)

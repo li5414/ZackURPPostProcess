@@ -26,8 +26,10 @@ public class ScannerPass : ScriptableRenderPass
     RenderTargetHandle m_Destination { get; set; }
     RenderTargetHandle m_temporaryColorTexture;
 
-    public ScannerPass()
+    public ScannerPass(RenderPassEvent evt)
     {
+		renderPassEvent = evt;
+		
         m_Material = CoreUtils.CreateEngineMaterial(Shader.Find(k_ShaderName));
         m_temporaryColorTexture.Init(k_TempRTName);
     }

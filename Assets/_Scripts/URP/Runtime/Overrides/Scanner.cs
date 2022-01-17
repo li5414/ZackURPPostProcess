@@ -30,7 +30,7 @@ namespace UnityEngine.Rendering.Universal
         public Vector3Parameter center = new Vector3Parameter(Vector3.zero, true);
         // 扫描半径
         [Tooltip("全息扫描半径")]
-        public FloatParameter radius = new FloatParameter(1, true);
+        public ClampedFloatParameter radius = new FloatParameter(0f, 0, 10, true);
         // 扫描线宽度
         [Tooltip("扫描线宽度，该值应当小于radius")]
         public FloatParameter width = new FloatParameter(0.5f, true);
