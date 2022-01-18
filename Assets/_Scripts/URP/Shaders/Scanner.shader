@@ -86,6 +86,10 @@ Shader "Zack_URP_Post-Process/Scanner"
 			validDistance = lerp(radiusInner + _ScannerParams.z, validDistance, step(radiusInner + _ScannerParams.z, curDistance));
 			float percent = (validDistance - radiusInner) / _ScannerParams.y;
 
+			//float3 modulo = pixelWorldPos - _MeshWidth*floor(pixelWorldPos/_MeshWidth);
+			//modulo = modulo/_MeshWidth;
+			//SAMPLE_TEXTURE2D(_ScannerTex, sampler_ScannerTex, scannerUV)
+
 			float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
 			float4 scannerColor = _ScannerColor;
 			float2 scannerUV = abs((positionWS-_ScannerCenter).xz);
