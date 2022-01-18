@@ -67,10 +67,10 @@ Shader "Zack_URP_Post-Process/Scanner"
 			float3 positionWS = ComputeWorldSpacePosition(input.uv, deviceDepth, UNITY_MATRIX_I_VP);
 
 			// ����ɨ�跶Χ
-			// ɨ���ڻ��뾶
-			float radiusInner = _ScannerParams.x;
 			// ɨ���⻷�뾶
-			float radiusOuter = radiusInner + _ScannerParams.y;
+			float radiusOuter = _ScannerParams.x;
+			// ɨ���ڻ��뾶
+			float radiusInner = radiusOuter - _ScannerParams.y;
 			// ��ǰƬ�ε�ɨ�����ĵ����
 #if _SCANNER_TYPE_CYLINDER
 			float curDistance = distance(_ScannerCenter.xz, positionWS.xz);
@@ -97,6 +97,8 @@ Shader "Zack_URP_Post-Process/Scanner"
 
 		Pass
         {
+			Tags{ "RenderPipeline" = "UniversalPipeline" "IgnoreProjector" = "True"}
+
 			Name "ScreenSpaceShadows"
 			ZTest Always
 			ZWrite Off
