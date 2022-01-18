@@ -10,7 +10,7 @@ namespace Zack.UniversalRP.PostProcessing
         // Volume
         Scanner m_Scanner;
 
-        // ²ÄÖÊÏà¹Ø
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         const string k_ShaderName = "Zack_URP_Post-Process/Scanner";
         Material m_Material;
         // Shader Property
@@ -20,7 +20,7 @@ namespace Zack.UniversalRP.PostProcessing
         static readonly int k_ShaderPropertyID_ScannerTex = Shader.PropertyToID("_ScannerTex");
         static readonly string[] k_Keywords_ScannerTypes = { "_SCANNER_TYPE_CYLINDER", "_SCANNER_TYPE_CUBE" };
 
-        // ²Ù×÷Ïà¹Ø
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         const string k_RenderTag = "Scanner Effects";
         const string k_SampleName = "Scanner";
         const string k_TempRTName = "TemporaryRenderTexture01";
@@ -78,15 +78,15 @@ namespace Zack.UniversalRP.PostProcessing
             var source = m_Source;
 
             // Uniforms
-            m_Material.SetVector(k_ShaderPropertyID_ScannerCenter, new Vector4(m_Scanner.center.value.x, m_Scanner.center.value.y, m_Scanner.center.value.z, 0));
-            m_Material.SetVector(k_ShaderPropertyID_ScannerParams, new Vector4(m_Scanner.radius.value, m_Scanner.width.value, m_Scanner.centerAlpha.value, 0));
+            m_Material.SetVector(k_ShaderPropertyID_ScannerCenter, new Vector4(m_Scanner.center.value.x, m_Scanner.center.value.y, m_Scanner.center.value.z, m_Scanner.weight.value));
+            m_Material.SetVector(k_ShaderPropertyID_ScannerParams, new Vector4(m_Scanner.radius.value, m_Scanner.width.value, m_Scanner.centerAlpha.value, m_Scanner.textureScale.value));
             m_Material.SetColor(k_ShaderPropertyID_ScannerColor, m_Scanner.color.value);
             m_Material.SetTexture(k_ShaderPropertyID_ScannerTex, m_Scanner.texture.value);
             // Keywords
             PassUtils.EnableKeyword(m_Material, k_Keywords_ScannerTypes, (int)m_Scanner.type.value);
 
             cmd.BeginSample(k_SampleName);
-            //²»ÄÜ¶ÁÐ´Í¬Ò»¸öÑÕÉ«target£¬´´½¨Ò»¸öÁÙÊ±µÄrender TargetÈ¥blit
+            //ï¿½ï¿½ï¿½Ü¶ï¿½Ð´Í¬Ò»ï¿½ï¿½ï¿½ï¿½É«targetï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½render TargetÈ¥blit
             if (m_Destination == RenderTargetHandle.CameraTarget)
             {
                 RenderTextureDescriptor opaqueDesc = renderingData.cameraData.cameraTargetDescriptor;

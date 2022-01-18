@@ -10,8 +10,6 @@ Shader "Zack_URP_Post-Process/Scanner"
     }
     SubShader
     {
-		Tags{ "RenderPipeline" = "UniversalPipeline" "IgnoreProjector" = "True"}
-
 		HLSLINCLUDE
 
 		#pragma multi_compile _ _SCANNER_TYPE_CYLINDER _SCANNER_TYPE_CUBE
@@ -38,13 +36,13 @@ Shader "Zack_URP_Post-Process/Scanner"
 		TEXTURE2D(_MainTex);
 		SAMPLER(sampler_MainTex);
 		float4 _MainTex_ST;
-		// É¨ÃèÖÐÐÄµãÎ»ÖÃ(_ScannerCenter: ÊÀ½ç¿Õ¼ä)
-		float3 _ScannerCenter;
-		// É¨Ãè²ÎÊý(_ScannerCenter x:É¨Ãè·¶Î§(°ë¾¶); y:É¨ÃèÏß¿í¶È z:É¨ÃèÖÐÐÄÇøÓòÍ¸Ã÷¶È)
-		float3 _ScannerParams;
-		// É¨ÃèÑÕÉ«
+		// É¨ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Î»ï¿½ï¿½(_ScannerCenter: ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½)
+		float4 _ScannerCenter;
+		// É¨ï¿½ï¿½ï¿½ï¿½ï¿½(_ScannerCenter x:É¨ï¿½è·¶Î§(ï¿½ë¾¶); y:É¨ï¿½ï¿½ï¿½ß¿ï¿½ï¿½ z:É¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ï¿½ï¿½ï¿½)
+		float4 _ScannerParams;
+		// É¨ï¿½ï¿½ï¿½ï¿½É«
 		float4 _ScannerColor;
-		// É¨ÃèÏßÎÆÀí
+		// É¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		TEXTURE2D(_ScannerTex);
 		SAMPLER(sampler_ScannerTex);
 
@@ -61,19 +59,19 @@ Shader "Zack_URP_Post-Process/Scanner"
 
 		float4 frag(Varyings input) : SV_Target
 		{
-			// ¸ù¾ÝÉî¶È»ñÈ¡Æ¬¶ÎÊÀ½ç×ø±ê
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È»ï¿½È¡Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			float deviceDepth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_CameraDepthTexture, input.uv.xy).r;
 #if !UNITY_REVERSED_Z
 			deviceDepth = 2 * deviceDepth - 1; 
 #endif
 			float3 positionWS = ComputeWorldSpacePosition(input.uv, deviceDepth, UNITY_MATRIX_I_VP);
 
-			// ¼ÆËãÉ¨Ãè·¶Î§
-			// É¨ÃèÄÚ»·°ë¾¶
+			// ï¿½ï¿½ï¿½ï¿½É¨ï¿½è·¶Î§
+			// É¨ï¿½ï¿½ï¿½Ú»ï¿½ï¿½ë¾¶
 			float radiusInner = _ScannerParams.x;
-			// É¨ÃèÍâ»·°ë¾¶
+			// É¨ï¿½ï¿½ï¿½â»·ï¿½ë¾¶
 			float radiusOuter = radiusInner + _ScannerParams.y;
-			// µ±Ç°Æ¬¶Îµ½É¨ÃèÖÐÐÄµã¾àÀë
+			// ï¿½ï¿½Ç°Æ¬ï¿½Îµï¿½É¨ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½
 #if _SCANNER_TYPE_CYLINDER
 			float curDistance = distance(_ScannerCenter.xz, positionWS.xz);
 #elif _SCANNER_TYPE_CUBE
@@ -81,21 +79,18 @@ Shader "Zack_URP_Post-Process/Scanner"
 #else
 			float curDistance = distance(_ScannerCenter.xyz, positionWS);
 #endif
-			// ¸ù¾Ý¾àÀë×ö²ÃÇÐ
+			// ï¿½ï¿½ï¿½Ý¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			float validDistance = lerp(radiusInner, curDistance, step(curDistance, radiusOuter));
 			validDistance = lerp(radiusInner + _ScannerParams.z, validDistance, step(radiusInner + _ScannerParams.z, curDistance));
 			float percent = (validDistance - radiusInner) / _ScannerParams.y;
 
-			//float3 modulo = pixelWorldPos - _MeshWidth*floor(pixelWorldPos/_MeshWidth);
-			//modulo = modulo/_MeshWidth;
-			//SAMPLE_TEXTURE2D(_ScannerTex, sampler_ScannerTex, scannerUV)
-
+			float scannerTexScale = _ScannerParams.w;
+			float3 modulo = positionWS - scannerTexScale*floor(positionWS/scannerTexScale);
+			modulo /= scannerTexScale;
+			float4 scannerColor = _ScannerColor * SAMPLE_TEXTURE2D(_ScannerTex, sampler_ScannerTex, modulo.xz);
 			float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-			float4 scannerColor = _ScannerColor;
-			float2 scannerUV = abs((positionWS-_ScannerCenter).xz);
-			scannerColor = _ScannerColor * SAMPLE_TEXTURE2D(_ScannerTex, sampler_ScannerTex, scannerUV).r;
 
-			return  lerp(color, scannerColor, percent);	//float4(linearDepth, linearDepth, linearDepth, linearDepth);
+			return lerp(color, scannerColor, percent);	//float4(linearDepth, linearDepth, linearDepth, linearDepth);
 		}
 
 		ENDHLSL
