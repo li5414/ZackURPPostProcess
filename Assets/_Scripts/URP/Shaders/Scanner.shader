@@ -36,13 +36,13 @@ Shader "Zack_URP_Post-Process/Scanner"
 		TEXTURE2D(_MainTex);
 		SAMPLER(sampler_MainTex);
 		float4 _MainTex_ST;
-		// É¨ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Î»ï¿½ï¿½(_ScannerCenter: ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½)
+		// É¨ÃèÖÐÐÄµãÎ»ÖÃ(_ScannerCenter: ÊÀ½ç¿Õ¼ä)
 		float4 _ScannerCenter;
-		// É¨ï¿½ï¿½ï¿½ï¿½ï¿½(_ScannerCenter x:É¨ï¿½è·¶Î§(ï¿½ë¾¶); y:É¨ï¿½ï¿½ï¿½ß¿ï¿½ï¿½ z:É¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ï¿½ï¿½ï¿½)
+		// É¨Ãè²ÎÊý(_ScannerCenter x:É¨Ãè·¶Î§(°ë¾¶); y:É¨ÃèÏß¿í¶È z:É¨ÃèÖÐÐÄÇøÓòÍ¸Ã÷¶È)
 		float4 _ScannerParams;
-		// É¨ï¿½ï¿½ï¿½ï¿½É«
+		// É¨ÃèÑÕÉ«
 		float4 _ScannerColor;
-		// É¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		// É¨ÃèÏßÎÆÀí
 		TEXTURE2D(_ScannerTex);
 		SAMPLER(sampler_ScannerTex);
 
@@ -59,19 +59,19 @@ Shader "Zack_URP_Post-Process/Scanner"
 
 		float4 frag(Varyings input) : SV_Target
 		{
-			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È»ï¿½È¡Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			// ¸ù¾ÝÉî¶È»ñÈ¡Æ¬¶ÎÊÀ½ç×ø±ê
 			float deviceDepth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_CameraDepthTexture, input.uv.xy).r;
 #if !UNITY_REVERSED_Z
 			deviceDepth = 2 * deviceDepth - 1; 
 #endif
 			float3 positionWS = ComputeWorldSpacePosition(input.uv, deviceDepth, UNITY_MATRIX_I_VP);
 
-			// ï¿½ï¿½ï¿½ï¿½É¨ï¿½è·¶Î§
-			// É¨ï¿½ï¿½ï¿½â»·ï¿½ë¾¶
+			// ¼ÆËãÉ¨Ãè·¶Î§
+			// É¨ÃèÍâ»·°ë¾¶
 			float radiusOuter = _ScannerParams.x;
-			// É¨ï¿½ï¿½ï¿½Ú»ï¿½ï¿½ë¾¶
+			// É¨ÃèÄÚ»·°ë¾¶
 			float radiusInner = radiusOuter - _ScannerParams.y;
-			// ï¿½ï¿½Ç°Æ¬ï¿½Îµï¿½É¨ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½
+			// µ±Ç°Æ¬¶Îµ½É¨ÃèÖÐÐÄµã¾àÀë
 #if _SCANNER_TYPE_CYLINDER
 			float curDistance = distance(_ScannerCenter.xz, positionWS.xz);
 #elif _SCANNER_TYPE_CUBE
@@ -79,7 +79,7 @@ Shader "Zack_URP_Post-Process/Scanner"
 #else
 			float curDistance = distance(_ScannerCenter.xyz, positionWS);
 #endif
-			// ï¿½ï¿½ï¿½Ý¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			// ¸ù¾Ý¾àÀë×ö²ÃÇÐ
 			float validDistance = lerp(radiusInner, curDistance, step(curDistance, radiusOuter));
 			validDistance = lerp(radiusInner + _ScannerParams.z, validDistance, step(radiusInner + _ScannerParams.z, curDistance));
 			float percent = (validDistance - radiusInner) / _ScannerParams.y;

@@ -10,7 +10,7 @@ namespace Zack.UniversalRP.PostProcessing
         // Volume
         Scanner m_Scanner;
 
-        // �������
+        // 材质相关
         const string k_ShaderName = "Zack_URP_Post-Process/Scanner";
         Material m_Material;
         // Shader Property
@@ -20,7 +20,7 @@ namespace Zack.UniversalRP.PostProcessing
         static readonly int k_ShaderPropertyID_ScannerTex = Shader.PropertyToID("_ScannerTex");
         static readonly string[] k_Keywords_ScannerTypes = { "_SCANNER_TYPE_CYLINDER", "_SCANNER_TYPE_CUBE" };
 
-        // �������
+        // 操作相关
         const string k_RenderTag = "Scanner Effects";
         const string k_SampleName = "Scanner";
         const string k_TempRTName = "TemporaryRenderTexture01";
@@ -86,7 +86,7 @@ namespace Zack.UniversalRP.PostProcessing
             PassUtils.EnableKeyword(m_Material, k_Keywords_ScannerTypes, (int)m_Scanner.type.value);
 
             cmd.BeginSample(k_SampleName);
-            //���ܶ�дͬһ����ɫtarget������һ����ʱ��render Targetȥblit
+            //不能读写同一个颜色target，创建一个临时的render Target去blit
             if (m_Destination == RenderTargetHandle.CameraTarget)
             {
                 RenderTextureDescriptor opaqueDesc = renderingData.cameraData.cameraTargetDescriptor;
