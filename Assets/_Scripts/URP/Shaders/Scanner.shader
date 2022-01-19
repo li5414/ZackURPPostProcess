@@ -85,11 +85,12 @@ Shader "Zack_URP_Post-Process/Scanner"
 			float percent = (validDistance - radiusInner) / _ScannerParams.y;
 
 			float scannerTexScale = _ScannerParams.w;
-			float3 modulo = positionWS - scannerTexScale*floor(positionWS/scannerTexScale);
+			float3 modulo = positionWS - scannerTexScale*max(0, floor(positionWS/scannerTexScale));	// 加个max来防止扫描纹理上出现分割线
 			modulo /= scannerTexScale;
-			float4 scannerColor = _ScannerColor * SAMPLE_TEXTURE2D(_ScannerTex, sampler_ScannerTex, modulo.xz);
+			float4 gridTexColor = SAMPLE_TEXTURE2D(_ScannerTex, sampler_ScannerTex, modulo.xz);
+			float4 scannerColor = lerp(_ScannerColor, float4(1,0,0,1), step(gridTexColor.r, 0.8));
+			
 			float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-
 			return lerp(color, scannerColor, percent);	//float4(linearDepth, linearDepth, linearDepth, linearDepth);
 		}
 
