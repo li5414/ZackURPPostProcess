@@ -6,41 +6,41 @@ namespace UnityEngine.Rendering.Universal
     [System.Serializable, VolumeComponentMenu("ZackPostProcess/Scanner")]
     public class Scanner : VolumeComponent, IPostProcessComponent
     {
-        // É¨ÃèÀàĞÍ
+        // æ‰«æç±»å‹
         public enum ScannerType
         {
-            // ÇòÌå
+            // çƒä½“
             Sphere,
-            // Ô²ÖùÌå
+            // åœ†æŸ±ä½“
             Cylinder,
-            // Á¢·½Ìå
+            // ç«‹æ–¹ä½“
             Cube
         }
         [Serializable]
         public sealed class ScannerTypeParameter : VolumeParameter<ScannerType> { public ScannerTypeParameter(Scanner.ScannerType value, bool overrideState = false) : base(value, overrideState) { } }
 
-        // ºó´¦Àí¿ª¹Ø
-        [Tooltip("¿ªÆôºó´¦Àí")]
+        // åå¤„ç†å¼€å…³
+        [Tooltip("å¼€å¯åå¤„ç†")]
         public BoolParameter enabled = new BoolParameter(true, true);
-        // É¨ÃèÀàĞÍ
-        [Tooltip("É¨ÃèÀàĞÍ")]
+        // æ‰«æç±»å‹
+        [Tooltip("æ‰«æç±»å‹")]
         public ScannerTypeParameter type = new ScannerTypeParameter(ScannerType.Sphere, true);
-        // ÖĞĞÄÎ»ÖÃ
-        [Tooltip("È«Ï¢É¨ÃèÖĞĞÄÎ»ÖÃ")
+        // ä¸­å¿ƒä½ç½®
+        [Tooltip("å…¨æ¯æ‰«æä¸­å¿ƒä½ç½®")]
         public Vector3Parameter center = new Vector3Parameter(Vector3.zero, true);
         //
         public ClampedFloatParameter weight = new ClampedFloatParameter(1, 0, 1, true);
-        // É¨Ãè°ë¾¶
-        [Tooltip("È«Ï¢É¨Ãè°ë¾¶")]
+        // æ‰«æåŠå¾„
+        [Tooltip("å…¨æ¯æ‰«æåŠå¾„")]
         public FloatParameter radius = new FloatParameter(0f, true);
-        // É¨ÃèÏß¿í¶È
-        [Tooltip("É¨ÃèÏß¿í¶È£¬¸ÃÖµÓ¦µ±Ğ¡ÓÚradius")]
+        // æ‰«æçº¿å®½åº¦
+        [Tooltip("æ‰«æçº¿å®½åº¦ï¼Œè¯¥å€¼åº”å½“å°äºradius")]
         public FloatParameter width = new FloatParameter(0.5f, true);
-        // É¨ÃèÖĞĞÄÇøÓòÍ¸Ã÷¶È
-        [Tooltip("É¨ÃèÖĞĞÄÇøÓòÍ¸Ã÷¶È£¬¸ÃÖµÓ¦µ±Ğ¡ÓÚwidth")]
+        // æ‰«æä¸­å¿ƒåŒºåŸŸé€æ˜åº¦
+        [Tooltip("æ‰«æä¸­å¿ƒåŒºåŸŸé€æ˜åº¦ï¼Œè¯¥å€¼åº”å½“å°äºwidth")]
         public FloatParameter centerAlpha = new FloatParameter(0f, true);
-        // É¨ÃèÑÕÉ«
-        [Tooltip("É¨ÃèÑÕÉ«")]
+        // æ‰«æé¢œè‰²
+        [Tooltip("æ‰«æé¢œè‰²")]
         public ColorParameter color = new ColorParameter(Color.green, true);
         //
         public TextureParameter texture = new TextureParameter(null, true);

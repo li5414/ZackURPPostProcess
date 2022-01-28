@@ -1,4 +1,4 @@
-Shader "Zack_URP_Post-Process/Scanner"
+Shader "ZackURP/Post-Process/Scanner"
 {
     Properties
     {
@@ -36,15 +36,19 @@ Shader "Zack_URP_Post-Process/Scanner"
 		TEXTURE2D(_MainTex);
 		SAMPLER(sampler_MainTex);
 		float4 _MainTex_ST;
-		// É¨ÃèÖĞĞÄµãÎ»ÖÃ(_ScannerCenter: ÊÀ½ç¿Õ¼ä)
+		// æ‰«æä¸­å¿ƒç‚¹ä½ç½®(_ScannerCenter: ä¸–ç•Œç©ºé—´)
 		float4 _ScannerCenter;
-		// É¨Ãè²ÎÊı(_ScannerCenter x:É¨Ãè·¶Î§(°ë¾¶); y:É¨ÃèÏß¿í¶È z:É¨ÃèÖĞĞÄÇøÓòÍ¸Ã÷¶È)
+		// æ‰«æå‚æ•°(_ScannerCenter x:æ‰«æèŒƒå›´(åŠå¾„); y:æ‰«æçº¿å®½åº¦ z:æ‰«æä¸­å¿ƒåŒºåŸŸé€æ˜åº¦)
 		float4 _ScannerParams;
-		// É¨ÃèÑÕÉ«
-		float4 _ScannerColor;
-		// É¨ÃèÏßÎÆÀí
+		// æ‰«æé¢œè‰²
+		half4 _ScannerColor;
+		// æ‰«æçº¿çº¹ç†
 		TEXTURE2D(_ScannerTex);
 		SAMPLER(sampler_ScannerTex);
+		// æ‰«æçº¿å‚æ•° (x: textureScale, y: textureThreshold)
+		float2 _ScannerTexParams;
+		// æ‰«æçº¿é¢œè‰²
+		half4 _ScannerGridColor;
 
 		Varyings vert(Attributes input)
 		{
@@ -59,19 +63,19 @@ Shader "Zack_URP_Post-Process/Scanner"
 
 		float4 frag(Varyings input) : SV_Target
 		{
-			// ¸ù¾İÉî¶È»ñÈ¡Æ¬¶ÎÊÀ½ç×ø±ê
+			// æ ¹æ®æ·±åº¦è·å–ç‰‡æ®µä¸–ç•Œåæ ‡
 			float deviceDepth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_CameraDepthTexture, input.uv.xy).r;
 #if !UNITY_REVERSED_Z
 			deviceDepth = 2 * deviceDepth - 1; 
 #endif
 			float3 positionWS = ComputeWorldSpacePosition(input.uv, deviceDepth, UNITY_MATRIX_I_VP);
 
-			// ¼ÆËãÉ¨Ãè·¶Î§
-			// É¨ÃèÍâ»·°ë¾¶
+			// è®¡ç®—æ‰«æèŒƒå›´
+			// æ‰«æå¤–ç¯åŠå¾„
 			float radiusOuter = _ScannerParams.x;
-			// É¨ÃèÄÚ»·°ë¾¶
+			// æ‰«æå†…ç¯åŠå¾„
 			float radiusInner = radiusOuter - _ScannerParams.y;
-			// µ±Ç°Æ¬¶Îµ½É¨ÃèÖĞĞÄµã¾àÀë
+			// å½“å‰ç‰‡æ®µåˆ°æ‰«æä¸­å¿ƒç‚¹è·ç¦»
 #if _SCANNER_TYPE_CYLINDER
 			float curDistance = distance(_ScannerCenter.xz, positionWS.xz);
 #elif _SCANNER_TYPE_CUBE
@@ -79,13 +83,13 @@ Shader "Zack_URP_Post-Process/Scanner"
 #else
 			float curDistance = distance(_ScannerCenter.xyz, positionWS);
 #endif
-			// ¸ù¾İ¾àÀë×ö²ÃÇĞ
+            // æ ¹æ®è·ç¦»åšè£åˆ‡
 			float validDistance = lerp(radiusInner, curDistance, step(curDistance, radiusOuter));
 			validDistance = lerp(radiusInner + _ScannerParams.z, validDistance, step(radiusInner + _ScannerParams.z, curDistance));
 			float percent = (validDistance - radiusInner) / _ScannerParams.y;
 
 			float scannerTexScale = _ScannerParams.w;
-			float3 modulo = positionWS - scannerTexScale*max(0, floor(positionWS/scannerTexScale));	// ¼Ó¸ömaxÀ´·ÀÖ¹É¨ÃèÎÆÀíÉÏ³öÏÖ·Ö¸îÏß
+			float3 modulo = positionWS - scannerTexScale*max(0, floor(positionWS/scannerTexScale));	// åŠ ä¸ªmaxæ¥é˜²æ­¢æ‰«æçº¹ç†ä¸Šå‡ºç°åˆ†å‰²çº¿
 			modulo /= scannerTexScale;
 			float4 gridTexColor = SAMPLE_TEXTURE2D(_ScannerTex, sampler_ScannerTex, modulo.xz);
 			float4 scannerColor = lerp(_ScannerColor, float4(1,0,0,1), step(gridTexColor.r, 0.8));

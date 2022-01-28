@@ -11,7 +11,7 @@ namespace Zack.UniversalRP.PostProcessing
         Scanner m_Scanner;
 
         // 材质相关
-        const string k_ShaderName = "Zack_URP_Post-Process/Scanner";
+        const string k_ShaderName = "ZackURP/Post-Process/Scanner";
         Material m_Material;
         // Shader Property
         static readonly int k_ShaderPropertyID_ScannerCenter = Shader.PropertyToID("_ScannerCenter");
