@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,10 +7,10 @@ namespace Zack.UniversalRP.PostProcessing
     public class PassUtils
     {
         /// <summary>
-        /// ¿ªÆô²ÄÖÊÄ³¸ö¹Ø¼ü×Ö
+        /// å¼€å¯æè´¨æŸä¸ªå…³é”®å­—
         /// </summary>
         /// <param name="material"></param>
-        /// <param name="keywords">Shader¹Ø¼ü×ÖÁÐ±í£¬µ«Òª×¢ÒâµÚÒ»¸ö¹Ø¼ü×Ö»áÓÃ"_"´úÌæ£¬ËùÒÔ²»ÔÚkeywordsÊý×éÖÐ¡£Òª¿ªÆôµÚÒ»¸öÖ»ÒªDisableÆäËûËùÓÐKeyword¼´¿É</param>
+        /// <param name="keywords">Shaderå…³é”®å­—åˆ—è¡¨ï¼Œä½†è¦æ³¨æ„ç¬¬ä¸€ä¸ªå…³é”®å­—ä¼šç”¨"_"ä»£æ›¿ï¼Œæ‰€ä»¥ä¸åœ¨keywordsæ•°ç»„ä¸­ã€‚è¦å¼€å¯ç¬¬ä¸€ä¸ªåªè¦Disableå…¶ä»–æ‰€æœ‰Keywordå³å¯</param>
         /// <param name="index"></param>
         public static void EnableKeyword(Material material, string[] keywords, int index)
         {

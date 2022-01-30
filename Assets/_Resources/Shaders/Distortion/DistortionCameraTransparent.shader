@@ -1,4 +1,4 @@
-Shader "ZackURP/Effect/DistortionCameraOpaque"
+Shader "ZackURP/Effect/DistortionCameraTransparent"
 {
     Properties
     {
@@ -23,6 +23,9 @@ Shader "ZackURP/Effect/DistortionCameraOpaque"
             // _CameraOpaqueTexture
             TEXTURE2D_X(_CameraOpaqueTexture);
             SAMPLER(sampler_CameraOpaqueTexture);
+            // _CameraOpaqueTexture
+            TEXTURE2D_X(_ZURPCameraColorTexture);
+            SAMPLER(sampler_ZURPCameraColorTexture);
             
             struct Attributes
             {
@@ -64,14 +67,14 @@ Shader "ZackURP/Effect/DistortionCameraOpaque"
                 offset = (offset * 2 - 1) * distortionStrength;
                 
                 float2 uv = input.grabPos.xy / input.grabPos.w + offset;
-                half4 color = SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv);
+                half4 color = SAMPLE_TEXTURE2D_X(_ZURPCameraColorTexture, sampler_ZURPCameraColorTexture, uv);
                 return color;
             }        
         ENDHLSL
         
         Pass
         {
-            Tags { "RenderPipeline" = "UniversalPipeline" "LightMode" = "AfterCopyColor" "RenderType" = "Opaque" }
+            Tags { "RenderPipeline" = "UniversalPipeline" "LightMode" = "AfterCopyCameraColor" "RenderType" = "Opaque" }
             HLSLPROGRAM
                 #pragma vertex Vertex
                 #pragma fragment Fragment
