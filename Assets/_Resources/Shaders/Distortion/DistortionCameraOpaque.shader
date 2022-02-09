@@ -43,7 +43,7 @@ Shader "ZackURP/Effect/DistortionCameraOpaque"
             {
                 Varyings output;
                 UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
                 
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 // 获取抓屏屏幕坐标

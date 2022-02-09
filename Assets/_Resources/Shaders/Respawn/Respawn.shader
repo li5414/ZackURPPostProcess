@@ -61,7 +61,7 @@ Shader "ZackURP/Effect/Respawn"
             {
                 Varyings output;
                 UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
                 
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 output.positionCS = TransformWorldToHClip(output.positionWS.xyz);
