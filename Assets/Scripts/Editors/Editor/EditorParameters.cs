@@ -20,6 +20,7 @@ namespace Zack.Editor
         // Timeline刻度尺水平偏移
         public const float k_RulerOffsetX = 10;
         
+        
         // GUIContent
         // 播放按钮
         public static readonly GUIContent k_PlayFramesContent = EditorGUIUtility.IconContent("Animation.Play", "Play");
@@ -35,9 +36,13 @@ namespace Zack.Editor
         public static readonly GUIContent k_LoopFrameContent = EditorGUIUtility.IconContent("preAudioLoopOff", "Loop");
         
         // GUIStyle
-        public static readonly GUIStyle k_TimeBlockRight = new GUIStyle("MeTimeLabel");
-        public static readonly GUIStyle k_TimeBlockLeft = new GUIStyle("MeTimeLabel");
+        public static readonly GUIStyle k_TimelineRuler = new GUIStyle("MeTimeLabel");
         public static readonly GUIStyle k_WindowBackground = new GUIStyle("OL box NoExpand");
+        public static readonly GUIStyle k_BackgroundSelected = new GUIStyle("OL SelectedRow");
+        public static readonly GUIStyle k_BackgroundEven = new GUIStyle("OL EntryBackEven");
+        public static readonly GUIStyle k_TimelineBlockLeft = new GUIStyle("MeTransOnLeft");
+        public static readonly GUIStyle k_TimelineBlockRight = new GUIStyle("MeTransOnRight");
+        public static readonly GUIStyle k_TimelineFrameTag = new GUIStyle("Grad Down Swatch");
     }
 
 }

@@ -56,6 +56,10 @@ namespace Zack.Editor
                 GUILayout.Label(text, style, options);
             }
         }
+        public static void CreateText(string text, GUIStyle style, params GUILayoutOption[] options)
+        {
+            GUILayout.TextField(text, style, options);
+        }
 
         /// <summary>
         /// 创建Toggle
@@ -183,6 +187,11 @@ namespace Zack.Editor
         {
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, horizontalScrollbar, verticalScrollbar, options);
         }
+        public GUILayoutScrollView(Vector2 scrollPosition)
+        {
+            GUILayout.BeginScrollView(scrollPosition);
+//            GUILayout.BeginScrollView(scrollPosition, GUIStyle.none, GUIStyle.none);
+        }
         
         public void Dispose()
         {
@@ -209,6 +218,25 @@ namespace Zack.Editor
             {
                 this._callback?.Invoke();
             }
+        }
+    }
+
+    /// <summary>
+    /// 临时替换Handles.Color
+    /// </summary>
+    public class GUIHandlesColor : IDisposable
+    {
+        private Color srcColor;
+
+        public GUIHandlesColor(Color color)
+        {
+            srcColor = Handles.color;
+            Handles.color = color;
+        }
+
+        public void Dispose()
+        {
+            Handles.color = srcColor;
         }
     }
 
