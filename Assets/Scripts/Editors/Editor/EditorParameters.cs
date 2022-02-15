@@ -38,6 +38,7 @@ namespace Zack.Editor
         // GUIStyle
         public static readonly GUIStyle k_Label = new GUIStyle("label");
         public static readonly GUIStyle k_TimelineRuler = new GUIStyle("MeTimeLabel");
+        public static readonly GUIStyle k_FrameBackground = new GUIStyle("FrameBox");
         public static readonly GUIStyle k_WindowBackground = new GUIStyle("OL box NoExpand");
         public static readonly GUIStyle k_BackgroundSelected = new GUIStyle("OL SelectedRow");
         public static readonly GUIStyle k_BackgroundEven = new GUIStyle("OL EntryBackEven");

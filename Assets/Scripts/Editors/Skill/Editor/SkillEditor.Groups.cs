@@ -13,8 +13,8 @@ namespace Zack.Editor.Skill
       public class Group
       {
          public string title = String.Empty;
-         public int index = 0;
          public bool foldout = true;
+         public List<SkillAction> actions = new ListStack<SkillAction>();
 
          public void OnGroupGUI()
          {
@@ -45,6 +45,26 @@ namespace Zack.Editor.Skill
          public virtual int OnGroupTimelineGUI(bool isGroupSelected, int selectedItemIndex)
          {
             return -1;
+         }
+
+         /// <summary>
+         /// 绘制Inspector面板
+         /// </summary>
+         /// <param name="selectedItemIndex"></param>
+         public virtual void OnInspectorGUI(int selectedItemIndex, int maxFrameLength)
+         {
+            if (selectedItemIndex < this.actions.Count)
+            {
+               SkillAction action = this.actions[selectedItemIndex];
+               TimelineData timelineData = action.timelineData;
+               
+               using (new GUILayoutVertical(EditorParameters.k_WindowBackground))
+               {
+                  EditorUtils.CreateIntField("起始", ref timelineData.start, 0, maxFrameLength);
+                  EditorUtils.CreateIntField("结束", timelineData.end);
+                  EditorUtils.CreateIntField("时长", ref timelineData.length, 0, maxFrameLength-timelineData.start);
+               }
+            }
          }
 
          /// <summary>
@@ -88,7 +108,6 @@ namespace Zack.Editor.Skill
 
       public class SkillAnimationGroup : Group
       {
-         public List<SkillAnimationAction> actions = new ListStack<SkillAnimationAction>();
 
          public SkillAnimationGroup()
          {
@@ -106,7 +125,7 @@ namespace Zack.Editor.Skill
             SkillAnimationAction action;
             for (int i = 0; i < this.actions.Count; ++i)
             {
-               action = this.actions[i];
+               action = this.actions[i] as SkillAnimationAction;
 
                bool isSelected = isGroupSelected && selectedItemIndex==i;
                GUIStyle backgroundStyle = isSelected ? EditorParameters.k_BackgroundSelected : EditorParameters.k_BackgroundEven;
@@ -138,7 +157,7 @@ namespace Zack.Editor.Skill
             SkillAnimationAction action;
             for (int i = 0; i < this.actions.Count; ++i)
             {
-               action = this.actions[i];
+               action = this.actions[i] as SkillAnimationAction;
                
                bool isSelected = isGroupSelected && selectedItemIndex==i;
                GUIStyle backgroundStyle = isSelected ? EditorParameters.k_BackgroundSelected : EditorParameters.k_BackgroundEven;
@@ -156,6 +175,11 @@ namespace Zack.Editor.Skill
             
            
             return newSelectedItemIndex;
+         }
+
+         public override void OnInspectorGUI(int selectedItemIndex, int maxFrameLength)
+         {
+            base.OnInspectorGUI(selectedItemIndex, maxFrameLength);
          }
          
       }

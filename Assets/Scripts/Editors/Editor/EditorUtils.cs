@@ -30,6 +30,41 @@ namespace Zack.Editor
             }
         }
 
+        public static void CreateIntField(string title, ref int value, params GUILayoutOption[] options)
+        {
+            value = EditorGUILayout.IntField(title, value, options);
+        }
+        public static void CreateIntField(ref int value, int min, int max, params GUILayoutOption[] options)
+        {
+            value = EditorGUILayout.IntField(value, options);
+            if (value < min)
+            {
+                value = min;
+            }
+            else if (value > max)
+            {
+                value = max;
+            }
+        }
+        public static void CreateIntField(string title, ref int value, int min, int max, params GUILayoutOption[] options)
+        {
+            value = EditorGUILayout.IntField(title, value, options);
+            if (value < min)
+            {
+                value = min;
+            }
+            else if (value > max)
+            {
+                value = max;
+            }
+        }
+        public static void CreateIntField(string title, int value, params GUILayoutOption[] options)
+        {
+            GUI.enabled = false;
+            EditorGUILayout.IntField(title, value, options);
+            GUI.enabled = true;
+        }
+
         public static void CreateLabel(string text, params GUILayoutOption[] options)
         {
             GUILayout.Label(text, EditorStyles.label, options);

@@ -17,8 +17,6 @@ namespace Zack.Editor.Skill
                 EditorUtility.DisplayDialog("Error", "Compile Error", "Ok");
                 return;
             }
-
-            
             
             EditorWindow.GetWindow<SkillEditor>().Start();
             EditorWindow.GetWindow<SkillEditor>().Show();
@@ -36,6 +34,19 @@ namespace Zack.Editor.Skill
             this._Groups.Add(group);
             this._Groups.Add(group);
             this._Groups.Add(group);
+        }
+
+        void SaveConfig()
+        {
+            SkillConfig config = new SkillConfig();;
+            config.animations = new List<SkillAnimationAction>();
+            SkillAnimationGroup group = this._Groups[0] as SkillAnimationGroup;
+            for (int i = 0; i < group.actions.Count; ++i)
+            {
+                config.animations.Add(group.actions[i] as SkillAnimationAction);
+            }
+            
+            JsonUtils.SerializeObjectToFile(config, "D://xxx.json");
         }
 
         void OnGUI()
@@ -64,7 +75,8 @@ namespace Zack.Editor.Skill
                 
                     EditorUtils.CreateButton("打开", EditorStyles.toolbarButton, () =>
                     {
-                        Debug.Log("=====打开====="+tmpPath);
+//                        Debug.Log("=====打开====="+tmpPath);
+                        SaveConfig();
                     }, GUILayout.Width(100));
                 
                 
@@ -111,7 +123,9 @@ namespace Zack.Editor.Skill
                 });
 
                 // 当前帧数
-                EditorUtils.CreateText(_CurrentFrame.ToString(), EditorStyles.textField, GUILayout.Width(70));
+                EditorUtils.CreateLabel("当前");
+                EditorUtils.CreateText(_CurrentFrame.ToString(), EditorStyles.textField, GUILayout.Width(40));
+              
                 
                 // timeline刻度尺
                 using (new GUILayoutArea(new Rect(k_HierarchyPanelWidth, EditorParameters.k_ToolbarHeight, k_TimelinePanelWidth, EditorParameters.k_ToolbarHeight)))
@@ -119,6 +133,13 @@ namespace Zack.Editor.Skill
                     Rect rulerRect = new Rect(0, 0, k_TimelinePanelWidth, EditorParameters.k_ToolbarHeight);
                     drawTimelineRuler(rulerRect);
                 }
+
+                // 总时长
+                using (new GUILayoutArea(new Rect(k_HierarchyPanelWidth+k_TimelinePanelWidth+10, EditorParameters.k_ToolbarHeight+3, k_InspectorPanelWidth, EditorParameters.k_ToolbarHeight)))
+                {
+                    EditorUtils.CreateIntField("总时长", ref this._MaxFrameLength, 0, int.MaxValue);  
+                }
+                
                 
                 GUILayout.FlexibleSpace();
             }
@@ -158,7 +179,7 @@ namespace Zack.Editor.Skill
                     }
                 }
 
-                // timeline数据
+                // timeline面板
                 using (new GUILayoutVertical(GUILayout.Width(k_TimelinePanelWidth)))
                 {
                     using (new GUILayoutVertical())
@@ -181,21 +202,31 @@ namespace Zack.Editor.Skill
                     }
                 }
                 // 绘制timeline线
-                drawTimeFrameGUI();
+                drawFrameLine();
                 
-                // inspector数据
-                using (new GUILayoutVertical(GUILayout.Width(k_InspectorPanelWidth)))
+                // inspector面板
+                using (new GUILayoutVertical(EditorParameters.k_FrameBackground, GUILayout.Width(k_InspectorPanelWidth)))
                 {
-                    GUILayout.Label("属性面板");
+                    drawInspector();
                 }
-                
-   
 
             }
             
         }
 
-        void drawTimeFrameGUI()
+        void drawInspector()
+        {
+            EditorUtils.CreateLabel("属性面板");
+            if (this._SelectedGroupIndex != -1 && this._SelectedItemIndex != -1 && this._Groups.Count>this._SelectedGroupIndex)
+            {
+                this._Groups[this._SelectedGroupIndex].OnInspectorGUI(this._SelectedItemIndex, this._MaxFrameLength);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void drawFrameLine()
         {
             float x = k_HierarchyPanelWidth + EditorUtils.CalculateFrameToPosition(this._CurrentFrame) - this._ScrollPosition.x;
 
@@ -282,7 +313,7 @@ namespace Zack.Editor.Skill
                 GUI.FocusControl(null);
                 e.Use();
 
-                int frame = EditorUtils.CalculatePositionToFrame(e.mousePosition.x);
+                int frame = EditorUtils.CalculatePositionToFrame(e.mousePosition.x+this._ScrollPosition.x);
                 SelectFrame(frame);
             }
 

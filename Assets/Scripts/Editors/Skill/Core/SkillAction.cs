@@ -1,11 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
+[JsonObject(MemberSerialization.OptIn)]
 public class TimelineData
 {
-    public string name;
+    [JsonProperty]
     public int start;
+    [JsonProperty]
     public int length;
     public int end
     {
@@ -43,15 +47,27 @@ public class TimelineData
     }
 }
 
+[JsonObject(MemberSerialization.OptIn)]
+public class SkillConfig
+{
+    [JsonProperty]
+    public List<SkillAnimationAction> animations;
+}
+
+[JsonObject(MemberSerialization.OptIn)]
 public abstract class SkillAction
 {
+    [JsonProperty]
     public TimelineData timelineData = new TimelineData();
     public bool isMute = false;
 }
 
+[JsonObject(MemberSerialization.OptIn)]
 public class SkillAnimationAction : SkillAction
 {
+    [JsonProperty]
     public string prefabPath;
+    [JsonProperty]
     public string clipName;
 
     public SkillAnimationAction(int start, int length)
