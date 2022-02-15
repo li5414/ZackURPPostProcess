@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Codice.Client.Commands;
 using UnityEditor;
 using UnityEngine;
 using Zack.Editor;
@@ -16,13 +17,31 @@ namespace Zack.Editor.Skill
                 EditorUtility.DisplayDialog("Error", "Compile Error", "Ok");
                 return;
             }
+
+            
+            
+            EditorWindow.GetWindow<SkillEditor>().Start();
             EditorWindow.GetWindow<SkillEditor>().Show();
+        }
+
+        void Start()
+        {
+            EditorParameters.k_Foldout.fixedHeight = k_ElementHeight;
+
+            // TODO
+            var group = new SkillAnimationGroup();
+            group.actions.Add(new SkillAnimationAction(Random.Range(0, 200), Random.Range(1, 20)));
+            group.actions.Add(new SkillAnimationAction(Random.Range(0, 200), Random.Range(1, 20)));
+            group.actions.Add(new SkillAnimationAction(Random.Range(0, 200), Random.Range(1, 20)));
+            this._Groups.Add(group);
+            this._Groups.Add(group);
+            this._Groups.Add(group);
         }
 
         void OnGUI()
         {
             this.k_TimelinePanelWidth = (int)position.width - k_HierarchyPanelWidth - k_InspectorPanelWidth;
-            
+
             // 工具栏
             drawTopToolbar();
             // timeline工具栏
@@ -73,12 +92,24 @@ namespace Zack.Editor.Skill
             using (new GUILayoutHorizontal(EditorStyles.toolbar))
             {
                 // 按钮
-                EditorUtils.CreateToggle(ref _IsClickFirstFrame, EditorParameters.k_FirstFrameContent, EditorStyles.toolbarButton);
-                EditorUtils.CreateToggle(ref _IsClickPreviousFrame, EditorParameters.k_PreviousFrameContent, EditorStyles.toolbarButton);
+                EditorUtils.CreateButton(EditorParameters.k_FirstFrameContent, EditorStyles.toolbarButton, () =>
+                {
+                    SelectFrame(0);
+                });
+                EditorUtils.CreateButton(EditorParameters.k_PreviousFrameContent, EditorStyles.toolbarButton, () =>
+                {
+                    SelectFrame(this._CurrentFrame - 1);
+                });
                 EditorUtils.CreateToggle(ref _IsPlaying, EditorParameters.k_PlayFramesContent, EditorStyles.toolbarButton);
-                EditorUtils.CreateToggle(ref _IsClickNextFrame, EditorParameters.k_NextFrameContent, EditorStyles.toolbarButton);
-                EditorUtils.CreateToggle(ref _IsClickLastFrame, EditorParameters.k_LastFrameContent, EditorStyles.toolbarButton);
-                
+                EditorUtils.CreateButton(EditorParameters.k_NextFrameContent, EditorStyles.toolbarButton, () =>
+                {
+                    SelectFrame(this._CurrentFrame + 1);
+                });
+                EditorUtils.CreateButton(EditorParameters.k_LastFrameContent, EditorStyles.toolbarButton, () =>
+                {
+                    SelectFrame(this._MaxFrameLength);
+                });
+
                 // 当前帧数
                 EditorUtils.CreateText(_CurrentFrame.ToString(), EditorStyles.textField, GUILayout.Width(70));
                 
@@ -98,6 +129,8 @@ namespace Zack.Editor.Skill
         /// </summary>
         void drawHierarchy()
         {
+            int newSelectedItemIndex = -1;    // 新选中的Item索引
+            
             using (new GUILayoutHorizontal(EditorParameters.k_WindowBackground))
             {
                 // hierarchy面板
@@ -105,26 +138,50 @@ namespace Zack.Editor.Skill
                 {
                     using (new GUILayoutScrollView(_ScrollPosition))
                     {
-                        for (int i = 0; i < 100; ++i)
+                        Group group;
+                        for (int i=0; i<this._Groups.Count; ++i)
                         {
-                            using (new GUILayoutHorizontal(GUILayout.Height(k_ElementHeight)))
+                            group = this._Groups[i];
+                            group.OnGroupGUI();
+                            newSelectedItemIndex = group.OnGroupHierarchyGUI(this._SelectedGroupIndex==i, this._SelectedItemIndex);
+                            if (newSelectedItemIndex >= 0)
                             {
-                                GUILayout.Label($"{i}");
-                                // 不知道为啥两个ScrollView滚动进度没办法对齐，所以创建一个box用来将每个元素大小调整一致
-                                GUILayout.Box(GUIContent.none, EditorParameters.k_TimelineBlockLeft, GUILayout.Width(0f), GUILayout.Height(k_ElementHeight));
+                                this._SelectedGroupIndex = i;
+                                this._SelectedItemIndex = newSelectedItemIndex;
                             }
                         }
 
+                        if (this._ScrollPosition.y > 0 && Event.current.type != EventType.Repaint)
+                        {
+                            GUILayout.Space(EditorParameters.k_ToolbarHeight);
+                        }
                     }
                 }
 
                 // timeline数据
                 using (new GUILayoutVertical(GUILayout.Width(k_TimelinePanelWidth)))
                 {
-                    drawTimelineArea();
-                    // 绘制timeline线
-                    drawTimeFrameGUI();
+                    using (new GUILayoutVertical())
+                    {
+                        using (new GUILayoutScrollView(ref _ScrollPosition))
+                        {
+                            Group group;
+                            for (int i=0; i<this._Groups.Count; ++i)
+                            {
+                                group = this._Groups[i];
+                                newSelectedItemIndex = group.OnGroupTimelineGUI(this._SelectedGroupIndex==i, this._SelectedItemIndex);
+                                if (newSelectedItemIndex >= 0)
+                                {
+                                    this._SelectedGroupIndex = i;
+                                    this._SelectedItemIndex = newSelectedItemIndex;
+                                }
+                            }
+                            
+                        }
+                    }
                 }
+                // 绘制timeline线
+                drawTimeFrameGUI();
                 
                 // inspector数据
                 using (new GUILayoutVertical(GUILayout.Width(k_InspectorPanelWidth)))
@@ -140,7 +197,7 @@ namespace Zack.Editor.Skill
 
         void drawTimeFrameGUI()
         {
-            float x = k_HierarchyPanelWidth + calculateFramePosition(this._CurrentFrame) - this._ScrollPosition.x;
+            float x = k_HierarchyPanelWidth + EditorUtils.CalculateFrameToPosition(this._CurrentFrame) - this._ScrollPosition.x;
 
             if (x<k_HierarchyPanelWidth || x>k_HierarchyPanelWidth + k_TimelinePanelWidth)
             {
@@ -160,71 +217,7 @@ namespace Zack.Editor.Skill
                 Handles.DrawLine(p1, p2);
             }
         }
-
-        /// <summary>
-        /// timeline内容
-        /// </summary>
-        /// <param name="rect"></param>
-        void drawTimelineArea()
-        {
-//            using (new GUILayoutVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)))
-            using (new GUILayoutVertical())
-            {
-                using (new GUILayoutScrollView(ref _ScrollPosition))
-                {
-                    for (int i = 0; i < 100; ++i)
-                    {
-//                        GUILayout.Space(k_ElementHeight);
-
-                        {
-                            bool isSelected = i == 1;
-                            GUIStyle backgroundStyle = isSelected
-                                ? EditorParameters.k_BackgroundSelected
-                                : EditorParameters.k_BackgroundEven;
-                            using (new GUILayoutHorizontal(GUILayout.Height(k_ElementHeight)))
-                            {
-                                // TODO: 绘制timeline数据元素
-                                _drawTestElement();
-                            }
-                        }
-
-                        
-                    }
-                }
-            }
-        }
-
-        void _drawTestElement(  )
-        {
-            int length = 500 - 10;
-            Rect rect = calculateTimeRect(10, 500);
-
-            float halfWidth = rect.width / 2;
-            GUILayout.Space(rect.x);
-            Rect lastRect = GUILayoutUtility.GetLastRect();
-
-            Color color = GUI.color;
-            GUI.color = length > 0 ? color : Color.red;
-            GUILayout.Box(GUIContent.none, EditorParameters.k_TimelineBlockLeft, GUILayout.Width(halfWidth), GUILayout.Height(k_ElementHeight));
-            GUILayout.Box(GUIContent.none, EditorParameters.k_TimelineBlockRight, GUILayout.Width(halfWidth), GUILayout.Height(k_ElementHeight));
-            GUI.color = color;
-            lastRect.x += lastRect.width;
-            lastRect.width = rect.width;
-            lastRect.height = rect.height;
-
-//            return lastRect;
-        }
-
-        Rect calculateTimeRect(int begin, int end)
-        {
-            float xMin = calculateFramePosition(begin);
-            float xMax = calculateFramePosition(end);
-            return new Rect(xMin, 0, xMax-xMin, k_ElementHeight);            
-        }
-        float calculateFramePosition(int frame)
-        {
-            return EditorParameters.k_RulerOffsetX + frame * EditorParameters.k_TickGap;
-        }
+        
 
         /// <summary>
         /// 绘制Timeline刻度尺
@@ -244,42 +237,74 @@ namespace Zack.Editor.Skill
                 float y1 = height * 0.5f;
                 float y2 = height * 0.9f;
                 float y3 = height;
-                Color color = Handles.color;
+                
                 Color c1 = Color.white;
                 Color c2 = new Color(c1.r, c1.g, c1.b, c1.a*0.5f);
                 Rect labelRect = new Rect(Vector2.zero, Vector2.one);
                 GUIContent content = new GUIContent();
                 float xOffset = rect.xMin - _ScrollPosition.x;
-                for (int i = 0; i <= count; ++i)
+                using (new GUIHandlesColor(c1))
                 {
-                    float x = xOffset + EditorParameters.k_RulerOffsetX + i * EditorParameters.k_TickGap;
-                    if (x < rect.xMin + EditorParameters.k_RulerOffsetX)
-                        continue;
+                    for (int i = 0; i <= count; ++i)
+                    {
+                        float x = xOffset + EditorParameters.k_RulerOffsetX + i * EditorParameters.k_TickGap;
+                        if (x < rect.xMin + EditorParameters.k_RulerOffsetX)
+                            continue;
 
-                    Vector2 p1;
-                    if (i % EditorParameters.k_TickUnit == 0)
-                    {
-                        // 大刻度
-                        p1 = new Vector2(x, y1);
-                        Handles.color = c1;
-                        // 刻度值
-                        content.text = string.Format("{0}", i);
-                        labelRect.position = new Vector2(p1.x + 2, 0);
-                        labelRect.size = EditorParameters.k_TimelineRuler.CalcSize(content);
-                        GUI.Label(labelRect, content, EditorParameters.k_TimelineRuler);
+                        Vector2 p1;
+                        if (i % EditorParameters.k_TickUnit == 0)
+                        {
+                            // 大刻度
+                            p1 = new Vector2(x, y1);
+//                            Handles.color = c1;
+                            // 刻度值
+                            content.text = string.Format("{0}", i);
+                            labelRect.position = new Vector2(p1.x + 2, 0);
+                            labelRect.size = EditorParameters.k_TimelineRuler.CalcSize(content);
+                            GUI.Label(labelRect, content, EditorParameters.k_TimelineRuler);
+                        }
+                        else
+                        {
+                            // 小刻度
+                            p1 = new Vector2(x, y2);
+//                            Handles.color = c2;
+                        }
+                        var p2 = new Vector2(x, y3);
+                        // 绘制刻度
+                        Handles.DrawLine(p1, p2);
                     }
-                    else
-                    {
-                        // 小刻度
-                        p1 = new Vector2(x, y2);
-                        Handles.color = c2;
-                    }
-                    var p2 = new Vector2(x, y3);
-                    // 绘制刻度
-                    Handles.DrawLine(p1, p2);
                 }
-                Handles.color = color;
             }
+            
+            Event e = Event.current;
+            if (e.button == 0 && e.type == EventType.MouseUp && rect.Contains(e.mousePosition))
+            {
+                GUI.FocusControl(null);
+                e.Use();
+
+                int frame = EditorUtils.CalculatePositionToFrame(e.mousePosition.x);
+                SelectFrame(frame);
+            }
+
+            
+        }
+
+        void SelectFrame(int frame)
+        {
+            if (frame < 0)
+            {
+                frame = 0;
+            }
+
+            if (frame > this._MaxFrameLength)
+            {
+                frame = this._MaxFrameLength;
+            }
+            
+            Debug.Log("========frame=======" + frame);
+            this._IsPlaying = false;
+            this._CurrentFrame = frame;
+            
             
         }
     

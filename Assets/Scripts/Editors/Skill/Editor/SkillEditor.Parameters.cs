@@ -17,19 +17,20 @@ namespace Zack.Editor.Skill
         // Timeline数据元素高度
         private const int k_ElementHeight = 20;
         
-        // 是否点击第一帧
-        private bool _IsClickFirstFrame = false;
-        // 是否点击上一帧
-        private bool _IsClickPreviousFrame = false;
         // 当前是否正在播放
         private bool _IsPlaying = false;
-        // 是否点击下一帧
-        private bool _IsClickNextFrame = false;
-        // 是否点击最后一帧
-        private bool _IsClickLastFrame = false;
         // 当前播放到第几帧
-        private int _CurrentFrame = 99;
+        private int _CurrentFrame = 0;
         
+        // 总时长
+        private int _MaxFrameLength = 200;
+        
+        // Group列表
+        List<Group> _Groups = new List<Group>();
+        // 选中Group的index
+        private int _SelectedGroupIndex = -1;
+        // 选中Item的index
+        private int _SelectedItemIndex = -1;
     }
 
 }

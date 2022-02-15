@@ -22,6 +22,14 @@ namespace Zack.Editor
             }
         }
 
+        public static void CreateButton(GUIContent content, GUIStyle style, System.Action callback, params GUILayoutOption[] options)
+        {
+            if (GUILayout.Button(content, style, options))
+            {
+                callback?.Invoke();
+            }
+        }
+
         public static void CreateLabel(string text, params GUILayoutOption[] options)
         {
             GUILayout.Label(text, EditorStyles.label, options);
@@ -98,6 +106,35 @@ namespace Zack.Editor
                 }, i);
             }
             menu.ShowAsContext();
+        }
+        
+        
+        /// <summary>
+        /// 计算timeline的矩形Rect
+        /// </summary>
+        /// <param name="begin"></param>
+        /// <param name="end"></param>
+        /// <param name="elementHeight"></param>
+        /// <returns></returns>
+        public static Rect CalculateTimeRect(int begin, int end, int elementHeight = 20)
+        {
+            float xMin = CalculateFrameToPosition(begin);
+            float xMax = CalculateFrameToPosition(end);
+            return new Rect(xMin, 0, xMax-xMin, elementHeight);        
+        }
+        /// <summary>
+        /// 计算timeline帧位置
+        /// </summary>
+        /// <param name="frame"></param>
+        /// <returns></returns>
+        public static float CalculateFrameToPosition(int frame)
+        {
+            return EditorParameters.k_RulerOffsetX + frame * EditorParameters.k_TickGap;
+        }
+
+        public static int CalculatePositionToFrame(float position)
+        {
+            return (int) ((position - EditorParameters.k_RulerOffsetX) / EditorParameters.k_TickGap);
         }
     }
     
@@ -189,8 +226,8 @@ namespace Zack.Editor
         }
         public GUILayoutScrollView(Vector2 scrollPosition)
         {
-            GUILayout.BeginScrollView(scrollPosition);
-//            GUILayout.BeginScrollView(scrollPosition, GUIStyle.none, GUIStyle.none);
+//            GUILayout.BeginScrollView(scrollPosition);
+            GUILayout.BeginScrollView(scrollPosition, GUIStyle.none, GUIStyle.none);
         }
         
         public void Dispose()
