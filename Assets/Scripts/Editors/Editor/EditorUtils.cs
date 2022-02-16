@@ -30,6 +30,11 @@ namespace Zack.Editor
             }
         }
 
+        public static void CreateTextField(string title, ref string text, params GUILayoutOption[] options)
+        {
+            text = EditorGUILayout.TextField(title, text, options);
+        }
+        
         public static void CreateIntField(string title, ref int value, params GUILayoutOption[] options)
         {
             value = EditorGUILayout.IntField(title, value, options);
@@ -63,6 +68,16 @@ namespace Zack.Editor
             GUI.enabled = false;
             EditorGUILayout.IntField(title, value, options);
             GUI.enabled = true;
+        }
+        
+        public static void CreateFloatField(string title, ref float value, params GUILayoutOption[] options)
+        {
+            value = EditorGUILayout.FloatField(title, value, options);
+        }
+
+        public static void CreateBoolField(string title, ref bool value, params GUILayoutOption[] options)
+        {
+            value = EditorGUILayout.Toggle(title, value, options);
         }
 
         public static void CreateLabel(string text, params GUILayoutOption[] options)
@@ -141,6 +156,16 @@ namespace Zack.Editor
                 }, i);
             }
             menu.ShowAsContext();
+        }
+
+        /// <summary>
+        /// 获取gameObject的GUID
+        /// </summary>
+        /// <param name="gameobject"></param>
+        /// <returns></returns>
+        public static string GetGameObjectGUID(GameObject gameobject)
+        {
+            return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(gameobject));
         }
         
         
@@ -309,6 +334,22 @@ namespace Zack.Editor
         public void Dispose()
         {
             Handles.color = srcColor;
+        }
+    }
+
+    public class GUIColor : IDisposable
+    {
+        private Color srcColor;
+
+        public GUIColor(Color color)
+        {
+            srcColor = GUI.color;
+            GUI.color = color;
+        }
+
+        public void Dispose()
+        {
+            GUI.color = srcColor;
         }
     }
 

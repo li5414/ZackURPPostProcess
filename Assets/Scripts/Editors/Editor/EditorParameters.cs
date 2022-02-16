@@ -37,6 +37,7 @@ namespace Zack.Editor
         
         // GUIStyle
         public static readonly GUIStyle k_Label = new GUIStyle("label");
+        public static readonly GUIStyle k_BoldLabel = new GUIStyle("BoldLabel");
         public static readonly GUIStyle k_TimelineRuler = new GUIStyle("MeTimeLabel");
         public static readonly GUIStyle k_FrameBackground = new GUIStyle("FrameBox");
         public static readonly GUIStyle k_WindowBackground = new GUIStyle("OL box NoExpand");
@@ -46,6 +47,10 @@ namespace Zack.Editor
         public static readonly GUIStyle k_TimelineBlockRight = new GUIStyle("MeTransOnRight");
         public static readonly GUIStyle k_TimelineFrameTag = new GUIStyle("Grad Down Swatch");
         public static readonly GUIStyle k_Foldout = new GUIStyle("foldout");
+        public static readonly GUIStyle k_DropDownButton = new GUIStyle("DropDown");
+        public static readonly GUIStyle k_PlusButton = new GUIStyle("OL Plus");
+        public static readonly GUIStyle k_MinusButton = new GUIStyle("OL Minus");
+        public static readonly GUIStyle k_ACButton = new GUIStyle("AC Button");
 
         static EditorParameters()
         {
@@ -67,8 +72,15 @@ namespace Zack.Editor
             k_TimelineBlockLeft.stretchHeight = true;
             // k_TimelineBlockRight
             k_TimelineBlockRight.fixedHeight = 0;
+            k_TimelineBlockRight.fixedWidth = 0;
             k_TimelineBlockRight.stretchHeight = true;
-            
+            k_TimelineBlockRight.stretchWidth = true;
+            // k_ACButton
+            k_ACButton.fixedHeight = 0;
+            k_ACButton.fixedWidth = 0;
+            k_ACButton.stretchWidth = true;
+            k_ACButton.stretchHeight = true;
+
             RectOffset offset = new RectOffset(0,0,0,0);
             // k_WindowBackground
             k_WindowBackground.margin = offset;

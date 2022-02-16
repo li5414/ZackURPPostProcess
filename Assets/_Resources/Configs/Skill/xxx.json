@@ -1,0 +1,31 @@
+{
+  "animations": [
+    {
+      "prefabPath": null,
+      "clipName": null,
+      "timelineData": {
+        "start": 99,
+        "length": 10,
+        "end": 109
+      }
+    },
+    {
+      "prefabPath": null,
+      "clipName": null,
+      "timelineData": {
+        "start": 85,
+        "length": 3,
+        "end": 88
+      }
+    },
+    {
+      "prefabPath": null,
+      "clipName": null,
+      "timelineData": {
+        "start": 24,
+        "length": 6,
+        "end": 30
+      }
+    }
+  ]
+}
