@@ -19,7 +19,6 @@ namespace Skill.Editor
                 return;
             }
             
-//            EditorWindow.GetWindow<SkillEditor>().Start();
             EditorWindow.GetWindow<SkillEditor>().Show();
         }
 
@@ -54,12 +53,21 @@ namespace Skill.Editor
 
         void Update()
         {
-//            Debug.Log("========" + Time.deltaTime);
+            if (_IsPlaying)
+            {
+                ++this._CurrentFrame;
+                if (this._CurrentFrame > this._SkillConfig.totalFrames)
+                {
+                    this._CurrentFrame = this._SkillConfig.totalFrames;
+                    this._IsPlaying = false;
+                }
+                
+                this.Repaint();
+            }
+            
+            updateAnimation();
         }
 
-        private string[] menus = {"1", "2", "zack", "tom", "haha", "czxv"};
-        private int aaa = 0;
-        private string tmpPath = string.Empty;
         void drawTopToolbar()
         {
             using (new GUILayoutHorizontal(EditorStyles.toolbar))
@@ -354,7 +362,6 @@ namespace Skill.Editor
                 int frame = EditorUtils.CalculatePositionToFrame(e.mousePosition.x+this._HierarchyScrollPosition.x);
                 selectFrame(frame);
             }
-
             
         }
 

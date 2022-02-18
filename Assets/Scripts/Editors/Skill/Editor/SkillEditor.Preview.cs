@@ -42,19 +42,87 @@ namespace Skill.Editor
             }
         }
 
+        // 烘焙要播放的动画
+        void bakeAnimation(string stateName)
+        {
+            if (this._Animator != null)
+            {
+                AnimationClip clip = getAnimationClip(stateName);
 
-        // 创建新场景
+                if (clip)
+                {
+                    this._Animator.Rebind();
+                    this._Animator.StopPlayback();
+                    this._Animator.recorderStartTime =  0;
+
+                    // 开始记录指定的帧数
+                    int frameCount = getAnimationStateFrames(clip);
+                    this._Animator.StartRecording(frameCount);
+                    this._Animator.Play(stateName);
+                
+                    for (var i =  0; i < frameCount -  1; i++)
+                    {
+                        // 记录每一帧
+                        this._Animator.Update( 1.0f / clip.frameRate);
+                    }
+                    // 完成记录
+                    this._Animator.StopRecording();
+                    Debug.Log($"Animator bake compelete: {stateName}!");
+                
+                    this._Animator.StartPlayback();
+                }
+            }
+        }
+
+        // 刷新动画显示
+        void updateAnimation()
+        {
+            if (this._Animator!=null && this._SkillConfig!=null)
+            {
+                string stateName = this._SkillConfig.animatorState.ToString();
+                AnimationClip clip = getAnimationClip(stateName);
+                float escapTime = this._CurrentFrame / clip.frameRate;
+                
+                this._Animator.playbackTime = escapTime;
+                this._Animator.Update(0);
+            }
+        }
+
+
+        /// <summary>
+        /// 创建新场景
+        /// </summary>
         void createNewScene()
         {
             EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
         }
         
+        
         // 获取动画状态时长
         int getAnimationStateFrames(string stateName)
         {
+            AnimationClip clip = getAnimationClip(stateName);
+            if (clip)
+            {
+                return Mathf.CeilToInt(clip.length * clip.frameRate);
+            }
+            return 0;
+        }
+
+        int getAnimationStateFrames(AnimationClip clip)
+        {
+            if (clip)
+            {
+                return Mathf.CeilToInt(clip.length * clip.frameRate);
+            }
+            return 0;
+        }
+        
+        // 获取动画状态机上的AnimationClip
+        AnimationClip getAnimationClip(string stateName)
+        {
             if (this._MainCharacter && this._Animator)
             {
-                Debug.Log("=====getAnimationStateFrames=11===");
                 AnimatorController controller = this._Animator.runtimeAnimatorController as AnimatorController;
 
                 for (int layerIdx = 0; layerIdx < controller.layers.Length; ++layerIdx)
@@ -64,16 +132,14 @@ namespace Skill.Editor
                     {
                         if (states[i].state.name == stateName)
                         {
-                            Debug.Log(states[i].state.name);
-                            return Mathf.CeilToInt(states[i].state.motion.averageDuration * 30);
+                            AnimationClip clip = states[i].state.motion as AnimationClip;    // 将motion转为AnimationClip
+                            return clip;
                         }
                     }
                 }
-                    
             }
-            Debug.Log("=====getAnimationStateFrames=22===");
 
-            return 0;
+            return null;
         }
         
     }

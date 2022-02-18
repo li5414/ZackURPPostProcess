@@ -110,6 +110,9 @@ namespace Skill.Editor
             group.actions.Add(action);
             // 更新Config
             this._SkillConfig.totalFrames = frames;
+
+            // 播放动画
+            bakeAnimation(stateName);
         }
 
         /// <summary>
