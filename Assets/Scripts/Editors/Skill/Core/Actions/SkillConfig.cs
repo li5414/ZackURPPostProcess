@@ -12,11 +12,10 @@ namespace  Skill
         // 总时长
         [JsonProperty] 
         public int totalFrames;
-        // 人物对象guid
+        // 动画状态
         [JsonProperty]
-        public string rootObjectGuid;
-        // 动画action列表
-        [JsonProperty]
+        public SkillAnimatorState animatorState;
+        // 动画action列表 (仅用作editor显示用)
         public List<SkillAnimationAction> animations;
         // 特效action列表
         [JsonProperty]

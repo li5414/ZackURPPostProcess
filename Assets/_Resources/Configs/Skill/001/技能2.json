@@ -1,0 +1,24 @@
+{
+  "totalFrames": 18,
+  "animatorState": 1,
+  "effects": [
+    {
+      "prefabPath": null,
+      "guid": "cdefa107898396a4594681865593281d",
+      "timelineData": {
+        "start": 6,
+        "length": 9
+      }
+    }
+  ],
+  "events": [
+    {
+      "eventName": null,
+      "eventParams": null,
+      "timelineData": {
+        "start": 17,
+        "length": 0
+      }
+    }
+  ]
+}

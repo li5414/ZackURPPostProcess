@@ -19,19 +19,20 @@ namespace Skill.Editor
                 return;
             }
             
-            EditorWindow.GetWindow<SkillEditor>().Start();
+//            EditorWindow.GetWindow<SkillEditor>().Start();
             EditorWindow.GetWindow<SkillEditor>().Show();
         }
 
-        void Start()
+        void Awake()
         {
             EditorParameters.k_Foldout.fixedHeight = k_ElementHeight;
             this.minSize = new Vector2(k_HierarchyPanelWidth + k_InspectorPanelWidth + 500, 500);
 
-            ReadConfig(Path.Combine(Parameters.k_SkillConfigFilePath, "xxx11.json"));    // TODO
+            // 遍历角色
+            this._CharacterIDs = browserCharacters();
             
+            // 创建新场景
             createNewScene();
-            loadMainCharacter();
         }
 
 
@@ -41,10 +42,14 @@ namespace Skill.Editor
 
             // 工具栏
             drawTopToolbar();
-            // timeline工具栏
-            drawHierarchyToolbar();
-            // timeline数据
-            drawHierarchy();
+            if (this._SkillConfig != null)
+            {
+                // timeline工具栏
+                drawHierarchyToolbar();
+                // timeline数据
+                drawHierarchy();      
+            }
+
         }
 
         void Update()
@@ -61,25 +66,47 @@ namespace Skill.Editor
             {
                 using (new GUIChangeCheck(() => { Debug.Log("==change=="); }))
                 {
-                    EditorUtils.CreateLabel("路径:", GUILayout.Width(40));
-                    EditorUtils.CreateText(ref tmpPath, EditorStyles.textField, true);
-                
-                    EditorUtils.CreateButton("打开", EditorStyles.toolbarButton, () =>
+                    // 选择状态
+                    EditorUtils.CreateText("角色:", EditorParameters.k_Label, GUILayout.Width(40));
+                    EditorUtils.CreateButton(this._SelectedCharacterID, EditorParameters.k_DropDownButton, () =>
                     {
-//                        Debug.Log("=====打开====="+tmpPath);
-                        SaveConfig(Path.Combine(Parameters.k_SkillConfigFilePath, "xxx11.json"));
-                    }, GUILayout.Width(100));
-                
+                        EditorUtils.CreateMenu(this._CharacterIDs, -1, (sindex) =>
+                        {
+                            this._SelectedCharacterID = this._CharacterIDs[sindex];
+                            
+                            // 加载角色
+                            loadMainCharacter(Path.Combine(Parameters.k_CharacterPrefabAssetPath, $"{this._SelectedCharacterID}/{this._SelectedCharacterID}.prefab"));
+                            // 更新技能列表
+                            this._SkillIDs = browserSkills();
+                        });
+                    }, GUILayout.Width(83));
+                    
+                    EditorUtils.CreateText("技能:", EditorParameters.k_Label, GUILayout.Width(40));
+                    EditorUtils.CreateButton(this._SelectedSkillID, EditorParameters.k_DropDownButton, () =>
+                    {
+                        EditorUtils.CreateMenu(this._SkillIDs, -1, (sindex) =>
+                        {
+                            this._SelectedSkillID = this._SkillIDs[sindex];
+                            // 读取技能
+                            ReadConfig(Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}"));    // TODO
+                        });
+                    }, GUILayout.Width(83));
                 
                     EditorUtils.CreateButton("添加", EditorStyles.toolbarDropDown, () =>
                     {
-                        Debug.Log("=====菜单=====");
-                        
                         EditorUtils.CreateMenu(k_SkillActionTypes, -1, (index) =>
                         {
                             AddSkillAction((SkillActionType)index);
                         });
                     }, GUILayout.Width(150));
+                    
+                    EditorUtils.CreateButton("保存", EditorStyles.toolbarButton, () =>
+                    {
+                        if (this._SkillConfig != null)
+                        {
+                            SaveConfig(Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}"));
+                        }
+                    }, GUILayout.Width(100));
                 }
                 
 
@@ -88,15 +115,23 @@ namespace Skill.Editor
 
         void drawHierarchyToolbar()
         {
-            using (new GUILayoutHorizontal(EditorStyles.toolbar))
+            using (new GUILayoutHorizontal(EditorStyles.toolbar, GUILayout.Height(EditorParameters.k_ToolbarHeight)))
             {
                 using (new GUIChangeCheck(() =>
                 {
-                    this._SkillConfig.rootObjectGuid = EditorUtils.GetGameObjectGUID(this._MainCharacterResource);
-                    loadMainCharacter();
+                    UpdateAnimationActions();
                 }))
                 {
-                    this._MainCharacterResource = (GameObject)EditorGUILayout.ObjectField("演示预制体:", this._MainCharacterResource, typeof(GameObject), false);
+                    // 选择状态
+                    EditorUtils.CreateText("选择动画:", EditorParameters.k_Label, GUILayout.Width(50));
+                    EditorUtils.CreateButton(k_SkillAnimationStates[(int)this._SkillConfig.animatorState], EditorParameters.k_DropDownButton, () =>
+                    {
+                        EditorUtils.CreateMenu(k_SkillAnimationStates, -1, (sindex) =>
+                        {
+                            this._SkillConfig.animatorState = (SkillAnimatorState) sindex;
+                            UpdateAnimationActions();
+                        });
+                    }, GUILayout.Width(83));
                 }
             }
             
@@ -137,7 +172,7 @@ namespace Skill.Editor
                 // 总时长
                 using (new GUILayoutArea(new Rect(k_HierarchyPanelWidth+k_TimelinePanelWidth+10, EditorParameters.k_ToolbarHeight*2+5, k_InspectorPanelWidth, EditorParameters.k_ToolbarHeight)))
                 {
-                    EditorUtils.CreateIntField("总时长", ref this._SkillConfig.totalFrames, 0, int.MaxValue);  
+                    EditorUtils.CreateIntField("总时长", this._SkillConfig.totalFrames);  
                 }
                 
                 

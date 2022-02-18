@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEditor.SceneManagement;
 
@@ -11,10 +13,12 @@ namespace Skill.Editor
         /// <summary>
         /// 加载主角模型
         /// </summary>
-        void loadMainCharacter()
+        void loadMainCharacter(string path)
         {
+            string guid = AssetDatabase.AssetPathToGUID(path);
+            
             // 删除旧的
-            if (this._MainCharacter && this._SkillConfig.rootObjectGuid!=this._MainCharacterResourceGuid)
+            if (this._MainCharacter && guid!=this._MainCharacterResourceGuid)
             {
                 GameObject.DestroyImmediate(this._MainCharacter);
                 this._MainCharacterResourceGuid = string.Empty;
@@ -24,11 +28,11 @@ namespace Skill.Editor
             }
 
             // 替换新的
-            if (this._SkillConfig.rootObjectGuid != null)
+            if (guid!=null && guid!=String.Empty)
             {
                 Debug.Log("==创建模型==");
-                this._MainCharacterResourceGuid = this._SkillConfig.rootObjectGuid;
-                this._MainCharacterResource = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(this._SkillConfig.rootObjectGuid));
+                this._MainCharacterResourceGuid = guid;
+                this._MainCharacterResource = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
                 if (this._MainCharacterResource)
                 {
                     this._MainCharacter = GameObject.Instantiate(this._MainCharacterResource, Vector3.zero, Quaternion.identity);
@@ -44,6 +48,34 @@ namespace Skill.Editor
         {
             EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
         }
+        
+        // 获取动画状态时长
+        int getAnimationStateFrames(string stateName)
+        {
+            if (this._MainCharacter && this._Animator)
+            {
+                Debug.Log("=====getAnimationStateFrames=11===");
+                AnimatorController controller = this._Animator.runtimeAnimatorController as AnimatorController;
+
+                for (int layerIdx = 0; layerIdx < controller.layers.Length; ++layerIdx)
+                {
+                    ChildAnimatorState[] states = controller.layers[layerIdx].stateMachine.states;
+                    for (int i = 0; i < states.Length; ++i)
+                    {
+                        if (states[i].state.name == stateName)
+                        {
+                            Debug.Log(states[i].state.name);
+                            return Mathf.CeilToInt(states[i].state.motion.averageDuration * 30);
+                        }
+                    }
+                }
+                    
+            }
+            Debug.Log("=====getAnimationStateFrames=22===");
+
+            return 0;
+        }
+        
     }
 
 }

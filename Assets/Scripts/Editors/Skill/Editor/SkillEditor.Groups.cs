@@ -19,6 +19,8 @@ namespace Skill.Editor
             ShowStartEnd,
             // "[start]"
             OnlyStart,
+            // 自定义 (显示_HierarchyText内容)
+            Custom,
          }
          
          // 组标题
@@ -29,6 +31,9 @@ namespace Skill.Editor
          public List<SkillAction> actions = new ListStack<SkillAction>();
          // Hierarchy显示样式
          protected GroupHierarchyStyle _HierarchyStyle = GroupHierarchyStyle.ShowStartEnd;
+         protected string _HierarchyText = string.Empty;
+         // 是否可编辑timeline
+         protected bool _CanEditTimeline = true;
 
          /// <summary>
          /// 组UI
@@ -73,6 +78,9 @@ namespace Skill.Editor
                   case GroupHierarchyStyle.OnlyStart:
                      GUILayout.Label($"[{action.timelineData.start}]", EditorParameters.k_Label);   // 注意GUIStyle会影响高度
                      break;
+                  case GroupHierarchyStyle.Custom:
+                     GUILayout.Label(this._HierarchyText, EditorParameters.k_Label);   // 注意GUIStyle会影响高度
+                     break;
                   }
                   GUILayout.FlexibleSpace();
                }
@@ -95,13 +103,13 @@ namespace Skill.Editor
          /// <returns>返回数值大于-1，表示当前选中了该group中的index</returns>
          public virtual int OnGroupTimelineGUI(bool isGroupSelected, int selectedItemIndex)
          {
+            GUILayout.Space(k_ElementHeight);
             if (!this._Foldout)
             {
                return -1;
             }
 
             int newSelectedItemIndex = -1;   // 新选中的Item索引
-            GUILayout.Space(k_ElementHeight);
             SkillAction action;
             for (int i = 0; i < this.actions.Count; ++i)
             {
@@ -138,9 +146,19 @@ namespace Skill.Editor
                
                using (new GUILayoutVertical(EditorParameters.k_WindowBackground))
                {
-                  EditorUtils.CreateIntField("起始", ref timelineData.start, 0, maxFrameLength);
-                  EditorUtils.CreateIntField("结束", timelineData.end);
-                  EditorUtils.CreateIntField("时长", ref timelineData.length, 0, maxFrameLength-timelineData.start);
+                  if (this._CanEditTimeline)
+                  {
+                     EditorUtils.CreateIntField("起始", ref timelineData.start, 0, maxFrameLength);
+                     EditorUtils.CreateIntField("结束", timelineData.end);
+                     EditorUtils.CreateIntField("时长", ref timelineData.length, 0, maxFrameLength-timelineData.start);
+                  }
+                  else
+                  {
+                     EditorUtils.CreateIntField("起始", timelineData.start);
+                     EditorUtils.CreateIntField("结束", timelineData.end);
+                     EditorUtils.CreateIntField("时长", timelineData.length);
+                  }
+
                }
             }
          }
@@ -190,6 +208,7 @@ namespace Skill.Editor
          public SkillAnimationGroup()
          {
             this._Title = "动画";
+            this._CanEditTimeline = false;
          }
 
          public override int OnGroupHierarchyGUI(bool isGroupSelected, int selectedItemIndex)
@@ -210,81 +229,6 @@ namespace Skill.Editor
             {
                SkillAnimationAction action = this.actions[selectedItemIndex] as SkillAnimationAction;
                
-               EditorUtils.CreateText("参数列表:", EditorParameters.k_BoldLabel);
-               // 参数列表
-               for (int i = 0; i < action.parameters.Count; ++i)
-               {
-                  // 绘制Animator参数
-                  drawAnimatorParameter(action.parameters, i);
-               }
-               EditorUtils.CreateButton("添加", EditorParameters.k_ACButton, () =>
-               {
-                  action.parameters.Add(new AnimatorParameter());
-               }, GUILayout.Height(k_ElementHeight));
-            }
-         }
-
-         /// <summary>
-         /// 绘制Animator参数
-         /// </summary>
-         /// <param name="parameter"></param>
-         /// <param name="allParameters"></param>
-         void drawAnimatorParameter(List<AnimatorParameter> allParameters, int index)
-         {
-            AnimatorParameter parameter = allParameters[index];
-               
-            using (new GUILayoutVertical(EditorParameters.k_WindowBackground))
-            {
-               using (new GUILayoutHorizontal(GUILayout.Height(k_ElementHeight)))
-               {
-                  EditorUtils.CreateLabel($"参数{index}");
-                  GUILayout.FlexibleSpace();
-                  EditorUtils.CreateButton("移除", EditorParameters.k_ACButton, () =>
-                  {
-                     allParameters.Remove(parameter);
-                  }, GUILayout.Width(50));
-               }
-               using (new GUILayoutHorizontal())
-               {
-                  EditorUtils.CreateLabel("变量类型");
-                  GUILayout.FlexibleSpace();
-
-                  EditorUtils.CreateButton(parameter.type.ToString(), EditorParameters.k_DropDownButton, () =>
-                  {
-                     EditorUtils.CreateMenu(SkillEditor.k_AnimatorParameterTypes, -1, (sindex) =>
-                     {
-                        parameter.type = (AnimatorParameterType) sindex;
-                     });
-                  }, GUILayout.Width(83));
-               }
-               EditorUtils.CreateTextField("变量名:", ref parameter.name);
-               
-               switch (parameter.type)
-               {
-                  case AnimatorParameterType.Trigger:
-                     {
-                     }
-                     break;
-            
-                  case AnimatorParameterType.Bool:
-                     {
-                        EditorUtils.CreateBoolField("变量值:", ref parameter.bvalue);
-                     }
-                     break;
-            
-                  case AnimatorParameterType.Int:
-                     {
-                        EditorUtils.CreateIntField("变量值:", ref parameter.ivalue);
-                     }
-                     break;
-            
-                  case AnimatorParameterType.Float:
-                     {
-                        EditorUtils.CreateFloatField("变量值:", ref parameter.fvalue);
-                     }
-                     break;
-               }
-
             }
          }
          

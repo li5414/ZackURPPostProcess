@@ -1,0 +1,48 @@
+{
+  "totalFrames": 21,
+  "animatorState": 2,
+  "effects": [
+    {
+      "prefabPath": null,
+      "guid": "cdefa107898396a4594681865593281d",
+      "timelineData": {
+        "start": 3,
+        "length": 3
+      }
+    }
+  ],
+  "events": [
+    {
+      "eventName": null,
+      "eventParams": null,
+      "timelineData": {
+        "start": 21,
+        "length": 0
+      }
+    },
+    {
+      "eventName": null,
+      "eventParams": null,
+      "timelineData": {
+        "start": 0,
+        "length": 0
+      }
+    },
+    {
+      "eventName": null,
+      "eventParams": null,
+      "timelineData": {
+        "start": 0,
+        "length": 0
+      }
+    },
+    {
+      "eventName": null,
+      "eventParams": null,
+      "timelineData": {
+        "start": 0,
+        "length": 0
+      }
+    }
+  ]
+}

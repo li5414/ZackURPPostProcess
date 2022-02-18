@@ -80,6 +80,9 @@ namespace Zack.Editor
             k_ACButton.fixedWidth = 0;
             k_ACButton.stretchWidth = true;
             k_ACButton.stretchHeight = true;
+            // k_DropDownButton
+            k_DropDownButton.margin.top = 0;
+            k_DropDownButton.stretchHeight = true;
 
             RectOffset offset = new RectOffset(0,0,0,0);
             // k_WindowBackground
