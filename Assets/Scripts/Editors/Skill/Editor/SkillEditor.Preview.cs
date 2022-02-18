@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Rouge.Animation;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -52,6 +53,7 @@ namespace Skill.Editor
                 if (clip)
                 {
                     this._Animator.Rebind();
+
                     this._Animator.StopPlayback();
                     this._Animator.recorderStartTime =  0;
 
@@ -59,17 +61,26 @@ namespace Skill.Editor
                     int frameCount = getAnimationStateFrames(clip);
                     this._Animator.StartRecording(frameCount);
                     this._Animator.Play(stateName);
-                
-                    for (var i =  0; i < frameCount -  1; i++)
+
+                    float escapeTime = 0;
+                    for (var i =  0; i < frameCount; i++)
                     {
                         // 记录每一帧
                         this._Animator.Update( 1.0f / clip.frameRate);
+                        escapeTime += 1.0f / clip.frameRate;
                     }
                     // 完成记录
                     this._Animator.StopRecording();
-                    Debug.Log($"Animator bake compelete: {stateName}!");
-                
+                    Debug.Log($"动画烘焙完成: {clip.name} 共{frameCount/clip.frameRate}帧 {escapeTime}s!");
+
+                    
+                    
                     this._Animator.StartPlayback();
+                    
+//                    // 清除所有动画事件
+//                    clearAnimationEvent(stateName);
+//                    // 添加所有动画事件
+//                    addAnimationEvent(stateName);
                 }
             }
         }
@@ -85,6 +96,44 @@ namespace Skill.Editor
                 
                 this._Animator.playbackTime = escapTime;
                 this._Animator.Update(0);
+//
+//                this._Animator.Play(stateName);
+//                this._Animator.Update(escapTime);
+            }
+        }
+        
+        // 插入动画事件
+        void addAnimationEvent(string stateName)
+        {
+            if (this._Animator)
+            {
+                AnimationController controller = this._Animator.GetComponent<AnimationController>();
+                AnimationClip clip = getAnimationClip(stateName);
+
+                SkillEventGroup group = this._Groups[(int) SkillActionType.Event] as SkillEventGroup;
+                for (int i = 0; i < group.actions.Count; ++i)
+                {
+                    SkillEventAction action = group.actions[i] as SkillEventAction;
+                    controller._eventHandler.AddEvent(clip, action.timelineData.start/clip.frameRate, ()=>{
+                        Debug.Log("============SkillEventAction callback==============="+i);
+                    });
+                    Debug.Log($"添加动画事件{i}: {action.timelineData.start/clip.frameRate}s");
+                }
+                Debug.Log($"成功向动画{clip.name}中添加{group.actions.Count}个事件");
+            }
+        }
+        
+        // 清除动画事件
+        void clearAnimationEvent(string stateName)
+        {
+            if (this._Animator)
+            {
+                AnimationController controller = this._Animator.GetComponent<AnimationController>();
+                AnimationClip clip = getAnimationClip(stateName);
+                if (clip)
+                {
+                    AnimationEventManager.getInstance().ClearAnimationEvents(clip);
+                }
             }
         }
 
@@ -104,6 +153,7 @@ namespace Skill.Editor
             AnimationClip clip = getAnimationClip(stateName);
             if (clip)
             {
+                Debug.Log("=====getAnimationStateFrames==1=="+clip.length);
                 return Mathf.CeilToInt(clip.length * clip.frameRate);
             }
             return 0;
@@ -113,6 +163,7 @@ namespace Skill.Editor
         {
             if (clip)
             {
+                Debug.Log("=====getAnimationStateFrames==2=="+clip.length);
                 return Mathf.CeilToInt(clip.length * clip.frameRate);
             }
             return 0;

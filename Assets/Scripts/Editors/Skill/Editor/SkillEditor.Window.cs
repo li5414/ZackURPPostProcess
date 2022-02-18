@@ -18,7 +18,8 @@ namespace Skill.Editor
                 EditorUtility.DisplayDialog("Error", "Compile Error", "Ok");
                 return;
             }
-            
+
+            EditorWindow.GetWindow<SkillEditor>().Close();
             EditorWindow.GetWindow<SkillEditor>().Show();
         }
 
@@ -32,6 +33,8 @@ namespace Skill.Editor
             
             // 创建新场景
             createNewScene();
+
+//            EditorApplication.isPlaying = true;
         }
 
 
@@ -56,9 +59,9 @@ namespace Skill.Editor
             if (_IsPlaying)
             {
                 ++this._CurrentFrame;
-                if (this._CurrentFrame > this._SkillConfig.totalFrames)
+                if (this._CurrentFrame >= this._SkillConfig.totalFrames)
                 {
-                    this._CurrentFrame = this._SkillConfig.totalFrames;
+                    this._CurrentFrame = this._SkillConfig.totalFrames - 1;
                     this._IsPlaying = false;
                 }
                 
@@ -372,9 +375,9 @@ namespace Skill.Editor
                 frame = 0;
             }
 
-            if (frame > this._SkillConfig.totalFrames)
+            if (frame >= this._SkillConfig.totalFrames)
             {
-                frame = this._SkillConfig.totalFrames;
+                frame = this._SkillConfig.totalFrames - 1;
             }
             
             Debug.Log("========frame=======" + frame);

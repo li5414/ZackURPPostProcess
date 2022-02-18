@@ -67,8 +67,6 @@ namespace Skill.Editor
             {
                 var group = new SkillAnimationGroup();
                 this._Groups.Add(group);
-                
-                UpdateAnimationActions();
             }
             // 解析SkillEffectAction
             {
@@ -94,6 +92,10 @@ namespace Skill.Editor
                 }
                 this._Groups.Add(group);
             }
+            
+            UpdateAnimationActions();
+            
+            Debug.Log($"读取配置完成: {filepath}");
         }
 
         // 更新动画帧数
@@ -151,6 +153,7 @@ namespace Skill.Editor
             
             JsonUtils.SerializeObjectToFile(this._SkillConfig, filepath);
             
+            Debug.Log($"保存配置完成: {filepath}");
             AssetDatabase.Refresh();
         }
 
