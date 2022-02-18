@@ -44,6 +44,7 @@ namespace Rouge.Animation
                 //加入到clip中。有效期：播放结束
                 clip.AddEvent(evt);
                 
+                Debug.Log($"==============AddAnimationEvent====={clip.name}==={time}=====");
                 events.Add(time, evt);
             }
            
@@ -51,7 +52,9 @@ namespace Rouge.Animation
 
         public void ClearAnimationEvents(AnimationClip clip)
         {
-            clip.events = new AnimationEvent[0];    
+            Debug.Log($"==============ClearAnimationEvents================");
+            clip.events = new AnimationEvent[0];   
+//            UnityEditor.AnimationUtility.SetAnimationEvents(clip, new AnimationEvent[0]);
         }
         
     }

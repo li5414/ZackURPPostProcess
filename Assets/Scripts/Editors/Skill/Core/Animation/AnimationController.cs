@@ -173,7 +173,8 @@ namespace Rouge.Animation
         void Update()
         {
             // 清除没用的事件
-            this._eventHandler.ClearUnusedEvents();
+//            this._eventHandler.ClearUnusedEvents();
+
         }
 
         /// <summary>

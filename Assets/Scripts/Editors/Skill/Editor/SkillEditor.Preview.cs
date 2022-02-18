@@ -52,35 +52,35 @@ namespace Skill.Editor
 
                 if (clip)
                 {
-                    this._Animator.Rebind();
-
-                    this._Animator.StopPlayback();
-                    this._Animator.recorderStartTime =  0;
-
-                    // 开始记录指定的帧数
-                    int frameCount = getAnimationStateFrames(clip);
-                    this._Animator.StartRecording(frameCount);
-                    this._Animator.Play(stateName);
-
-                    float escapeTime = 0;
-                    for (var i =  0; i < frameCount; i++)
-                    {
-                        // 记录每一帧
-                        this._Animator.Update( 1.0f / clip.frameRate);
-                        escapeTime += 1.0f / clip.frameRate;
-                    }
-                    // 完成记录
-                    this._Animator.StopRecording();
-                    Debug.Log($"动画烘焙完成: {clip.name} 共{frameCount/clip.frameRate}帧 {escapeTime}s!");
-
+//                    this._Animator.Rebind();
+//
+//                    this._Animator.StopPlayback();
+//                    this._Animator.recorderStartTime =  0;
+//
+//                    // 开始记录指定的帧数
+//                    int frameCount = getAnimationStateFrames(clip);
+//                    this._Animator.StartRecording(frameCount);
+//                    this._Animator.Play(stateName);
+//
+//                    float escapeTime = 0;
+//                    for (var i =  0; i < frameCount; i++)
+//                    {
+//                        // 记录每一帧
+//                        this._Animator.Update( 1.0f / clip.frameRate);
+//                        escapeTime += 1.0f / clip.frameRate;
+//                    }
+//                    // 完成记录
+//                    this._Animator.StopRecording();
+//                    Debug.Log($"动画烘焙完成: {clip.name} 共{frameCount/clip.frameRate}帧 {escapeTime}s!");
+//
+//                    
+//                    
+//                    this._Animator.StartPlayback();
                     
-                    
-                    this._Animator.StartPlayback();
-                    
-//                    // 清除所有动画事件
-//                    clearAnimationEvent(stateName);
-//                    // 添加所有动画事件
-//                    addAnimationEvent(stateName);
+                    // 清除所有动画事件
+                    clearAnimationEvent(stateName);
+                    // 添加所有动画事件
+                    addAnimationEvent(stateName);
                 }
             }
         }
@@ -92,13 +92,14 @@ namespace Skill.Editor
             {
                 string stateName = this._SkillConfig.animatorState.ToString();
                 AnimationClip clip = getAnimationClip(stateName);
-                float escapTime = this._CurrentFrame / clip.frameRate;
                 
-                this._Animator.playbackTime = escapTime;
-                this._Animator.Update(0);
-//
-//                this._Animator.Play(stateName);
-//                this._Animator.Update(escapTime);
+//                float escapTime = this._CurrentFrame / clip.frameRate;
+//                this._Animator.playbackTime = escapTime;
+//                this._Animator.Update(0);
+
+                float percent = this._CurrentFrame / (float)this._SkillConfig.totalFrames;
+                this._Animator.Play(stateName, -1, percent);
+
             }
         }
         
@@ -153,7 +154,6 @@ namespace Skill.Editor
             AnimationClip clip = getAnimationClip(stateName);
             if (clip)
             {
-                Debug.Log("=====getAnimationStateFrames==1=="+clip.length);
                 return Mathf.CeilToInt(clip.length * clip.frameRate);
             }
             return 0;
@@ -163,7 +163,6 @@ namespace Skill.Editor
         {
             if (clip)
             {
-                Debug.Log("=====getAnimationStateFrames==2=="+clip.length);
                 return Mathf.CeilToInt(clip.length * clip.frameRate);
             }
             return 0;

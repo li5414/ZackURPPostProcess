@@ -34,7 +34,7 @@ namespace Skill.Editor
             // 创建新场景
             createNewScene();
 
-//            EditorApplication.isPlaying = true;
+            EditorApplication.isPlaying = true;
         }
 
 
@@ -380,7 +380,6 @@ namespace Skill.Editor
                 frame = this._SkillConfig.totalFrames - 1;
             }
             
-            Debug.Log("========frame=======" + frame);
             this._IsPlaying = false;
             this._CurrentFrame = frame;
             
