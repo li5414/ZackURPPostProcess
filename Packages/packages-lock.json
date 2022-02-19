@@ -1,10 +1,12 @@
 {
   "dependencies": {
     "com.unity.collab-proxy": {
-      "version": "1.9.0",
+      "version": "1.15.12",
       "depth": 0,
       "source": "registry",
-      "dependencies": {},
+      "dependencies": {
+        "com.unity.services.core": "1.0.1"
+      },
       "url": "https://packages.unity.cn"
     },
     "com.unity.ext.nunit": {
@@ -24,7 +26,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.11",
+      "version": "2.0.14",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -33,7 +35,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.ide.vscode": {
-      "version": "1.2.3",
+      "version": "1.2.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
@@ -41,6 +43,12 @@
     },
     "com.unity.mathematics": {
       "version": "file:com.unity.mathematics@1.1.0",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "file:com.unity.nuget.newtonsoft-json",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
@@ -70,6 +78,15 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
+    },
+    "com.unity.services.core": {
+      "version": "1.0.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.unitywebrequest": "1.0.0"
+      },
+      "url": "https://packages.unity.cn"
     },
     "com.unity.shadergraph": {
       "version": "file:com.unity.shadergraph@10.8.1",
