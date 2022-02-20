@@ -113,8 +113,6 @@ namespace Skill.Editor
             // 更新Config
             this._SkillConfig.totalFrames = frames;
 
-            // 播放动画
-            bakeAnimation(stateName);
         }
 
         /// <summary>
@@ -147,7 +145,9 @@ namespace Skill.Editor
                 List<SkillAction> actions = this._Groups[(int) SkillActionType.Event].actions;
                 for (int i = 0; i < actions.Count; ++i)
                 {
-                    this._SkillConfig.events.Add(actions[i] as SkillEventAction);
+                    SkillEventAction action = actions[i] as SkillEventAction;
+                    action.clipName = getAnimationClip(this._SkillConfig.animatorState.ToString()).name;
+                    this._SkillConfig.events.Add(action);
                 }
             }
             

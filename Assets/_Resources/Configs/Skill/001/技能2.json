@@ -13,8 +13,7 @@
   ],
   "events": [
     {
-      "eventName": null,
-      "eventParams": null,
+      "clipName": "Attack2",
       "timelineData": {
         "start": 17,
         "length": 0

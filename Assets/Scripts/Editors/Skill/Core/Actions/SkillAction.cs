@@ -96,10 +96,10 @@ namespace  Skill
     // 事件
     public class SkillEventAction : SkillAction
     {
+        // 添加事件的AniamtionClip的名称
         [JsonProperty]
-        public string eventName;
-        [JsonProperty] 
-        public string eventParams;
+        public string clipName;
+
 
         public SkillEventAction(int start)
         {

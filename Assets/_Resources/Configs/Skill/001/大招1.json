@@ -21,16 +21,14 @@
   ],
   "events": [
     {
-      "eventName": null,
-      "eventParams": null,
+      "clipName": "Skill",
       "timelineData": {
         "start": 16,
         "length": 0
       }
     },
     {
-      "eventName": null,
-      "eventParams": null,
+      "clipName": "Skill",
       "timelineData": {
         "start": 7,
         "length": 0

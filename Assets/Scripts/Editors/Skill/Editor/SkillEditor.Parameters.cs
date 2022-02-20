@@ -6,6 +6,14 @@ namespace Skill.Editor
 {
     public partial class SkillEditor
     {
+        // 技能编辑器状态
+        public enum SkillEditorState
+        {
+            // 编辑状态 （根据CurrentFrame来驱动动画）
+            Edit,
+            // 预览状态 (直接播放动画来驱动CurrentFrame更新)
+            Preview,
+        }
         // SkillAction类型列表 (与enum SkillActionType对应)
         private static readonly string[] k_SkillActionTypes =
         {
@@ -42,6 +50,8 @@ namespace Skill.Editor
         private bool _IsPlaying = false;
         // 当前播放到第几帧
         private int _CurrentFrame = 0;
+        // 当前预览状态
+        private SkillEditorState _EditorState = SkillEditorState.Edit;
         
         
         // 选择人物ID

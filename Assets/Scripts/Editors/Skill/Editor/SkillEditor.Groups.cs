@@ -309,8 +309,8 @@ namespace Skill.Editor
                
                using (new GUILayoutVertical(EditorParameters.k_WindowBackground))
                {
-                  EditorUtils.CreateTextField("事件名称", ref action.eventName);
-                  EditorUtils.CreateTextField("事件参数", ref action.eventParams);
+//                  EditorUtils.CreateTextField("事件名称", ref action.eventName);
+//                  EditorUtils.CreateTextField("事件参数", ref action.eventParams);
                }
             }
          }

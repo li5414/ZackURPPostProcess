@@ -22,7 +22,7 @@ namespace Skill.Editor
             EditorWindow.GetWindow<SkillEditor>().Close();
             EditorWindow.GetWindow<SkillEditor>().Show();
         }
-
+        
         void Awake()
         {
             EditorParameters.k_Foldout.fixedHeight = k_ElementHeight;
@@ -34,7 +34,7 @@ namespace Skill.Editor
             // 创建新场景
             createNewScene();
 
-            EditorApplication.isPlaying = true;
+            EditorApplication.EnterPlaymode();
         }
 
 
@@ -44,6 +44,7 @@ namespace Skill.Editor
 
             // 工具栏
             drawTopToolbar();
+            
             if (this._SkillConfig != null)
             {
                 // timeline工具栏
@@ -54,22 +55,57 @@ namespace Skill.Editor
 
         }
 
+        private bool firstPlay = false;
         void Update()
         {
-            if (_IsPlaying)
+//            if (EditorApplication.isPlaying && !firstPlay)
+//            {
+//                firstPlay = true;
+//                LoadMainCharacter(Path.Combine(Parameters.k_CharacterPrefabAssetPath, $"{this._SelectedCharacterID}/{this._SelectedCharacterID}.prefab"));
+//                ReadConfig(Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}"));    // TODO
+//                PreviewSkill();
+//            }
+
+            switch (this._EditorState)
             {
-                ++this._CurrentFrame;
-                if (this._CurrentFrame >= this._SkillConfig.totalFrames)
+            case SkillEditorState.Edit:
                 {
-                    this._CurrentFrame = this._SkillConfig.totalFrames - 1;
-                    this._IsPlaying = false;
-                }
+                    if (_IsPlaying)
+                    {
+                        ++this._CurrentFrame;
+                        if (this._CurrentFrame >= this._SkillConfig.totalFrames)
+                        {
+                            this._CurrentFrame = this._SkillConfig.totalFrames - 1;
+                            this._IsPlaying = false;
+                        }
                 
-                this.Repaint();
+                        this.Repaint();
+                    }
+            
+                    updateAnimation();
+                }
+                break;
+
+            case SkillEditorState.Preview:
+                {
+                    if (this._Animator != null && this._SkillConfig != null)
+                    {
+                        string stateName = this._SkillConfig.animatorState.ToString();
+                        AnimatorStateInfo stateInfo = this._Animator.GetCurrentAnimatorStateInfo(0);
+                        if (stateInfo.IsName(stateName))
+                        {
+                            Debug.Log("stateInfo.normalizedTime = " + stateInfo.normalizedTime);
+                            this._CurrentFrame = (int)(stateInfo.normalizedTime * stateInfo.length * getAnimationClip(stateName).frameRate);
+                        }
+                    }
+                    
+                    this.Repaint();
+                }
+                break;
             }
             
-            updateAnimation();
         }
+
 
         void drawTopToolbar()
         {
@@ -86,7 +122,7 @@ namespace Skill.Editor
                             this._SelectedCharacterID = this._CharacterIDs[sindex];
                             
                             // 加载角色
-                            loadMainCharacter(Path.Combine(Parameters.k_CharacterPrefabAssetPath, $"{this._SelectedCharacterID}/{this._SelectedCharacterID}.prefab"));
+                            LoadMainCharacter(Path.Combine(Parameters.k_CharacterPrefabAssetPath, $"{this._SelectedCharacterID}/{this._SelectedCharacterID}.prefab"));
                             // 更新技能列表
                             this._SkillIDs = browserSkills();
                         });
@@ -116,6 +152,21 @@ namespace Skill.Editor
                         if (this._SkillConfig != null)
                         {
                             SaveConfig(Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}"));
+                        }
+                    }, GUILayout.Width(100));
+                    
+                    EditorUtils.CreateButton("预览", EditorStyles.toolbarButton, () =>
+                    {
+                        if (this._SkillConfig != null)
+                        {
+//                            if (!EditorApplication.isPlaying)
+//                            {
+//                                firstPlay = false;
+//                                createNewScene();
+//                            }
+//                            EditorApplication.EnterPlaymode();
+
+                            PreviewSkill();
                         }
                     }, GUILayout.Width(100));
                 }

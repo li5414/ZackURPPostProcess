@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using Framework.Utils;
 
-namespace Rouge.Animation
+namespace Skill
 {
     public class AnimationEventManager : Singleton<AnimationEventManager>
     {

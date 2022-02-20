@@ -13,24 +13,21 @@
   ],
   "events": [
     {
-      "eventName": null,
-      "eventParams": null,
+      "clipName": "Attack1",
       "timelineData": {
         "start": 0,
         "length": 0
       }
     },
     {
-      "eventName": null,
-      "eventParams": null,
+      "clipName": "Attack1",
       "timelineData": {
         "start": 22,
         "length": 0
       }
     },
     {
-      "eventName": null,
-      "eventParams": null,
+      "clipName": "Attack1",
       "timelineData": {
         "start": 11,
         "length": 0
