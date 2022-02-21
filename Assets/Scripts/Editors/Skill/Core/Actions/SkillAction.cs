@@ -1,18 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace  Skill
+namespace Skill
 {
     public enum SkillActionType
     {
         // 动画
+        [Description("动画")]
         Animation = 0,
         // 特效
+        [Description("特效")]
         Effect = 1,
         // 事件
+        [Description("事件")]
         Event = 2,
     };
     
@@ -99,12 +103,24 @@ namespace  Skill
         // 添加事件的AniamtionClip的名称
         [JsonProperty]
         public string clipName;
-
+        
+        // 组件列表
+        // timescale
+        [JsonProperty]
+        public TimescaleComponent timescaleComponent;
 
         public SkillEventAction(int start)
         {
             this.timelineData.start = start;
             this.timelineData.length = 0;
+        }
+
+        public void Execute(GameObject gameObject)
+        {
+            if (timescaleComponent != null)
+            {
+                timescaleComponent.Execute(gameObject);
+            }
         }
     }
     

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -11,8 +12,11 @@ namespace  Skill
     /// </summary>
     public enum SkillAnimatorState
     {
+        [Description("Attack1")]
         Attack1 = 0,
+        [Description("Attack2")]
         Attack2,
+        [Description("Skill")]
         Skill,
     };
     
@@ -22,7 +26,7 @@ namespace  Skill
     public class SkillAnimationAction : SkillAction
     {
         [JsonProperty]
-        public string stateName;
+        public SkillAnimatorState state;
 
         public SkillAnimationAction(int start, int length)
         {

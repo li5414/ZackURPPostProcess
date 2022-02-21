@@ -30,11 +30,19 @@ namespace Skill.Editor
 
             // 遍历角色
             this._CharacterIDs = browserCharacters();
-            
-            // 创建新场景
-            createNewScene();
+
+            if (!EditorApplication.isPlaying)
+            {
+                // 创建新场景
+                createNewScene();
+            }
 
             EditorApplication.EnterPlaymode();
+        }
+
+        public void OnDestroy()
+        {
+            EditorApplication.ExitPlaymode();
         }
 
 
@@ -55,17 +63,8 @@ namespace Skill.Editor
 
         }
 
-        private bool firstPlay = false;
         void Update()
         {
-//            if (EditorApplication.isPlaying && !firstPlay)
-//            {
-//                firstPlay = true;
-//                LoadMainCharacter(Path.Combine(Parameters.k_CharacterPrefabAssetPath, $"{this._SelectedCharacterID}/{this._SelectedCharacterID}.prefab"));
-//                ReadConfig(Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}"));    // TODO
-//                PreviewSkill();
-//            }
-
             switch (this._EditorState)
             {
             case SkillEditorState.Edit:
@@ -90,13 +89,18 @@ namespace Skill.Editor
                 {
                     if (this._Animator != null && this._SkillConfig != null)
                     {
-                        string stateName = this._SkillConfig.animatorState.ToString();
                         AnimatorStateInfo stateInfo = this._Animator.GetCurrentAnimatorStateInfo(0);
-                        if (stateInfo.IsName(stateName))
+                        for (int i = 0; i < this._SkillConfig.animations.Count; ++i)
                         {
-                            Debug.Log("stateInfo.normalizedTime = " + stateInfo.normalizedTime);
-                            this._CurrentFrame = (int)(stateInfo.normalizedTime * stateInfo.length * getAnimationClip(stateName).frameRate);
+                            string stateName = this._SkillConfig.animations[i].state.GetDescription();
+                            if (stateInfo.IsName(stateName))
+                            {
+//                            Debug.Log("stateInfo.normalizedTime = " + stateInfo.normalizedTime);
+                                this._CurrentFrame = (int)(stateInfo.normalizedTime * stateInfo.length * getAnimationClip(stateName).frameRate);
+                                break;
+                            }
                         }
+                        
                     }
                     
                     this.Repaint();
@@ -135,40 +139,49 @@ namespace Skill.Editor
                         {
                             this._SelectedSkillID = this._SkillIDs[sindex];
                             // 读取技能
-                            ReadConfig(Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}"));    // TODO
+                            ReadConfig();    // TODO
                         });
                     }, GUILayout.Width(83));
-                
-                    EditorUtils.CreateButton("添加", EditorStyles.toolbarDropDown, () =>
-                    {
-                        EditorUtils.CreateMenu(k_SkillActionTypes, -1, (index) =>
-                        {
-                            AddSkillAction((SkillActionType)index);
-                        });
-                    }, GUILayout.Width(150));
-                    
+
                     EditorUtils.CreateButton("保存", EditorStyles.toolbarButton, () =>
                     {
                         if (this._SkillConfig != null)
                         {
-                            SaveConfig(Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}"));
+                            SaveConfig();
                         }
                     }, GUILayout.Width(100));
-                    
-                    EditorUtils.CreateButton("预览", EditorStyles.toolbarButton, () =>
-                    {
-                        if (this._SkillConfig != null)
-                        {
-//                            if (!EditorApplication.isPlaying)
-//                            {
-//                                firstPlay = false;
-//                                createNewScene();
-//                            }
-//                            EditorApplication.EnterPlaymode();
 
-                            PreviewSkill();
-                        }
-                    }, GUILayout.Width(100));
+
+                    Color color_edit = Color.green;
+                    Color color_preview = GUI.color;
+                    if (this._EditorState == SkillEditorState.Preview)
+                    {
+                        color_preview = Color.green;
+                        color_edit = GUI.color;
+                    }
+                    using (new GUIColor(color_edit))
+                    {
+                        EditorUtils.CreateButton("编辑", EditorStyles.toolbarButton, () =>
+                        {
+                            this._EditorState = SkillEditorState.Edit;
+                            this._IsPlaying = false;
+                            this._SelectedGroupIndex = -1;
+                            this._SelectedItemIndex = -1;
+                        }, GUILayout.Width(100));
+                    }
+
+                    using (new GUIColor(color_preview))
+                    {
+                        EditorUtils.CreateButton("预览", EditorStyles.toolbarButton, () =>
+                        {
+                            if (this._SkillConfig != null)
+                            {
+                                this._EditorState = SkillEditorState.Preview;
+                                PreviewSkill();
+                            }
+                        }, GUILayout.Width(100));
+                    }
+                    
                 }
                 
 
@@ -179,22 +192,13 @@ namespace Skill.Editor
         {
             using (new GUILayoutHorizontal(EditorStyles.toolbar, GUILayout.Height(EditorParameters.k_ToolbarHeight)))
             {
-                using (new GUIChangeCheck(() =>
+                EditorUtils.CreateButton("添加", EditorStyles.toolbarDropDown, () =>
                 {
-                    UpdateAnimationActions();
-                }))
-                {
-                    // 选择状态
-                    EditorUtils.CreateText("选择动画:", EditorParameters.k_Label, GUILayout.Width(50));
-                    EditorUtils.CreateButton(k_SkillAnimationStates[(int)this._SkillConfig.animatorState], EditorParameters.k_DropDownButton, () =>
+                    EditorUtils.CreateMenu<SkillActionType>(-1, (index) =>
                     {
-                        EditorUtils.CreateMenu(k_SkillAnimationStates, -1, (sindex) =>
-                        {
-                            this._SkillConfig.animatorState = (SkillAnimatorState) sindex;
-                            UpdateAnimationActions();
-                        });
-                    }, GUILayout.Width(83));
-                }
+                        AddSkillAction((SkillActionType)index);
+                    });
+                }, GUILayout.Width(150));
             }
             
             // position中存储的是当前窗口的位置和大小
@@ -209,7 +213,27 @@ namespace Skill.Editor
                 {
                     selectFrame(this._CurrentFrame - 1);
                 });
-                EditorUtils.CreateToggle(ref _IsPlaying, EditorParameters.k_PlayFramesContent, EditorStyles.toolbarButton);
+                EditorUtils.CreateButton(EditorParameters.k_PlayFramesContent, EditorStyles.toolbarButton, () =>
+                {
+                    switch (this._EditorState)
+                    {
+                    case SkillEditorState.Edit:
+                        {
+                            if (this._CurrentFrame > this._SkillConfig.totalFrames)
+                            {
+                                this.selectFrame(0);
+                            }
+                            this._IsPlaying = true;
+                        }
+                        break;
+
+                    case SkillEditorState.Preview:
+                        {
+                            PreviewSkill();
+                        }
+                        break;
+                    }
+                });
                 EditorUtils.CreateButton(EditorParameters.k_NextFrameContent, EditorStyles.toolbarButton, () =>
                 {
                     selectFrame(this._CurrentFrame + 1);
@@ -234,7 +258,7 @@ namespace Skill.Editor
                 // 总时长
                 using (new GUILayoutArea(new Rect(k_HierarchyPanelWidth+k_TimelinePanelWidth+10, EditorParameters.k_ToolbarHeight*2+5, k_InspectorPanelWidth, EditorParameters.k_ToolbarHeight)))
                 {
-                    EditorUtils.CreateIntField("总时长", this._SkillConfig.totalFrames);  
+                    EditorUtils.CreateIntFieldDisable("总时长", this._SkillConfig.totalFrames);  
                 }
                 
                 
@@ -260,8 +284,8 @@ namespace Skill.Editor
                         for (int i=0; i<this._Groups.Count; ++i)
                         {
                             group = this._Groups[i];
-                            group.OnGroupGUI();
-                            newSelectedItemIndex = group.OnGroupHierarchyGUI(this._SelectedGroupIndex==i, this._SelectedItemIndex);
+                            group.OnGroupGUI(this);
+                            newSelectedItemIndex = group.OnGroupHierarchyGUI(this, this._SelectedGroupIndex==i, this._SelectedItemIndex);
                             if (newSelectedItemIndex >= 0)
                             {
                                 this._SelectedGroupIndex = i;
@@ -287,7 +311,7 @@ namespace Skill.Editor
                             for (int i=0; i<this._Groups.Count; ++i)
                             {
                                 group = this._Groups[i];
-                                newSelectedItemIndex = group.OnGroupTimelineGUI(this._SelectedGroupIndex==i, this._SelectedItemIndex);
+                                newSelectedItemIndex = group.OnGroupTimelineGUI(this, this._SelectedGroupIndex==i, this._SelectedItemIndex);
                                 if (newSelectedItemIndex >= 0)
                                 {
                                     this._SelectedGroupIndex = i;
@@ -319,7 +343,24 @@ namespace Skill.Editor
             EditorUtils.CreateText("属性面板", EditorParameters.k_BoldLabel);
             if (this._SelectedGroupIndex != -1 && this._SelectedItemIndex != -1 && this._Groups.Count>this._SelectedGroupIndex)
             {
-                this._Groups[this._SelectedGroupIndex].OnInspectorGUI(this._SelectedItemIndex, this._SkillConfig.totalFrames);
+                this._Groups[this._SelectedGroupIndex].OnInspectorGUI(this, this._SelectedItemIndex, this._SkillConfig.totalFrames);
+            }
+            else
+            {
+                OnInspectorGUI();
+            }
+        }
+
+        void OnInspectorGUI()
+        {
+            using (new GUILayoutVertical(EditorParameters.k_WindowBackground, GUILayout.Height(k_ElementHeight)))
+            {
+                EditorUtils.CreateTextField("技能id", this._SkillConfig.id);
+                // 动画
+                using (new GUILayoutHorizontal())
+                {
+                    
+                }
             }
         }
 
@@ -412,15 +453,20 @@ namespace Skill.Editor
             {
                 GUI.FocusControl(null);
                 e.Use();
-
+                    
                 int frame = EditorUtils.CalculatePositionToFrame(e.mousePosition.x+this._HierarchyScrollPosition.x);
                 selectFrame(frame);
             }
-            
+
         }
 
         void selectFrame(int frame)
         {
+            if (this._EditorState != SkillEditorState.Edit)
+            {
+                return;
+            }
+
             if (frame < 0)
             {
                 frame = 0;

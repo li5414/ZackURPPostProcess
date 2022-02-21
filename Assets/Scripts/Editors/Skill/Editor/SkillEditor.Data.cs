@@ -46,7 +46,7 @@ namespace Skill.Editor
            {
                if(files[i].Name.EndsWith(".json"))
                {
-                   skillFiles.Add(files[i].Name);
+                   skillFiles.Add(files[i].Name.Replace(".json", ""));
                }
            }
 
@@ -57,15 +57,28 @@ namespace Skill.Editor
         /// 读取配置
         /// </summary>
         /// <param name="filepath"></param>
-        void ReadConfig(string filepath)
+        void ReadConfig()
         {
+            string filepath = Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}.json");
+            
             SkillConfig config = JsonUtils.DeserializeObjectFromFile<SkillConfig>(filepath);
             this._SkillConfig = config;
+            if (this._SkillConfig.id == null || this._SkillConfig.id == String.Empty)
+            {
+                this._SkillConfig.id = this._SelectedSkillID;
+            }
 
             this._Groups.Clear();
             // 解析SkillAnimationAction
             {
                 var group = new SkillAnimationGroup();
+                if (config.animations != null && config.animations.Count > 0)
+                {
+                    for (int i = 0; i < config.animations.Count; ++i)
+                    {
+                        group.actions.Add(config.animations[i]);
+                    }
+                }
                 this._Groups.Add(group);
             }
             // 解析SkillEffectAction
@@ -93,34 +106,52 @@ namespace Skill.Editor
                 this._Groups.Add(group);
             }
             
-            UpdateAnimationActions();
-            
             Debug.Log($"读取配置完成: {filepath}");
         }
 
         // 更新动画帧数
         void UpdateAnimationActions()
         {
-            string stateName = this._SkillConfig.animatorState.ToString();
-            int frames = getAnimationStateFrames(stateName);
+            List<SkillAction> actions = this._Groups[(int) SkillActionType.Animation].actions;
+            int totalFrames = 0;
+            for (int i = 0; i < actions.Count; ++i)
+            {
+                SkillAnimationAction action = actions[i] as SkillAnimationAction;
+                string stateName = action.state.GetDescription();
+                int frames = getAnimationStateFrames(stateName);
+                action.timelineData.start = totalFrames;
+                action.timelineData.length = frames;
+                
+                totalFrames += frames;
+            }
             
-            // 更新Group
-            Group group = this._Groups[(int) SkillActionType.Animation];
-            group.actions.Clear();
-            SkillAnimationAction action = new SkillAnimationAction(0, frames);
-            action.stateName = stateName;
-            group.actions.Add(action);
             // 更新Config
-            this._SkillConfig.totalFrames = frames;
+            this._SkillConfig.totalFrames = totalFrames;
 
         }
+        
+        // 根据帧数获取动画状态
+        string getAnimationStateName(int frame)
+        {
+            List<SkillAction> actions = this._Groups[(int) SkillActionType.Animation].actions;
+            for (int i = actions.Count-1; i>=0; --i)
+            {
+                SkillAnimationAction action = actions[i] as SkillAnimationAction;
+                if (action.timelineData.start <= frame && frame <= action.timelineData.end)
+                {
+                    return action.state.GetDescription();
+                }
+            }
 
+            return ((SkillAnimatorState) 0).GetDescription();
+        }
+        
         /// <summary>
         /// 存储配置
         /// </summary>
-        void SaveConfig(string filepath)
+        void SaveConfig()
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+            string filepath = Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}.json");
             // Animation
             {
                 this._SkillConfig.animations = new List<SkillAnimationAction>();
@@ -146,13 +177,15 @@ namespace Skill.Editor
                 for (int i = 0; i < actions.Count; ++i)
                 {
                     SkillEventAction action = actions[i] as SkillEventAction;
-                    action.clipName = getAnimationClip(this._SkillConfig.animatorState.ToString()).name;
+                    action.clipName = getAnimationClip(getAnimationStateName(action.timelineData.start)).name;
                     this._SkillConfig.events.Add(action);
                 }
             }
-            
+
+            // 写入文件
+            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
             JsonUtils.SerializeObjectToFile(this._SkillConfig, filepath);
-            
+
             Debug.Log($"保存配置完成: {filepath}");
             AssetDatabase.Refresh();
         }
@@ -164,7 +197,11 @@ namespace Skill.Editor
             {
             case SkillActionType.Animation:
                 {
-                    SkillAnimationAction action = new SkillAnimationAction(0, 0);
+                    SkillAnimatorState state = SkillAnimatorState.Attack1;
+                    AnimationClip clip = getAnimationClip(state.GetDescription());
+                    int frames = getAnimationStateFrames(clip);
+                    SkillAnimationAction action = new SkillAnimationAction(0, frames);
+                    action.state = state;
                     this._Groups[(int)actionType].actions.Add(action);    
                 }
                 break;

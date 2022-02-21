@@ -1,6 +1,15 @@
 {
+  "id": "大招1",
   "totalFrames": 21,
-  "animatorState": 2,
+  "animations": [
+    {
+      "state": 2,
+      "timelineData": {
+        "start": 0,
+        "length": 21
+      }
+    }
+  ],
   "effects": [
     {
       "prefabPath": null,
@@ -22,13 +31,19 @@
   "events": [
     {
       "clipName": "Skill",
+      "timescaleComponent": {
+        "timescale": 0.05,
+        "state": 2,
+        "needLoadRes": false
+      },
       "timelineData": {
-        "start": 16,
+        "start": 3,
         "length": 0
       }
     },
     {
       "clipName": "Skill",
+      "timescaleComponent": null,
       "timelineData": {
         "start": 7,
         "length": 0

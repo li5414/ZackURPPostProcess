@@ -48,8 +48,6 @@ namespace Zack.Editor
         public static readonly GUIStyle k_TimelineFrameTag = new GUIStyle("Grad Down Swatch");
         public static readonly GUIStyle k_Foldout = new GUIStyle("foldout");
         public static readonly GUIStyle k_DropDownButton = new GUIStyle("DropDown");
-        public static readonly GUIStyle k_PlusButton = new GUIStyle("OL Plus");
-        public static readonly GUIStyle k_MinusButton = new GUIStyle("OL Minus");
         public static readonly GUIStyle k_ACButton = new GUIStyle("AC Button");
 
         static EditorParameters()

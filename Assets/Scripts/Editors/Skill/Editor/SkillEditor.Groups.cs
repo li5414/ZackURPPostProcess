@@ -38,7 +38,7 @@ namespace Skill.Editor
          /// <summary>
          /// 组UI
          /// </summary>
-         public void OnGroupGUI()
+         public void OnGroupGUI(SkillEditor window)
          {
             using (new GUILayoutHorizontal(GUILayout.Height(k_ElementHeight)))
             {
@@ -53,7 +53,7 @@ namespace Skill.Editor
          /// <param name="isGroupSelected"></param>
          /// <param name="selectedItemIndex"></param>
          /// <returns>返回数值大于-1，表示当前选中了该group中的index</returns>
-         public virtual int OnGroupHierarchyGUI(bool isGroupSelected, int selectedItemIndex)
+         public virtual int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
          {
             if (!this._Foldout)
             {
@@ -101,7 +101,7 @@ namespace Skill.Editor
          /// <param name="isGroupSelected"></param>
          /// <param name="selectedItemIndex"></param>
          /// <returns>返回数值大于-1，表示当前选中了该group中的index</returns>
-         public virtual int OnGroupTimelineGUI(bool isGroupSelected, int selectedItemIndex)
+         public virtual int OnGroupTimelineGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
          {
             GUILayout.Space(k_ElementHeight);
             if (!this._Foldout)
@@ -137,7 +137,7 @@ namespace Skill.Editor
          /// 绘制Inspector面板
          /// </summary>
          /// <param name="selectedItemIndex"></param>
-         public virtual void OnInspectorGUI(int selectedItemIndex, int maxFrameLength)
+         public virtual void OnInspectorGUI(SkillEditor window, int selectedItemIndex, int maxFrameLength)
          {
             if (selectedItemIndex < this.actions.Count)
             {
@@ -149,14 +149,14 @@ namespace Skill.Editor
                   if (this._CanEditTimeline)
                   {
                      EditorUtils.CreateIntField("起始", ref timelineData.start, 0, maxFrameLength);
-                     EditorUtils.CreateIntField("结束", timelineData.end);
+                     EditorUtils.CreateIntFieldDisable("结束", timelineData.end);
                      EditorUtils.CreateIntField("时长", ref timelineData.length, 0, maxFrameLength-timelineData.start);
                   }
                   else
                   {
-                     EditorUtils.CreateIntField("起始", timelineData.start);
-                     EditorUtils.CreateIntField("结束", timelineData.end);
-                     EditorUtils.CreateIntField("时长", timelineData.length);
+                     EditorUtils.CreateIntFieldDisable("起始", timelineData.start);
+                     EditorUtils.CreateIntFieldDisable("结束", timelineData.end);
+                     EditorUtils.CreateIntFieldDisable("时长", timelineData.length);
                   }
 
                }
@@ -211,23 +211,48 @@ namespace Skill.Editor
             this._CanEditTimeline = false;
          }
 
-         public override int OnGroupHierarchyGUI(bool isGroupSelected, int selectedItemIndex)
+         public override int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
          {
-            return base.OnGroupHierarchyGUI(isGroupSelected, selectedItemIndex);
+            return base.OnGroupHierarchyGUI(window, isGroupSelected, selectedItemIndex);
          }
 
-         public override int OnGroupTimelineGUI(bool isGroupSelected, int selectedItemIndex)
+         public override int OnGroupTimelineGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
          {
-            return base.OnGroupTimelineGUI(isGroupSelected, selectedItemIndex);
+            return base.OnGroupTimelineGUI(window, isGroupSelected, selectedItemIndex);
          }
 
-         public override void OnInspectorGUI(int selectedItemIndex, int maxFrameLength)
+         public override void OnInspectorGUI(SkillEditor window, int selectedItemIndex, int maxFrameLength)
          {
-            base.OnInspectorGUI(selectedItemIndex, maxFrameLength);
+            base.OnInspectorGUI(window, selectedItemIndex, maxFrameLength);
             
             if (selectedItemIndex < this.actions.Count)
             {
                SkillAnimationAction action = this.actions[selectedItemIndex] as SkillAnimationAction;
+               using (new GUILayoutVertical(EditorParameters.k_WindowBackground, GUILayout.Height(k_ElementHeight)))
+               {
+                  // 动画
+                  using (new GUILayoutHorizontal())
+                  {
+                     using (new GUIChangeCheck(() =>
+                     {
+                        window.UpdateAnimationActions();
+                     }))
+                     {
+                        // 选择状态
+                        EditorUtils.CreateText("选择动画:", EditorParameters.k_Label);
+                        GUILayout.FlexibleSpace();
+                        EditorUtils.CreateButton(action.state.GetDescription(), EditorParameters.k_DropDownButton, () =>
+                        {
+                           EditorUtils.CreateMenu<SkillAnimatorState>(-1, (index) =>
+                           {
+                              action.state = (SkillAnimatorState) index;
+                              window.UpdateAnimationActions();
+                           });
+                        }, GUILayout.Width(83));
+                     }
+                  }
+                  
+               }
                
             }
          }
@@ -242,19 +267,19 @@ namespace Skill.Editor
             this._Title = "特效";
          }
 
-         public override int OnGroupHierarchyGUI(bool isGroupSelected, int selectedItemIndex)
+         public override int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
          {
-            return base.OnGroupHierarchyGUI(isGroupSelected, selectedItemIndex);
+            return base.OnGroupHierarchyGUI(window, isGroupSelected, selectedItemIndex);
          }
 
-         public override int OnGroupTimelineGUI(bool isGroupSelected, int selectedItemIndex)
+         public override int OnGroupTimelineGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
          {
-            return base.OnGroupTimelineGUI(isGroupSelected, selectedItemIndex);
+            return base.OnGroupTimelineGUI(window, isGroupSelected, selectedItemIndex);
          }
 
-         public override void OnInspectorGUI(int selectedItemIndex, int maxFrameLength)
+         public override void OnInspectorGUI(SkillEditor window, int selectedItemIndex, int maxFrameLength)
          {
-            base.OnInspectorGUI(selectedItemIndex, maxFrameLength);
+            base.OnInspectorGUI(window, selectedItemIndex, maxFrameLength);
             
             if (selectedItemIndex < this.actions.Count)
             {
@@ -284,19 +309,19 @@ namespace Skill.Editor
             this._HierarchyStyle = GroupHierarchyStyle.OnlyStart;
          }
 
-         public override int OnGroupHierarchyGUI(bool isGroupSelected, int selectedItemIndex)
+         public override int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
          {
-            return base.OnGroupHierarchyGUI(isGroupSelected, selectedItemIndex);
+            return base.OnGroupHierarchyGUI(window, isGroupSelected, selectedItemIndex);
          }
 
-         public override int OnGroupTimelineGUI(bool isGroupSelected, int selectedItemIndex)
+         public override int OnGroupTimelineGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
          {
-            return base.OnGroupTimelineGUI(isGroupSelected, selectedItemIndex);
+            return base.OnGroupTimelineGUI(window, isGroupSelected, selectedItemIndex);
          }
 
-         public override void OnInspectorGUI(int selectedItemIndex, int maxFrameLength)
+         public override void OnInspectorGUI(SkillEditor window, int selectedItemIndex, int maxFrameLength)
          {
-            base.OnInspectorGUI(selectedItemIndex, maxFrameLength);
+            base.OnInspectorGUI(window, selectedItemIndex, maxFrameLength);
             
             if (selectedItemIndex < this.actions.Count)
             {
@@ -306,14 +331,29 @@ namespace Skill.Editor
                {
                   action.timelineData.length = 0;
                }
-               
-               using (new GUILayoutVertical(EditorParameters.k_WindowBackground))
-               {
-//                  EditorUtils.CreateTextField("事件名称", ref action.eventName);
-//                  EditorUtils.CreateTextField("事件参数", ref action.eventParams);
-               }
+                  
+               drawEventComponents(window, action);
             }
          }
+
+         // 绘制组件列表
+         void drawEventComponents(SkillEditor window, SkillEventAction action)
+         {
+            List<string> names;
+            
+            // timescaleComponent
+            if (!window.drawTimescaleComponent(action.timescaleComponent))
+            {
+            }
+            
+            
+            
+            EditorUtils.CreateButton("添加组件", EditorParameters.k_ACButton, () =>
+            {
+               
+            }, GUILayout.Height(k_ElementHeight));
+         }
+         
          
       }
       

@@ -24,6 +24,7 @@ namespace Skill
                     SkillEventAction action = actions[i];
                     eventController.AddAnimationEvent(action.clipName, action.timelineData.start, ()=>{
                         Debug.Log($"============SkillEventAction callback===========frame: {action.timelineData.start}====");
+                        action.Execute(eventController.gameObject);
                     });
                     Debug.Log($"在{action.clipName}第{action.timelineData.start}帧添加动画事件{i}");
                 }

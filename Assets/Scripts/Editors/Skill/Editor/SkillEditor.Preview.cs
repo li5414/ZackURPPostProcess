@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEditor.SceneManagement;
+using Zack.Editor;
 
 namespace Skill.Editor
 {
@@ -47,7 +49,7 @@ namespace Skill.Editor
         {
             if (this._Animator!=null && this._SkillConfig!=null)
             {
-                string stateName = this._SkillConfig.animatorState.ToString();
+                string stateName = getAnimationStateName(this._CurrentFrame);
                 AnimationClip clip = getAnimationClip(stateName);
                 
                 float percent = this._CurrentFrame / (float)this._SkillConfig.totalFrames;
@@ -61,6 +63,9 @@ namespace Skill.Editor
         
         void PreviewSkill()
         {
+            this._IsPlaying = false;
+            SaveConfig();
+            
             if (this._Animator)
             {
                 AnimationEventController controller = this._Animator.GetComponent<AnimationEventController>();
@@ -70,12 +75,11 @@ namespace Skill.Editor
                 SkillManager.getInstance().UseSkill(controller, this._SkillConfig);
             }
 
-            this._EditorState = SkillEditorState.Preview;
             // 播放
             if (this._Animator!=null && this._SkillConfig!=null)
             {
-                string stateName = this._SkillConfig.animatorState.ToString();
-                this._Animator.Play(stateName);
+                string stateName = this._SkillConfig.animations[0].state.GetDescription();
+                this._Animator.Play(stateName, -1, 0);
             }
         }
         
@@ -108,6 +112,8 @@ namespace Skill.Editor
             }
             return 0;
         }
+
+        
         
         // 获取动画状态机上的AnimationClip
         AnimationClip getAnimationClip(string stateName)

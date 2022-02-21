@@ -1,13 +1,50 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+using NUnit.Framework;
+using Skill;
 using UnityEditor;
 using UnityEngine;
 
 namespace Zack.Editor
 {
-    public class EditorUtils
+    public static class EditorUtils
     {
+        public static string GetDescription(this Enum e)
+        {
+            var fieldInfo = e.GetType().GetField(e.ToString());
+            var descriptions = fieldInfo.GetCustomAttributes(typeof(System.ComponentModel.DescriptionAttribute), false);
+            if (descriptions.Length == 0)
+            {
+                return null;
+            }
+
+            return (descriptions[0] as System.ComponentModel.DescriptionAttribute).Description;
+        }
+
+        public static string GetDescripthion<T>(this T component) where T : class
+        {
+            var descriptions = typeof(T).GetCustomAttributes(typeof(System.ComponentModel.DescriptionAttribute), false);
+            if (descriptions.Length == 0)
+            {
+                return null;
+            }
+
+            return (descriptions[0] as System.ComponentModel.DescriptionAttribute).Description;
+        }
+        
+        public static string GetDescripthion(this FieldInfo field)
+        {
+            var descriptions = field.GetCustomAttributes(typeof(System.ComponentModel.DescriptionAttribute), false);
+            if (descriptions.Length == 0)
+            {
+                return null;
+            }
+
+            return (descriptions[0] as System.ComponentModel.DescriptionAttribute).Description;
+        }
+        
         /// <summary>
         /// 创建按钮
         /// </summary>
@@ -34,10 +71,20 @@ namespace Zack.Editor
         {
             text = EditorGUILayout.TextField(title, text, options);
         }
+        public static void CreateTextField(string title, string text, params GUILayoutOption[] options)
+        {
+            GUI.enabled = false;
+            EditorGUILayout.TextField(title, text, options);
+            GUI.enabled = true;
+        }
         
         public static void CreateIntField(string title, ref int value, params GUILayoutOption[] options)
         {
             value = EditorGUILayout.IntField(title, value, options);
+        }
+        public static int CreateIntField(string title, int value, params GUILayoutOption[] options)
+        {
+            return EditorGUILayout.IntField(title, value, options);
         }
         public static void CreateIntField(ref int value, int min, int max, params GUILayoutOption[] options)
         {
@@ -63,7 +110,7 @@ namespace Zack.Editor
                 value = max;
             }
         }
-        public static void CreateIntField(string title, int value, params GUILayoutOption[] options)
+        public static void CreateIntFieldDisable(string title, int value, params GUILayoutOption[] options)
         {
             GUI.enabled = false;
             EditorGUILayout.IntField(title, value, options);
@@ -74,10 +121,18 @@ namespace Zack.Editor
         {
             value = EditorGUILayout.FloatField(title, value, options);
         }
+        public static float CreateFloatField(string title, float value, params GUILayoutOption[] options)
+        {
+            return EditorGUILayout.FloatField(title, value, options);
+        }
 
         public static void CreateBoolField(string title, ref bool value, params GUILayoutOption[] options)
         {
             value = EditorGUILayout.Toggle(title, value, options);
+        }
+        public static bool CreateBoolField(string title, bool value, params GUILayoutOption[] options)
+        {
+            return EditorGUILayout.Toggle(title, value, options);
         }
 
         public static void CreateLabel(string text, params GUILayoutOption[] options)
@@ -145,6 +200,62 @@ namespace Zack.Editor
         {
             GenericMenu menu = new GenericMenu();
             for (int i = 0; i < texts.Length; ++i)
+            {
+                menu.AddItem(new GUIContent(texts[i]), i==selectedIndex, (userdata) =>
+                {
+                    int index = (int)userdata;
+                    if (index >= 0)
+                    {
+                        callback?.Invoke(index);
+                    }
+                }, i);
+            }
+            menu.ShowAsContext();
+        }
+        
+        // 通过枚举创建菜单
+        public static void CreateMenu<T>(int selectedIndex, System.Action<int> callback) where T : Enum
+        {
+            List<string> texts = new List<string>();
+            foreach (var e in Enum.GetValues(typeof(T)))
+            {
+                texts.Add(((T)e).GetDescription());
+            }
+
+            GenericMenu menu = new GenericMenu();
+            for (int i = 0; i < texts.Count; ++i)
+            {
+                menu.AddItem(new GUIContent(texts[i]), i==selectedIndex, (userdata) =>
+                {
+                    int index = (int)userdata;
+                    if (index >= 0)
+                    {
+                        callback?.Invoke(index);
+                    }
+                }, i);
+            }
+            menu.ShowAsContext();
+        }
+        public static void CreateMenu<T>(T eSelectedIndex, System.Action<int> callback) where T : Enum
+        {
+            int selectedIndex = -1;
+
+            Type type = eSelectedIndex.GetType();
+            List<string> texts = new List<string>();
+            int idx = 0;
+            foreach (var e in Enum.GetValues(type))
+            {
+                texts.Add(((T)e).GetDescription());
+                if (Enum.GetName(type, e) == Enum.GetName(type, eSelectedIndex))
+                {
+                    selectedIndex = idx;
+                }
+                idx++;
+            }
+
+            
+            GenericMenu menu = new GenericMenu();
+            for (int i = 0; i < texts.Count; ++i)
             {
                 menu.AddItem(new GUIContent(texts[i]), i==selectedIndex, (userdata) =>
                 {

@@ -1,6 +1,15 @@
 {
+  "id": null,
   "totalFrames": 22,
-  "animatorState": 0,
+  "animations": [
+    {
+      "state": 0,
+      "timelineData": {
+        "start": 0,
+        "length": 22
+      }
+    }
+  ],
   "effects": [
     {
       "prefabPath": null,

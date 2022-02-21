@@ -9,13 +9,14 @@ namespace  Skill
     [JsonObject(MemberSerialization.OptIn)]
     public class SkillConfig
     {
+        // id
+        [JsonProperty]
+        public string id;
         // 总时长
         [JsonProperty] 
         public int totalFrames;
-        // 动画状态
-        [JsonProperty]
-        public SkillAnimatorState animatorState;
-        // 动画action列表 (仅用作editor显示用)
+        // 动画action列表
+        [JsonProperty] 
         public List<SkillAnimationAction> animations;
         // 特效action列表
         [JsonProperty]

@@ -14,21 +14,7 @@ namespace Skill.Editor
             // 预览状态 (直接播放动画来驱动CurrentFrame更新)
             Preview,
         }
-        // SkillAction类型列表 (与enum SkillActionType对应)
-        private static readonly string[] k_SkillActionTypes =
-        {
-            "动画",
-            "特效",
-            "事件",
-        };
 
-        // Animator参数类型列表 (与enum AnimatorParameterType对应)
-        private static readonly string[] k_SkillAnimationStates = 
-        {
-            "Attack1",
-            "Attack2",
-            "Skill",
-        };
         
         // 人物列表
         private string[] _CharacterIDs;
