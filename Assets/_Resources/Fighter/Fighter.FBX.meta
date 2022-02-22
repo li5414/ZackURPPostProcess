@@ -538,7 +538,7 @@ ModelImporter:
       name: Skill
       takeName: Take 001
       internalID: 0
-      firstFrame: 64
+      firstFrame: 26
       lastFrame: 84
       wrapMode: 0
       orientationOffsetY: 0

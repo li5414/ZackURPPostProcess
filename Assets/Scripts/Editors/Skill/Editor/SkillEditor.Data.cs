@@ -105,7 +105,20 @@ namespace Skill.Editor
                 }
                 this._Groups.Add(group);
             }
-            
+            // 解析SkillCustomEventAction
+            {
+                var group = new SkillCustomEventGroup();;
+                if (config.customEvents != null && config.customEvents.Count > 0)
+                {
+                    for (int i = 0; i < config.customEvents.Count; ++i)
+                    {
+                        group.actions.Add(config.customEvents[i]);
+                    }
+                }
+                this._Groups.Add(group);
+            }
+            // 更新动画帧
+            UpdateAnimationActions();
             Debug.Log($"读取配置完成: {filepath}");
         }
 
@@ -181,6 +194,17 @@ namespace Skill.Editor
                     this._SkillConfig.events.Add(action);
                 }
             }
+            // CustomEvent
+            {
+                this._SkillConfig.customEvents = new List<SkillCustomEventAction>();
+                List<SkillAction> actions = this._Groups[(int) SkillActionType.CustomEvent].actions;
+                for (int i = 0; i < actions.Count; ++i)
+                {
+                    SkillCustomEventAction action = actions[i] as SkillCustomEventAction;
+                    action.clipName = getAnimationClip(getAnimationStateName(action.timelineData.start)).name;
+                    this._SkillConfig.customEvents.Add(action);
+                }
+            }
 
             // 写入文件
             Directory.CreateDirectory(Path.GetDirectoryName(filepath));
@@ -216,6 +240,12 @@ namespace Skill.Editor
                     SkillEventAction action = new SkillEventAction(0);
                     this._Groups[(int)actionType].actions.Add(action);    
                 }
+                break;
+            case SkillActionType.CustomEvent:
+            {
+                SkillCustomEventAction action = new SkillCustomEventAction(0);
+                this._Groups[(int)actionType].actions.Add(action);    
+            }
                 break;
             }
         }

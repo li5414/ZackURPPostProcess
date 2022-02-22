@@ -18,6 +18,9 @@ namespace Skill
         // 事件
         [Description("事件")]
         Event = 2,
+        // 自定义回调
+        [Description("自定义回调")]
+        CustomEvent = 3,
     };
     
     [JsonObject(MemberSerialization.OptIn)]
@@ -115,6 +118,10 @@ namespace Skill
             this.timelineData.length = 0;
         }
 
+        /// <summary>
+        /// 执行事件
+        /// </summary>
+        /// <param name="gameObject"></param>
         public void Execute(GameObject gameObject)
         {
             if (timescaleComponent != null)
@@ -122,6 +129,26 @@ namespace Skill
                 timescaleComponent.Execute(gameObject);
             }
         }
+
+    }
+    
+    // 自定义事件
+    public class SkillCustomEventAction : SkillAction
+    {
+        // 添加事件的AniamtionClip的名称
+        [JsonProperty]
+        public string clipName;
+        
+        // 回调方法名
+        [JsonProperty]
+        public string functionName;
+        
+        public SkillCustomEventAction(int start)
+        {
+            this.timelineData.start = start;
+            this.timelineData.length = 0;
+        }
+
     }
     
 

@@ -95,8 +95,9 @@ namespace Skill.Editor
                             string stateName = this._SkillConfig.animations[i].state.GetDescription();
                             if (stateInfo.IsName(stateName))
                             {
+                                AnimationClip clip = getAnimationClip(stateName);
 //                            Debug.Log("stateInfo.normalizedTime = " + stateInfo.normalizedTime);
-                                this._CurrentFrame = (int)(stateInfo.normalizedTime * stateInfo.length * getAnimationClip(stateName).frameRate);
+                                this._CurrentFrame = (int)(stateInfo.normalizedTime * clip.length * clip.frameRate);
                                 break;
                             }
                         }
@@ -355,7 +356,7 @@ namespace Skill.Editor
         {
             using (new GUILayoutVertical(EditorParameters.k_WindowBackground, GUILayout.Height(k_ElementHeight)))
             {
-                EditorUtils.CreateTextField("技能id", this._SkillConfig.id);
+                EditorUtils.CreateTextFieldDisable("技能id", this._SkillConfig.id);
                 // 动画
                 using (new GUILayoutHorizontal())
                 {

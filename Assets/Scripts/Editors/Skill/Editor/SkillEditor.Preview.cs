@@ -72,7 +72,7 @@ namespace Skill.Editor
                 // 清除所有动画事件回调
                 controller.ClearAllAnimationEvents();
                 // 使用技能
-                SkillManager.getInstance().UseSkill(controller, this._SkillConfig);
+                SkillManager.GetInstance().UseSkill(controller, this._SkillConfig);
             }
 
             // 播放

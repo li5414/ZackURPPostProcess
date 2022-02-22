@@ -24,6 +24,9 @@ namespace  Skill
         // 事件action列表
         [JsonProperty]
         public List<SkillEventAction> events;
+        // 自定义事件action列表
+        [JsonProperty]
+        public List<SkillCustomEventAction> customEvents;
     }
 
 }

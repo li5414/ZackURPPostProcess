@@ -29,6 +29,16 @@ namespace Skill
                     Debug.Log($"在{action.clipName}第{action.timelineData.start}帧添加动画事件{i}");
                 }
             }
+            // 自定义事件
+            {
+                List<SkillCustomEventAction> actions = skillConfig.customEvents;
+                for (int i = 0; i < actions.Count; ++i)
+                {
+                    SkillCustomEventAction action = actions[i];
+                    eventController.RegisiterAnimationEvent(action.clipName, action.timelineData.start, action.functionName);
+                    Debug.Log($"在{action.clipName}第{action.timelineData.start}帧注册动画事件回调方法{action.functionName}");
+                }
+            }
             
         }
         

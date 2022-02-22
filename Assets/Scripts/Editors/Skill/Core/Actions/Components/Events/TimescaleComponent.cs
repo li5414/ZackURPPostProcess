@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Skill
@@ -15,13 +16,36 @@ namespace Skill
         // 时间缩放
         [JsonProperty]
         [Description("timescale")]
+        [Range(0,2)]
         public float timescale = 1f;
 
         [JsonProperty]
-        [Description("animate")]
+        [Description("animation")]
         public SkillAnimatorState state;
+        
+        [JsonProperty, JsonConverter(typeof(Vector4Converter))]
+        [Description("vector4")]
+        public Vector4 vec4;
+        
+        [JsonProperty, JsonConverter(typeof(Vector3Converter))]
+        [Description("vector3")]
+        public Vector3 vec3;
+        
+        [JsonProperty, JsonConverter(typeof(Vector2Converter))]
+        [Description("vector2")]
+        public Vector2 vec2;
 
-        TimescaleComponent()
+        [JsonProperty]
+        [Description("functionName")]
+        public string functionName;
+
+        
+        [JsonProperty]
+        [Description("asset"), SkillAssetAttribute(SkillAssetType.AudioClip)]
+        public SkillAsset asset;
+        
+
+        public TimescaleComponent()
         {
             this.needLoadRes = false;
         }
@@ -29,7 +53,9 @@ namespace Skill
         public override void Execute(GameObject gameObject)
         {
             Debug.Log($"设置timescale:{timescale}");
-            Time.timeScale = timescale;
+//            Time.timeScale = timescale;
+            Animator animator = gameObject.GetComponent<Animator>();
+            animator.speed = timescale;
         }
     } 
 }

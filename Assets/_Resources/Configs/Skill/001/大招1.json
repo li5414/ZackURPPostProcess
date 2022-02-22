@@ -1,12 +1,12 @@
 {
   "id": "大招1",
-  "totalFrames": 21,
+  "totalFrames": 59,
   "animations": [
     {
       "state": 2,
       "timelineData": {
         "start": 0,
-        "length": 21
+        "length": 59
       }
     }
   ],
@@ -33,19 +33,73 @@
       "clipName": "Skill",
       "timescaleComponent": {
         "timescale": 0.05,
-        "state": 2,
+        "state": 0,
+        "vec4": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "vec3": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "vec2": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "functionName": "asaadf",
+        "asset": {
+          "type": 1,
+          "guid": "cdefa107898396a4594681865593281d"
+        },
         "needLoadRes": false
       },
       "timelineData": {
-        "start": 3,
+        "start": 8,
         "length": 0
       }
     },
     {
       "clipName": "Skill",
-      "timescaleComponent": null,
+      "timescaleComponent": {
+        "timescale": 1.0,
+        "state": 0,
+        "vec4": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 0.0
+        },
+        "vec3": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "vec2": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "functionName": null,
+        "asset": {
+          "type": 1,
+          "guid": ""
+        },
+        "needLoadRes": false
+      },
       "timelineData": {
-        "start": 7,
+        "start": 19,
+        "length": 0
+      }
+    }
+  ],
+  "customEvents": [
+    {
+      "clipName": "Skill",
+      "functionName": "onAnimationEvent",
+      "timelineData": {
+        "start": 8,
         "length": 0
       }
     }

@@ -9,11 +9,11 @@ namespace Skill
 {
     public class AnimationEventManager : Singleton<AnimationEventManager>
     {
-        private Dictionary<AnimationClip, Dictionary<float, AnimationEvent>> _AnimationEventsDict;
+        private Dictionary<AnimationClip, Dictionary<float, List<AnimationEvent>>> _AnimationEventsDict;
 
         public AnimationEventManager()
         {
-            this._AnimationEventsDict = new Dictionary<AnimationClip, Dictionary<float, AnimationEvent>>();
+            this._AnimationEventsDict = new Dictionary<AnimationClip, Dictionary<float, List<AnimationEvent>>>();
         }
 
         /// <summary>
@@ -21,16 +21,23 @@ namespace Skill
         /// </summary>
         /// <param name="clip"></param>
         /// <param name="time"></param>
-        public void AddAnimationEvent(AnimationClip clip, float time)
+        /// <param name="functionName"></param>
+        public void AddAnimationEvent(AnimationClip clip, float time, string functionName)
         {
-            Dictionary<float, AnimationEvent> events;
-            if (!this._AnimationEventsDict.TryGetValue(clip, out events))
+            Dictionary<float, List<AnimationEvent>> eventDicts;
+            if (!this._AnimationEventsDict.TryGetValue(clip, out eventDicts))
             {
-                events = new Dictionary<float, AnimationEvent>();
-                this._AnimationEventsDict.Add(clip, events);
+                eventDicts = new Dictionary<float, List<AnimationEvent>>();
+                this._AnimationEventsDict.Add(clip, eventDicts);
+            }
+            List<AnimationEvent> events;
+            if (!eventDicts.TryGetValue(time, out events))
+            {
+                events = new List<AnimationEvent>();
+                eventDicts.Add(time, events);
             }
 
-            if (!events.ContainsKey(time))
+            if (!containsFunc(events, functionName))
             {
                 // AnimationEvent
                 AnimationEvent evt = new AnimationEvent();
@@ -40,12 +47,16 @@ namespace Skill
                 //事件挂载的时间位置。
                 evt.time = time;
                 //事件调用的函数名
-                evt.functionName = "onAnimationEvent";
+                evt.functionName = functionName;
                 //加入到clip中。有效期：播放结束
                 clip.AddEvent(evt);
                 
                 Debug.Log($"==============AddAnimationEvent====={clip.name}==={time}=====");
-                events.Add(time, evt);
+                events.Add(evt);
+            }
+            else
+            {
+                Debug.Log($"====已存在==========AddAnimationEvent====={clip.name}==={time}=====");
             }
            
         }
@@ -56,7 +67,21 @@ namespace Skill
             clip.events = new AnimationEvent[0];   
 //            UnityEditor.AnimationUtility.SetAnimationEvents(clip, new AnimationEvent[0]);
         }
-        
+
+        private bool containsFunc(List<AnimationEvent> events, string functionName)
+        {
+            for (int i = 0; i < events.Count; ++i)
+            {
+                AnimationEvent evt = events[i];
+                if (evt.functionName == functionName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
     }
         
     public class AnimationEventData
@@ -137,6 +162,9 @@ namespace Skill
 
     public class AnimationEventHandler
     {
+        // 动画事件回调
+        private const string k_AnimationEventFunctionName = "onAnimationEvent";
+        
         // 事件列表
         private Dictionary<int, AnimationEventData> _quickEvents = new Dictionary<int, AnimationEventData>();
         private Dictionary<AnimationClip, AnimationEventList> _allEvents = new Dictionary<AnimationClip, AnimationEventList>();
@@ -155,7 +183,7 @@ namespace Skill
         public int AddEvent(AnimationClip clip, float time, Action action)
         {
             // 在clip中注册事件
-            AnimationEventManager.getInstance().AddAnimationEvent(clip, time);
+            AnimationEventManager.GetInstance().AddAnimationEvent(clip, time, k_AnimationEventFunctionName);
             
             int id = generateID();
             // AnimationEventData

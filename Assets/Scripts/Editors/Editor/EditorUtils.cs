@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Skill;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using RangeAttribute = UnityEngine.RangeAttribute;
 
 namespace Zack.Editor
 {
@@ -44,6 +46,27 @@ namespace Zack.Editor
 
             return (descriptions[0] as System.ComponentModel.DescriptionAttribute).Description;
         }
+
+        public static T GetFieldAttribute<T>(FieldInfo field) where T : Attribute
+        {
+            var attributes = field.GetCustomAttributes(typeof(T), false);
+            if (attributes.Length == 0)
+            {
+                return null;
+            }
+
+            return (attributes[0] as T);
+        }
+
+        public static SkillAssetType GetSkillAssetType(FieldInfo field)
+        {
+            var attributes = field.GetCustomAttributes(typeof(SkillAssetAttribute), false);
+            if (attributes.Length == 0)
+            {
+                return SkillAssetType.GameObject;
+            }
+            return (attributes[0] as SkillAssetAttribute).type;
+        }
         
         /// <summary>
         /// 创建按钮
@@ -71,7 +94,13 @@ namespace Zack.Editor
         {
             text = EditorGUILayout.TextField(title, text, options);
         }
-        public static void CreateTextField(string title, string text, params GUILayoutOption[] options)
+
+        public static string CreateTextField(string title, string text, params GUILayoutOption[] options)
+        {
+            return EditorGUILayout.TextField(title, text, options);
+        }
+
+        public static void CreateTextFieldDisable(string title, string text, params GUILayoutOption[] options)
         {
             GUI.enabled = false;
             EditorGUILayout.TextField(title, text, options);
@@ -124,6 +153,21 @@ namespace Zack.Editor
         public static float CreateFloatField(string title, float value, params GUILayoutOption[] options)
         {
             return EditorGUILayout.FloatField(title, value, options);
+        }
+        
+        public static Vector2 CreateVector2Field(string title, Vector2 value, params GUILayoutOption[] options)
+        {
+            return EditorGUILayout.Vector2Field(title, value, options);
+        }
+        
+        public static Vector3 CreateVector3Field(string title, Vector3 value, params GUILayoutOption[] options)
+        {
+            return EditorGUILayout.Vector3Field(title, value, options);
+        }
+        
+        public static Vector4 CreateVector4Field(string title, Vector4 value, params GUILayoutOption[] options)
+        {
+            return EditorGUILayout.Vector4Field(title, value, options);
         }
 
         public static void CreateBoolField(string title, ref bool value, params GUILayoutOption[] options)
@@ -270,13 +314,13 @@ namespace Zack.Editor
         }
 
         /// <summary>
-        /// 获取gameObject的GUID
+        /// 获取UnityEngine.Object的GUID
         /// </summary>
-        /// <param name="gameobject"></param>
+        /// <param name="obj"></param>
         /// <returns></returns>
-        public static string GetGameObjectGUID(GameObject gameobject)
+        public static string GetGameObjectGUID(UnityEngine.Object obj)
         {
-            return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(gameobject));
+            return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(obj));
         }
         
         

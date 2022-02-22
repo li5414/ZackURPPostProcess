@@ -43,6 +43,21 @@ namespace Skill
         }
 
         /// <summary>
+        /// 注册回调
+        /// </summary>
+        /// <param name="clipName"></param>
+        /// <param name="frame"></param>
+        /// <param name="functionName"></param>
+        public void RegisiterAnimationEvent(string clipName, int frame, string functionName)
+        {
+            AnimationClip clip = this._controller[clipName];    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
+            if (clip != null)
+            {
+                AnimationEventManager.GetInstance().AddAnimationEvent(clip, frame/clip.frameRate, functionName);
+            }
+        }
+        
+        /// <summary>
         /// 添加动画事件
         /// </summary>
         /// <param name="clipName"></param>

@@ -9,7 +9,7 @@ namespace Framework.Utils
     {
         private static T m_oInstance;
 
-        public static T getInstance()
+        public static T GetInstance()
         {
             if (m_oInstance == null)
             {
@@ -25,7 +25,7 @@ namespace Framework.Utils
     {
         private static T m_oInstance;
 
-        public static T getInstance()
+        public static T GetInstance()
         {
             if (m_oInstance == null)
             {

@@ -88,7 +88,17 @@ namespace Skill.Editor
                var rect = GUILayoutUtility.GetLastRect();
                if (handleElementClick(rect))
                {
+                  // 鼠标左击
                   newSelectedItemIndex = i;
+               }
+               else if (handleElementClick(rect, 1))
+               {
+                  // 鼠标右击
+                  newSelectedItemIndex = i;
+                  EditorUtils.CreateMenu(new string[]{"删除"}, -1, (index) =>
+                  {
+                     actions.RemoveAt(newSelectedItemIndex);
+                  });
                }
             }
 
@@ -125,7 +135,17 @@ namespace Skill.Editor
                var rect = GUILayoutUtility.GetLastRect();
                if (handleElementClick(rect))
                {
+                  // 鼠标左击
                   newSelectedItemIndex = i;
+               }
+               else if (handleElementClick(rect, 1))
+               {
+                  // 鼠标右击
+                  newSelectedItemIndex = i;
+                  EditorUtils.CreateMenu(new string[]{"删除"}, -1, (index) =>
+                  {
+                     actions.RemoveAt(newSelectedItemIndex);
+                  });
                }
             }
             
@@ -167,11 +187,12 @@ namespace Skill.Editor
          /// 点击检测
          /// </summary>
          /// <param name="rect"></param>
+         /// <param name="buttonId">0:鼠标左键, 1:鼠标右键</param>
          /// <returns></returns>
-         protected bool handleElementClick(Rect rect)
+         protected bool handleElementClick(Rect rect, int buttonId = 0)
          {
             Event e = Event.current;
-            if (e.button == 0 && e.type == EventType.MouseUp && rect.Contains(e.mousePosition))
+            if (e.button == buttonId && e.type == EventType.MouseUp && rect.Contains(e.mousePosition))
             {
                GUI.FocusControl(null);
                e.Use();
@@ -190,7 +211,8 @@ namespace Skill.Editor
          {
             int length = timelineData.length;
             Rect rect = EditorUtils.CalculateTimeRect(timelineData.start, timelineData.end, k_ElementHeight);
-
+            rect.x -= EditorParameters.k_TickGap / 2;
+            
             float halfWidth = rect.width / 2;
             GUILayout.Space(rect.x);
 //            using (new GUIColor(length > 0 ? GUI.color : Color.red))
@@ -294,6 +316,7 @@ namespace Skill.Editor
                   
                   action.mainObject = (GameObject)EditorGUILayout.ObjectField("特效:", action.mainObject, typeof(GameObject), false);
                   action.guid = EditorUtils.GetGameObjectGUID(action.mainObject);
+//                  Debug.Log(AssetDatabase.GetLabels(action.mainObject)[0]);
                }
             }
          }
@@ -339,21 +362,62 @@ namespace Skill.Editor
          // 绘制组件列表
          void drawEventComponents(SkillEditor window, SkillEventAction action)
          {
-            List<string> names;
+            GenericMenu menu = new GenericMenu();
             
             // timescaleComponent
-            if (!window.drawTimescaleComponent(action.timescaleComponent))
+            if (!window.drawTimescaleComponent(action))
             {
+               menu.AddItem(new GUIContent(action.timescaleComponent.GetDescripthion()), false, () =>
+               {
+                  action.timescaleComponent = new TimescaleComponent();
+               });
             }
-            
             
             
             EditorUtils.CreateButton("添加组件", EditorParameters.k_ACButton, () =>
             {
-               
+               menu.ShowAsContext();
             }, GUILayout.Height(k_ElementHeight));
          }
          
+         
+      }
+      
+      public class SkillCustomEventGroup : Group
+      {
+         public SkillCustomEventGroup()
+         {
+            this._Title = "自定义回调";
+            this._HierarchyStyle = GroupHierarchyStyle.OnlyStart;
+         }
+
+         public override int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
+         {
+            return base.OnGroupHierarchyGUI(window, isGroupSelected, selectedItemIndex);
+         }
+
+         public override int OnGroupTimelineGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
+         {
+            return base.OnGroupTimelineGUI(window, isGroupSelected, selectedItemIndex);
+         }
+
+         public override void OnInspectorGUI(SkillEditor window, int selectedItemIndex, int maxFrameLength)
+         {
+            base.OnInspectorGUI(window, selectedItemIndex, maxFrameLength);
+            
+            if (selectedItemIndex < this.actions.Count)
+            {
+               SkillCustomEventAction action = this.actions[selectedItemIndex] as SkillCustomEventAction;
+               // 事件没有时长一说
+               if (action.timelineData.length > 0)
+               {
+                  action.timelineData.length = 0;
+               }
+
+               EditorUtils.CreateTextField("functionName", ref action.functionName);
+            }
+         }
+
          
       }
       
