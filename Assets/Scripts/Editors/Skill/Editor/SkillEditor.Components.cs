@@ -15,11 +15,11 @@ namespace Skill.Editor
    public partial class SkillEditor
    {
       // 绘制组件
-      
-      // timescale组件
-      bool drawTimescaleComponent(SkillEventAction action)
+      // =========================SkillEffectAction的组件=======================================
+      // 特效组件
+      bool drawPrefabEffectComponent(SkillEffectAction action)
       {
-         TimescaleComponent component = action.timescaleComponent;
+         PrefabEffect component = action.prefabEffect;
          if (component == null)
          {
             return false;
@@ -35,7 +35,36 @@ namespace Skill.Editor
          {
             EditorUtils.CreateMenu(new string[]{"删除"}, -1, (index) =>
             {
-               action.timescaleComponent = null;
+               action.prefabEffect = null;
+            });
+         }
+         
+         return true;
+      }
+      // =========================SkillEffectAction的组件=======================================
+
+      
+      // =========================SkillEventAction的组件=======================================
+      // timescale组件
+      bool drawTimescaleComponent(SkillEventAction action)
+      {
+         TimescaleEvent component = action.timescaleEvent;
+         if (component == null)
+         {
+            return false;
+         }
+         
+         using (new GUILayoutVertical(EditorStyles.helpBox, GUILayout.Height(k_ElementHeight)))
+         {
+            drawComponentProperties(component);
+         }
+
+         // 点击事件
+         if(HitTest())
+         {
+            EditorUtils.CreateMenu(new string[]{"删除"}, -1, (index) =>
+            {
+               action.timescaleEvent = null;
             });
          }
          
@@ -121,6 +150,8 @@ namespace Skill.Editor
                value.mainObject = EditorGUILayout.ObjectField(desc, value.mainObject, unityAssetType, false);
                value.guid = EditorUtils.GetGameObjectGUID(value.mainObject);
                value.type = assetType;
+               // 更新资源ab信息
+               EditorUtils.UpdateSkillAssetBundleInfo(value);
                field.SetValue(component, value);
             }
             else if (field.FieldType == typeof(string))
@@ -132,19 +163,19 @@ namespace Skill.Editor
             else if (field.FieldType == typeof(Vector4))
             {
                // Vector4类型属性
-               Vector4 value = EditorUtils.CreateVector4Field(desc, (Vector4)field.GetValue(component));
+               Vector4 value = EditorUtils.CreateVector4Field(desc, (Vector4)field.GetValue(component), GUILayout.Width(200));
                field.SetValue(component, value);
             }
             else if (field.FieldType == typeof(Vector3))
             {
                // Vector3类型属性
-               Vector3 value = EditorUtils.CreateVector3Field(desc, (Vector3)field.GetValue(component));
+               Vector3 value = EditorUtils.CreateVector3Field(desc, (Vector3)field.GetValue(component), GUILayout.Width(150));
                field.SetValue(component, value);
             }
             else if (field.FieldType == typeof(Vector2))
             {
                // Vector2类型属性
-               Vector2 value = EditorUtils.CreateVector2Field(desc, (Vector2)field.GetValue(component));
+               Vector2 value = EditorUtils.CreateVector2Field(desc, (Vector2)field.GetValue(component), GUILayout.Width(100));
                field.SetValue(component, value);
             }
             else if (field.FieldType == typeof(float))
@@ -181,7 +212,8 @@ namespace Skill.Editor
                
          }
       }
-      
+      // =========================SkillEventAction的组件=======================================
+
       
       
       

@@ -53,7 +53,17 @@ namespace Skill
             AnimationClip clip = this._controller[clipName];    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
             if (clip != null)
             {
-                AnimationEventManager.GetInstance().AddAnimationEvent(clip, frame/clip.frameRate, functionName);
+                float time = frame / clip.frameRate;
+                if (time > clip.length)
+                {
+                    Debug.LogWarning("Frame index is out of clip animation's range, please check your programe at RegisiterAnimationEvent");
+                    time = clip.length;
+                }
+                else if (clip.length - time < 0.01f)
+                {
+                    time = clip.length;
+                }
+                AnimationEventManager.GetInstance().AddAnimationEvent(clip, time, functionName);
             }
         }
         
@@ -71,33 +81,23 @@ namespace Skill
                 AnimationClip clip = this._controller[clipName];    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
                 if (clip != null)
                 {
-                    return this._eventHandler.AddEvent(clip, frame/clip.frameRate, callback);
+                    float time = frame / clip.frameRate;
+                    if (time > clip.length)
+                    {
+                        Debug.LogWarning("Frame index is out of clip animation's range, please check your programe at RegisiterAnimationEvent");
+                        time = clip.length;
+                    }
+                    else if (clip.length - time < 0.01f)
+                    {
+                        time = clip.length;
+                    }
+                    return this._eventHandler.AddEvent(clip, time, callback);
                 }
             }
 
             return -1;
         }
-        /// <summary>
-        /// 添加动画事件
-        /// </summary>
-        /// <param name="clipName"></param>
-        /// <param name="normalizedTime"></param>
-        /// <param name="callback"></param>
-        public int AddAnimationEventByNormalized(string clipName, float normalizedTime, Action callback)
-        {
-            // 添加完成回调事件
-            if (callback != null)
-            {
-                AnimationClip clip = this._controller[clipName];    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
-                if (clip != null)
-                {
-                    return this._eventHandler.AddEvent(clip, clip.length*normalizedTime, callback);
-                }
-            }
-
-            return -1;
-        }
-
+    
         public void RemoveAnimationEvent(int id)
         {
             if (id != -1)

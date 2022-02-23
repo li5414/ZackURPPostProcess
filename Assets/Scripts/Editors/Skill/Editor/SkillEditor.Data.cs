@@ -131,9 +131,11 @@ namespace Skill.Editor
             {
                 SkillAnimationAction action = actions[i] as SkillAnimationAction;
                 string stateName = action.state.GetDescription();
-                int frames = getAnimationStateFrames(stateName);
+                AnimationClip clip = getAnimationClip(stateName);
+                int frames = getAnimationStateFrames(clip);
                 action.timelineData.start = totalFrames;
                 action.timelineData.length = frames;
+                action.clipName = clip.name;
                 
                 totalFrames += frames;
             }
@@ -180,7 +182,10 @@ namespace Skill.Editor
                 List<SkillAction> actions = this._Groups[(int) SkillActionType.Effect].actions;
                 for (int i = 0; i < actions.Count; ++i)
                 {
-                    this._SkillConfig.effects.Add(actions[i] as SkillEffectAction);
+                    SkillEffectAction action = actions[i] as SkillEffectAction;
+                    action.startClipName = getAnimationClip(getAnimationStateName(action.timelineData.start)).name;
+                    action.endClipName = getAnimationClip(getAnimationStateName(action.timelineData.end)).name;
+                    this._SkillConfig.effects.Add(action);
                 }
             }
             // Event

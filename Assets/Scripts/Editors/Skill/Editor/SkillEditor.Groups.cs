@@ -13,6 +13,7 @@ namespace Skill.Editor
    {
       public class Group
       {
+         // Group的Hierarchy样式枚举
          protected enum GroupHierarchyStyle
          {
             // "[start~end]"
@@ -21,6 +22,17 @@ namespace Skill.Editor
             OnlyStart,
             // 自定义 (显示_HierarchyText内容)
             Custom,
+         }
+
+         // timeline数据编辑样式枚举
+         protected enum TimelineEditStyle
+         {
+            // 起始、时长 可编辑
+            StartAndDuration,
+            // 起始 可编辑
+            OnlyStart,
+            // 无可编辑
+            Nothing
          }
          
          // 组标题
@@ -32,8 +44,8 @@ namespace Skill.Editor
          // Hierarchy显示样式
          protected GroupHierarchyStyle _HierarchyStyle = GroupHierarchyStyle.ShowStartEnd;
          protected string _HierarchyText = string.Empty;
-         // 是否可编辑timeline
-         protected bool _CanEditTimeline = true;
+         // timeline编辑样式
+         protected TimelineEditStyle _TimelineEditStyle = TimelineEditStyle.StartAndDuration;
 
          /// <summary>
          /// 组UI
@@ -166,17 +178,31 @@ namespace Skill.Editor
                
                using (new GUILayoutVertical(EditorParameters.k_WindowBackground))
                {
-                  if (this._CanEditTimeline)
+                  switch (this._TimelineEditStyle)
                   {
-                     EditorUtils.CreateIntField("起始", ref timelineData.start, 0, maxFrameLength);
-                     EditorUtils.CreateIntFieldDisable("结束", timelineData.end);
-                     EditorUtils.CreateIntField("时长", ref timelineData.length, 0, maxFrameLength-timelineData.start);
-                  }
-                  else
-                  {
-                     EditorUtils.CreateIntFieldDisable("起始", timelineData.start);
-                     EditorUtils.CreateIntFieldDisable("结束", timelineData.end);
-                     EditorUtils.CreateIntFieldDisable("时长", timelineData.length);
+                  case TimelineEditStyle.StartAndDuration:
+                     {
+                        EditorUtils.CreateIntField("起始", ref timelineData.start, 0, maxFrameLength);
+                        EditorUtils.CreateIntFieldDisable("结束", timelineData.end);
+                        EditorUtils.CreateIntField("时长", ref timelineData.length, 0, maxFrameLength-timelineData.start);
+                     }
+                     break;
+
+                  case TimelineEditStyle.OnlyStart:
+                     {
+                        EditorUtils.CreateIntField("起始", ref timelineData.start, 0, maxFrameLength);
+                        EditorUtils.CreateIntFieldDisable("结束", timelineData.end);
+                        EditorUtils.CreateIntFieldDisable("时长", timelineData.length);
+                     }
+                     break;
+
+                  case TimelineEditStyle.Nothing:
+                     {
+                        EditorUtils.CreateIntFieldDisable("起始", timelineData.start);
+                        EditorUtils.CreateIntFieldDisable("结束", timelineData.end);
+                        EditorUtils.CreateIntFieldDisable("时长", timelineData.length);
+                     }
+                     break;
                   }
 
                }
@@ -230,7 +256,7 @@ namespace Skill.Editor
          public SkillAnimationGroup()
          {
             this._Title = "动画";
-            this._CanEditTimeline = false;
+            this._TimelineEditStyle = TimelineEditStyle.Nothing;
          }
 
          public override int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
@@ -250,7 +276,7 @@ namespace Skill.Editor
             if (selectedItemIndex < this.actions.Count)
             {
                SkillAnimationAction action = this.actions[selectedItemIndex] as SkillAnimationAction;
-               using (new GUILayoutVertical(EditorParameters.k_WindowBackground, GUILayout.Height(k_ElementHeight)))
+               using (new GUILayoutVertical(GUILayout.Height(k_ElementHeight)))
                {
                   // 动画
                   using (new GUILayoutHorizontal())
@@ -261,7 +287,7 @@ namespace Skill.Editor
                      }))
                      {
                         // 选择状态
-                        EditorUtils.CreateText("选择动画:", EditorParameters.k_Label);
+                        EditorUtils.CreateText("选择动画", EditorParameters.k_Label);
                         GUILayout.FlexibleSpace();
                         EditorUtils.CreateButton(action.state.GetDescription(), EditorParameters.k_DropDownButton, () =>
                         {
@@ -273,7 +299,7 @@ namespace Skill.Editor
                         }, GUILayout.Width(83));
                      }
                   }
-                  
+                  EditorUtils.CreateTextFieldDisable("clipName", action.clipName);
                }
                
             }
@@ -306,19 +332,30 @@ namespace Skill.Editor
             if (selectedItemIndex < this.actions.Count)
             {
                SkillEffectAction action = this.actions[selectedItemIndex] as SkillEffectAction;
-               
-               using (new GUILayoutVertical(EditorParameters.k_WindowBackground))
-               {
-                  if (action.mainObject==null && action.guid!=string.Empty)
-                  {
-                     action.mainObject = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(action.guid));
-                  }
-                  
-                  action.mainObject = (GameObject)EditorGUILayout.ObjectField("特效:", action.mainObject, typeof(GameObject), false);
-                  action.guid = EditorUtils.GetGameObjectGUID(action.mainObject);
-//                  Debug.Log(AssetDatabase.GetLabels(action.mainObject)[0]);
-               }
+               // 绘制组件列表
+               drawEffectComponents(window, action);
             }
+         }
+         
+         // 绘制组件列表
+         void drawEffectComponents(SkillEditor window, SkillEffectAction action)
+         {
+            GenericMenu menu = new GenericMenu();
+            
+            // timescaleEvent
+            if (!window.drawPrefabEffectComponent(action))
+            {
+               menu.AddItem(new GUIContent(action.prefabEffect.GetDescripthion()), false, () =>
+               {
+                  action.prefabEffect = new PrefabEffect();
+               });
+            }
+
+            // 打开菜单
+            EditorUtils.CreateButton("添加组件", EditorParameters.k_ACButton, () =>
+            {
+               menu.ShowAsContext();
+            }, GUILayout.Height(k_ElementHeight));
          }
          
       }
@@ -330,6 +367,7 @@ namespace Skill.Editor
          {
             this._Title = "事件";
             this._HierarchyStyle = GroupHierarchyStyle.OnlyStart;
+            this._TimelineEditStyle = TimelineEditStyle.OnlyStart;
          }
 
          public override int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
@@ -354,7 +392,7 @@ namespace Skill.Editor
                {
                   action.timelineData.length = 0;
                }
-                  
+               // 绘制组件列表
                drawEventComponents(window, action);
             }
          }
@@ -364,16 +402,16 @@ namespace Skill.Editor
          {
             GenericMenu menu = new GenericMenu();
             
-            // timescaleComponent
+            // timescaleEvent
             if (!window.drawTimescaleComponent(action))
             {
-               menu.AddItem(new GUIContent(action.timescaleComponent.GetDescripthion()), false, () =>
+               menu.AddItem(new GUIContent(action.timescaleEvent.GetDescripthion()), false, () =>
                {
-                  action.timescaleComponent = new TimescaleComponent();
+                  action.timescaleEvent = new TimescaleEvent();
                });
             }
-            
-            
+
+            // 打开菜单
             EditorUtils.CreateButton("添加组件", EditorParameters.k_ACButton, () =>
             {
                menu.ShowAsContext();
@@ -389,6 +427,7 @@ namespace Skill.Editor
          {
             this._Title = "自定义回调";
             this._HierarchyStyle = GroupHierarchyStyle.OnlyStart;
+            this._TimelineEditStyle = TimelineEditStyle.OnlyStart;
          }
 
          public override int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)

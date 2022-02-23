@@ -1,27 +1,54 @@
 {
   "id": "大招1",
-  "totalFrames": 59,
+  "totalFrames": 58,
   "animations": [
     {
       "state": 2,
+      "clipName": "Skill",
       "timelineData": {
         "start": 0,
-        "length": 59
+        "length": 58
       }
     }
   ],
   "effects": [
     {
-      "prefabPath": null,
-      "guid": "cdefa107898396a4594681865593281d",
+      "startClipName": "Skill",
+      "endClipName": "Skill",
+      "prefabEffect": {
+        "effectObject": {
+          "type": 0,
+          "bundleName": "fdsfdfds",
+          "assetName": "GameObject",
+          "guid": "cdefa107898396a4594681865593281d"
+        },
+        "position": {
+          "x": 1.0,
+          "y": 2.0,
+          "z": 3.0
+        },
+        "eulerAngles": {
+          "x": 4.0,
+          "y": 5.0,
+          "z": 6.0
+        },
+        "scale": {
+          "x": 7.0,
+          "y": 8.0,
+          "z": 9.0
+        },
+        "speed": 1.0,
+        "needLoadRes": false
+      },
       "timelineData": {
         "start": 0,
         "length": 3
       }
     },
     {
-      "prefabPath": null,
-      "guid": "",
+      "startClipName": "Skill",
+      "endClipName": "Skill",
+      "prefabEffect": null,
       "timelineData": {
         "start": 16,
         "length": 5
@@ -31,7 +58,7 @@
   "events": [
     {
       "clipName": "Skill",
-      "timescaleComponent": {
+      "timescaleEvent": {
         "timescale": 0.05,
         "state": 0,
         "vec4": {
@@ -52,6 +79,8 @@
         "functionName": "asaadf",
         "asset": {
           "type": 1,
+          "bundleName": null,
+          "assetName": null,
           "guid": "cdefa107898396a4594681865593281d"
         },
         "needLoadRes": false
@@ -63,7 +92,7 @@
     },
     {
       "clipName": "Skill",
-      "timescaleComponent": {
+      "timescaleEvent": {
         "timescale": 1.0,
         "state": 0,
         "vec4": {
@@ -84,6 +113,8 @@
         "functionName": null,
         "asset": {
           "type": 1,
+          "bundleName": null,
+          "assetName": null,
           "guid": ""
         },
         "needLoadRes": false
@@ -99,7 +130,7 @@
       "clipName": "Skill",
       "functionName": "onAnimationEvent",
       "timelineData": {
-        "start": 8,
+        "start": 58,
         "length": 0
       }
     }

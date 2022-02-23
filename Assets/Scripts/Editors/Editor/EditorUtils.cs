@@ -157,17 +157,35 @@ namespace Zack.Editor
         
         public static Vector2 CreateVector2Field(string title, Vector2 value, params GUILayoutOption[] options)
         {
-            return EditorGUILayout.Vector2Field(title, value, options);
+            using (new GUILayoutHorizontal())
+            {
+                CreateLabel(title);
+                GUILayout.FlexibleSpace();
+                value = EditorGUILayout.Vector2Field(GUIContent.none, value, options);        
+            }
+            return value;
         }
         
         public static Vector3 CreateVector3Field(string title, Vector3 value, params GUILayoutOption[] options)
         {
-            return EditorGUILayout.Vector3Field(title, value, options);
+            using (new GUILayoutHorizontal())
+            {
+                CreateLabel(title);
+                GUILayout.FlexibleSpace();
+                value = EditorGUILayout.Vector3Field(GUIContent.none, value, options);     
+            }
+            return value;
         }
         
         public static Vector4 CreateVector4Field(string title, Vector4 value, params GUILayoutOption[] options)
         {
-            return EditorGUILayout.Vector4Field(title, value, options);
+            using (new GUILayoutHorizontal())
+            {
+                CreateLabel(title);
+                GUILayout.FlexibleSpace();
+                value = EditorGUILayout.Vector4Field(GUIContent.none, value, options);     
+            }
+            return value;
         }
 
         public static void CreateBoolField(string title, ref bool value, params GUILayoutOption[] options)
@@ -321,6 +339,37 @@ namespace Zack.Editor
         public static string GetGameObjectGUID(UnityEngine.Object obj)
         {
             return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(obj));
+        }
+
+        /// <summary>
+        /// 更新SkillAsset的ab信息数据
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <param name="obj"></param>
+        public static void UpdateSkillAssetBundleInfo(SkillAsset asset)
+        {
+            if (asset.mainObject == null)
+            {
+                return;
+            }
+            
+            string path = AssetDatabase.GetAssetPath(asset.mainObject);
+            AssetImporter assetImporter = AssetImporter.GetAtPath(path);  //得到AssetImporter
+            if (assetImporter)
+            {
+                // 设置ab包名
+                asset.bundleName = assetImporter.assetBundleName;
+                // 设置资源名
+                asset.assetName = getObjectName(path);
+            }
+        }
+        
+        public static string getObjectName(string path)
+        {
+            string objectName = path;
+            objectName = objectName.Substring(0, objectName.LastIndexOf("."));
+            objectName = objectName.Substring(objectName.LastIndexOf("/") + 1);
+            return objectName;
         }
         
         

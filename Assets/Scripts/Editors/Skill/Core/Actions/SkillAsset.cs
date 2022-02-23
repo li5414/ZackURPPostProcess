@@ -38,14 +38,17 @@ namespace Skill
         // 资源类型
         [JsonProperty]
         public SkillAssetType type;
-        // GUID
-        [JsonProperty]
-        public string guid;
         // ab包
+        [JsonProperty]
         public string bundleName;
         // 资源名
+        [JsonProperty]
         public string assetName;
-        // 资源
+        
+        // GUID (用于技能编辑时指定资源)
+        [JsonProperty]
+        public string guid;
+        // 资源 (用于技能编辑时指定资源)
         public UnityEngine.Object mainObject;
     }
     

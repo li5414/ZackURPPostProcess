@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace Skill
 {
+    /// <summary>
+    /// SkillAction类型枚举
+    /// </summary>
     public enum SkillActionType
     {
         // 动画
@@ -23,6 +26,9 @@ namespace Skill
         CustomEvent = 3,
     };
     
+    /// <summary>
+    /// Timeline数据
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class TimelineData
     {
@@ -66,41 +72,107 @@ namespace Skill
         }
     }
     
+    /// <summary>
+    /// 技能数据
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class SkillAction
     {
         [JsonProperty]
         public TimelineData timelineData = new TimelineData();
 
-        public virtual void LoadResourceEditor(Action loadFinish)
-        {
-            loadFinish?.Invoke();
-        }
+        // 资源加载 (component的资源)
         public virtual void LoadResource(Action loadFinish)
         {
             loadFinish?.Invoke();
         }
+        // 注册事件
+        public virtual void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds) {}
     }
-
-    // 特效
-    public class SkillEffectAction : SkillAction
+    
+    // 动画
+    [JsonObject(MemberSerialization.OptIn)]
+    public class SkillAnimationAction : SkillAction
     {
         [JsonProperty]
-        public string prefabPath;
+        public SkillAnimatorState state;
+        [JsonProperty] 
+        public string clipName;
 
-        // 特效资源
-        public GameObject mainObject;
+        public SkillAnimationAction(int start, int length)
+        {
+            this.timelineData.start = start;
+            this.timelineData.length = length;
+        }
+    }
+
+    /// <summary>
+    /// 特效数据
+    /// </summary>
+    public class SkillEffectAction : SkillAction
+    {
+        // 添加事件的AniamtionClip的名称 (注意这种有时长的可能会跨越两段动画)
         [JsonProperty]
-        public string guid;
+        public string startClipName;
+        [JsonProperty]
+        public string endClipName;
+
+        // 组件列表
+        // 特效物体
+        [JsonProperty]
+        public PrefabEffect prefabEffect;
         
         public SkillEffectAction(int start, int length)
         {
             this.timelineData.start = start;
             this.timelineData.length = length;
         }
+        
+        /// <summary>
+        /// 注册事件
+        /// </summary>
+        /// <param name="eventController"></param>
+        public override void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds)
+        {
+            int eventId;
+            // OnStart事件
+            {
+                eventId = eventController.AddAnimationEvent(this.startClipName, this.timelineData.start, ()=>{
+                    Debug.Log($"============SkillEffectAction OnStart===========frame: {this.timelineData.start}====");
+                    this.OnStart(eventController.gameObject);
+                });
+                eventIds.Add(eventId);
+            }
+            // OnEnd事件
+            {
+                eventId = eventController.AddAnimationEvent(this.endClipName, this.timelineData.end, ()=>{
+                    Debug.Log($"============SkillEffectAction OnEnd===========frame: {this.timelineData.end}====");
+                    this.OnEnd(eventController.gameObject);
+                });
+                eventIds.Add(eventId);
+            }
+        }
+
+        protected void OnStart(GameObject gameObject)
+        {
+            if (this.prefabEffect != null)
+            {
+                this.prefabEffect.OnStart(gameObject);
+            }
+        }
+
+        protected void OnEnd(GameObject gameObject)
+        {
+            if (this.prefabEffect != null)
+            {
+                this.prefabEffect.OnEnd(gameObject);
+            }
+        }
     }
     
-    // 事件
+    /// <summary>
+    /// 事件数据
+    /// </summary>
     public class SkillEventAction : SkillAction
     {
         // 添加事件的AniamtionClip的名称
@@ -110,12 +182,25 @@ namespace Skill
         // 组件列表
         // timescale
         [JsonProperty]
-        public TimescaleComponent timescaleComponent;
+        public TimescaleEvent timescaleEvent;
 
         public SkillEventAction(int start)
         {
             this.timelineData.start = start;
             this.timelineData.length = 0;
+        }
+        
+        /// <summary>
+        /// 注册事件
+        /// </summary>
+        /// <param name="eventController"></param>
+        public override void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds)
+        {
+            int eventId = eventController.AddAnimationEvent(this.clipName, this.timelineData.start, ()=>{
+                Debug.Log($"============SkillEventAction callback===========frame: {this.timelineData.start}====");
+                this.Execute(eventController.gameObject);
+            });
+            eventIds.Add(eventId);
         }
 
         /// <summary>
@@ -124,15 +209,18 @@ namespace Skill
         /// <param name="gameObject"></param>
         public void Execute(GameObject gameObject)
         {
-            if (timescaleComponent != null)
+            // timescale event
+            if (timescaleEvent != null)
             {
-                timescaleComponent.Execute(gameObject);
+                timescaleEvent.OnStart(gameObject);
             }
         }
 
     }
     
-    // 自定义事件
+    /// <summary>
+    /// 自定义事件数据
+    /// </summary>
     public class SkillCustomEventAction : SkillAction
     {
         // 添加事件的AniamtionClip的名称
@@ -147,6 +235,15 @@ namespace Skill
         {
             this.timelineData.start = start;
             this.timelineData.length = 0;
+        }
+        
+        /// <summary>
+        /// 注册事件
+        /// </summary>
+        /// <param name="eventController"></param>
+        public override void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds)
+        {
+            eventController.RegisiterAnimationEvent(this.clipName, this.timelineData.start, this.functionName);
         }
 
     }

@@ -17,7 +17,9 @@ namespace Skill
     
         // 加载资源
         public virtual void LoadResource(Action callback) {}
-        // 执行
-        public virtual void Execute(GameObject gameObject) {}
+        // 执行start (SkillEventAction只需调用此接口)
+        public virtual void OnStart(GameObject gameObject) {}
+        // 执行end
+        public virtual void OnEnd(GameObject gameObject) {}
     }
 }

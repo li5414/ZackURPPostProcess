@@ -11,7 +11,7 @@ namespace Skill
     // 技能事件的timescale组件
     [Description("Timescale缩放")]
     [JsonObject(MemberSerialization.OptIn)]
-    public partial class TimescaleComponent : SkillComponent
+    public partial class TimescaleEvent : SkillComponent
     {
         // 时间缩放
         [JsonProperty]
@@ -45,12 +45,12 @@ namespace Skill
         public SkillAsset asset;
         
 
-        public TimescaleComponent()
+        public TimescaleEvent()
         {
             this.needLoadRes = false;
         }
 
-        public override void Execute(GameObject gameObject)
+        public override void OnStart(GameObject gameObject)
         {
             Debug.Log($"设置timescale:{timescale}");
 //            Time.timeScale = timescale;

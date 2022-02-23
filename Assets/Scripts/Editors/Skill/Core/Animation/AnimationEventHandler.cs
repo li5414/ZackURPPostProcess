@@ -131,7 +131,8 @@ namespace Skill
             List<AnimationEventData> events;
             if (this._eventsDict.TryGetValue(time, out events))
             {
-                for (int i = events.Count-1; i >= 0 ; --i)
+                // 注意callback可能会移除events中的元素，所以这里判断条件加一下每次判断元素数量
+                for (int i = events.Count-1; events.Count>0 && i>=0 ; --i)
                 {
                     AnimationEventData data = events[i];
                     events.RemoveAt(i);
@@ -169,7 +170,7 @@ namespace Skill
         private Dictionary<int, AnimationEventData> _quickEvents = new Dictionary<int, AnimationEventData>();
         private Dictionary<AnimationClip, AnimationEventList> _allEvents = new Dictionary<AnimationClip, AnimationEventList>();
         // 事件ID
-        private int _eventIDGenerator = 0;
+        IdentityGenerator _eventIDGenerator = new IdentityGenerator();
         // 待清除列表
         private List<int> _unusedEventIDs = new List<int>();
 
@@ -185,7 +186,7 @@ namespace Skill
             // 在clip中注册事件
             AnimationEventManager.GetInstance().AddAnimationEvent(clip, time, k_AnimationEventFunctionName);
             
-            int id = generateID();
+            int id = _eventIDGenerator.GenerateId();
             // AnimationEventData
             AnimationEventData data = new AnimationEventData(id, clip, time, Time.realtimeSinceStartup, action);
             // _quickEvents
@@ -283,19 +284,6 @@ namespace Skill
             }
             this._allEvents.Clear();
             this._quickEvents.Clear();
-        }
-        
-        /// <summary>
-        /// 生成事件id
-        /// </summary>
-        /// <returns></returns>
-        int generateID()
-        {
-            if (_eventIDGenerator >= int.MaxValue)
-            {
-                _eventIDGenerator = 0;
-            }
-            return ++_eventIDGenerator;
         }
 
     }

@@ -78,6 +78,7 @@ namespace Skill.Editor
             // 播放
             if (this._Animator!=null && this._SkillConfig!=null)
             {
+                Debug.Log(this._Animator.runtimeAnimatorController);
                 string stateName = this._SkillConfig.animations[0].state.GetDescription();
                 this._Animator.Play(stateName, -1, 0);
             }
@@ -108,7 +109,7 @@ namespace Skill.Editor
         {
             if (clip)
             {
-                return Mathf.CeilToInt(clip.length * clip.frameRate);
+                return Mathf.FloorToInt(clip.length * clip.frameRate);
             }
             return 0;
         }

@@ -1,19 +1,20 @@
 {
-  "id": null,
-  "totalFrames": 22,
+  "id": "技能1",
+  "totalFrames": 21,
   "animations": [
     {
       "state": 0,
+      "clipName": "Attack1",
       "timelineData": {
         "start": 0,
-        "length": 22
+        "length": 21
       }
     }
   ],
   "effects": [
     {
-      "prefabPath": null,
-      "guid": "cdefa107898396a4594681865593281d",
+      "startClipName": null,
+      "endClipName": null,
       "timelineData": {
         "start": 0,
         "length": 3
@@ -23,6 +24,7 @@
   "events": [
     {
       "clipName": "Attack1",
+      "timescaleEvent": null,
       "timelineData": {
         "start": 0,
         "length": 0
@@ -30,6 +32,7 @@
     },
     {
       "clipName": "Attack1",
+      "timescaleEvent": null,
       "timelineData": {
         "start": 22,
         "length": 0
@@ -37,10 +40,12 @@
     },
     {
       "clipName": "Attack1",
+      "timescaleEvent": null,
       "timelineData": {
         "start": 11,
         "length": 0
       }
     }
-  ]
+  ],
+  "customEvents": []
 }
