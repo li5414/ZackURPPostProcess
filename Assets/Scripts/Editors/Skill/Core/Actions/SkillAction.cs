@@ -81,10 +81,53 @@ namespace Skill
         [JsonProperty]
         public TimelineData timelineData = new TimelineData();
 
+        // 有效组件列表 (暂时用于加载和卸载资源)
+        protected List<SkillComponent> _Components;
+
+        // 检测有效组件
+        protected virtual void CheckComponents() {}
         // 资源加载 (component的资源)
         public virtual void LoadResource(Action loadFinish)
         {
-            loadFinish?.Invoke();
+            // 有效组件数量
+            CheckComponents();
+            
+            if (this._Components != null && this._Components.Count > 0)
+            {
+                int totalCount = this._Components.Count;
+                int finishCount = 0;
+                for (int i = 0; i < totalCount; ++i)
+                {
+                    this._Components[i].LoadResource(() =>
+                    {
+                        finishCount++;
+#if UNITY_EDITOR
+                        Debug.Log($"{this.GetType().Name} SkillComponent Loading {finishCount}/{totalCount}.");
+#endif
+                        if (finishCount >= totalCount)
+                        {
+                            loadFinish?.Invoke();
+                        }
+                    });
+                }
+            }
+            else
+            {
+                loadFinish?.Invoke();
+            }
+        }
+        // 资源卸载
+        public virtual void UnLoadResource()
+        {
+            if (this._Components != null && this._Components.Count > 0)
+            {
+                int totalCount = this._Components.Count;
+                for (int i = 0; i < totalCount; ++i)
+                {
+                    this._Components[i].UnLoadResource();
+                }
+            }
+            
         }
         // 注册事件
         public virtual void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds) {}
@@ -127,6 +170,21 @@ namespace Skill
             this.timelineData.start = start;
             this.timelineData.length = length;
         }
+        
+        // 检测有效组件    TODO: 添加组件需要在这里也标注一下
+        protected override void CheckComponents()
+        {
+            if (this._Components == null)
+            {
+                this._Components = new List<SkillComponent>();
+                
+                if (prefabEffect != null)
+                {
+                    _Components.Add(prefabEffect);
+                }
+            }
+        }
+        
         
         /// <summary>
         /// 注册事件
@@ -188,6 +246,15 @@ namespace Skill
         {
             this.timelineData.start = start;
             this.timelineData.length = 0;
+        }
+        
+        // 检测有效组件    TODO: 添加组件需要在这里也标注一下
+        protected override void CheckComponents()
+        {
+            if (this._Components == null)
+            {
+                this._Components = new List<SkillComponent>();
+            }
         }
         
         /// <summary>

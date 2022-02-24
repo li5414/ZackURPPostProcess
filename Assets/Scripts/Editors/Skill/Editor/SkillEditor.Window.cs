@@ -148,7 +148,8 @@ namespace Skill.Editor
                     {
                         if (this._SkillConfig != null)
                         {
-                            SaveConfig();
+//                            SaveConfig();
+                            SkillManager.GetInstance().UnLoadSkill(this._SkillConfig);
                         }
                     }, GUILayout.Width(100));
 

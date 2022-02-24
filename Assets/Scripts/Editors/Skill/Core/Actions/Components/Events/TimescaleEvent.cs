@@ -47,7 +47,6 @@ namespace Skill
 
         public TimescaleEvent()
         {
-            this.needLoadRes = false;
         }
 
         public override void OnStart(GameObject gameObject)

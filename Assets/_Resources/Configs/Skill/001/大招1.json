@@ -22,6 +22,13 @@
           "assetName": "GameObject",
           "guid": "cdefa107898396a4594681865593281d"
         },
+        "effectObject2": {
+          "type": 0,
+          "bundleName": "asdfvcvx",
+          "assetName": "test",
+          "guid": "e93b835a7763d194cb2366dae72f4531"
+        },
+        "bindNodeType": 0,
         "position": {
           "x": 1.0,
           "y": 2.0,
@@ -37,8 +44,7 @@
           "y": 8.0,
           "z": 9.0
         },
-        "speed": 1.0,
-        "needLoadRes": false
+        "speed": 1.0
       },
       "timelineData": {
         "start": 0,
@@ -48,7 +54,37 @@
     {
       "startClipName": "Skill",
       "endClipName": "Skill",
-      "prefabEffect": null,
+      "prefabEffect": {
+        "effectObject": {
+          "type": 0,
+          "bundleName": "a",
+          "assetName": "test 1",
+          "guid": "a6098508f96f32b4fb6758f32f04feb0"
+        },
+        "effectObject2": {
+          "type": 0,
+          "bundleName": "b",
+          "assetName": "test 2",
+          "guid": "e1b4676f6bdf57a499e75488290b642f"
+        },
+        "bindNodeType": 0,
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "scale": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "speed": 0.0
+      },
       "timelineData": {
         "start": 16,
         "length": 5
@@ -82,8 +118,7 @@
           "bundleName": null,
           "assetName": null,
           "guid": "cdefa107898396a4594681865593281d"
-        },
-        "needLoadRes": false
+        }
       },
       "timelineData": {
         "start": 8,
@@ -116,8 +151,7 @@
           "bundleName": null,
           "assetName": null,
           "guid": ""
-        },
-        "needLoadRes": false
+        }
       },
       "timelineData": {
         "start": 19,

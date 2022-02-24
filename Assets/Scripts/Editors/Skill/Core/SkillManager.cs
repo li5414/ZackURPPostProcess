@@ -7,6 +7,10 @@ using UnityEngine;
 
 namespace Skill
 {
+    /// <summary>
+    /// 技能管理
+    /// 注意：技能使用之前需要确保技能资源加载完成(即LoadSkill)!!!
+    /// </summary>
     public class SkillManager : Singleton<SkillManager>
     {
         // 技能事件列表
@@ -19,7 +23,7 @@ namespace Skill
         /// </summary>
         /// <param name="eventController"></param>
         /// <param name="skillConfig"></param>
-        public void UseSkill(AnimationEventController eventController, SkillConfig skillConfig, Action completeCallback = null)
+        public int UseSkill(AnimationEventController eventController, SkillConfig skillConfig, Action completeCallback = null)
         {
             // 事件id列表
             List<int> eventIds = new List<int>();
@@ -78,6 +82,8 @@ namespace Skill
                     Debug.Log($"在{action.clipName}第{action.timelineData.start}帧注册动画事件回调方法{action.functionName}");
                 }
             }
+
+            return id;
         }
 
         /// <summary>
@@ -100,7 +106,79 @@ namespace Skill
                 this._SkillEventIds.Remove(id);
             }
         }
-        
+
+        /// <summary>
+        /// 加载技能资源
+        /// </summary>
+        /// <param name="skillConfig"></param>
+        /// <param name="callback"></param>
+        public void LoadSkill(SkillConfig skillConfig, Action callback)
+        {
+            // 需要加载资源的action数量
+            int totalCount = skillConfig.effects.Count + skillConfig.events.Count;
+            // 当前已加载的数量
+            int finishCount = 0;
+            // 处理特效
+            {
+                List<SkillEffectAction> actions = skillConfig.effects;
+                for (int i = 0; i < actions.Count; ++i)
+                {
+                    SkillEffectAction action = actions[i];
+                    action.LoadResource(() =>
+                    {
+                        finishCount++;
+                        Debug.Log($"Load Skill Resource ({finishCount}/{totalCount}).");
+                        if (finishCount >= totalCount)
+                        {
+                            callback?.Invoke();
+                        }
+                    });
+                }
+            }
+            // 处理事件
+            {
+                List<SkillEventAction> actions = skillConfig.events;
+                for (int i = 0; i < actions.Count; ++i)
+                {
+                    SkillEventAction action = actions[i];
+                    action.LoadResource(() =>
+                    {
+                        finishCount++;
+                        Debug.Log($"Load Skill Resource ({finishCount}/{totalCount}).");
+                        if (finishCount >= totalCount)
+                        {
+                            callback?.Invoke();
+                        }
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// 卸载技能资源
+        /// </summary>
+        /// <param name="skillConfig"></param>
+        public void UnLoadSkill(SkillConfig skillConfig)
+        {
+            // 处理特效
+            {
+                List<SkillEffectAction> actions = skillConfig.effects;
+                for (int i = 0; i < actions.Count; ++i)
+                {
+                    SkillEffectAction action = actions[i];
+                    action.UnLoadResource();
+                }
+            }
+            // 处理事件
+            {
+                List<SkillEventAction> actions = skillConfig.events;
+                for (int i = 0; i < actions.Count; ++i)
+                {
+                    SkillEventAction action = actions[i];
+                    action.UnLoadResource();
+                }
+            }
+        }
         
     };
     

@@ -68,19 +68,22 @@ namespace Skill.Editor
             
             if (this._Animator)
             {
+                this._Animator.enabled = false;
+                
                 AnimationEventController controller = this._Animator.GetComponent<AnimationEventController>();
                 // 清除所有动画事件回调
                 controller.ClearAllAnimationEvents();
                 // 使用技能
-                SkillManager.GetInstance().UseSkill(controller, this._SkillConfig);
-            }
+                SkillManager.GetInstance().LoadSkill(this._SkillConfig, () =>
+                {
+                    Debug.Log("Load Resource Complete");
+                    SkillManager.GetInstance().UseSkill(controller, this._SkillConfig);
+                    // 播放
+                    string stateName = this._SkillConfig.animations[0].state.GetDescription();
+                    this._Animator.enabled = true;
+                    this._Animator.Play(stateName, -1, 0);
+                });
 
-            // 播放
-            if (this._Animator!=null && this._SkillConfig!=null)
-            {
-                Debug.Log(this._Animator.runtimeAnimatorController);
-                string stateName = this._SkillConfig.animations[0].state.GetDescription();
-                this._Animator.Play(stateName, -1, 0);
             }
         }
         
