@@ -138,6 +138,12 @@ namespace Skill.Editor
                     {
                         EditorUtils.CreateMenu(this._SkillIDs, -1, (sindex) =>
                         {
+                            // 卸载技能
+                            if (this._SkillConfig != null)
+                            {
+                                SkillManager.GetInstance().UnLoadSkill(this._SkillConfig);
+                            }
+                            
                             this._SelectedSkillID = this._SkillIDs[sindex];
                             // 读取技能
                             ReadConfig();    // TODO
@@ -148,8 +154,7 @@ namespace Skill.Editor
                     {
                         if (this._SkillConfig != null)
                         {
-//                            SaveConfig();
-                            SkillManager.GetInstance().UnLoadSkill(this._SkillConfig);
+                            SaveConfig();
                         }
                     }, GUILayout.Width(100));
 
@@ -207,43 +212,63 @@ namespace Skill.Editor
             using (new GUILayoutHorizontal(EditorStyles.toolbar))
             {
                 // 按钮
-                EditorUtils.CreateButton(EditorParameters.k_FirstFrameContent, EditorStyles.toolbarButton, () =>
+                if (this._EditorState == SkillEditorState.Edit)
                 {
-                    selectFrame(0);
-                });
-                EditorUtils.CreateButton(EditorParameters.k_PreviousFrameContent, EditorStyles.toolbarButton, () =>
-                {
-                    selectFrame(this._CurrentFrame - 1);
-                });
-                EditorUtils.CreateButton(EditorParameters.k_PlayFramesContent, EditorStyles.toolbarButton, () =>
-                {
-                    switch (this._EditorState)
+                    // 编辑模式
+                    EditorUtils.CreateButton(EditorParameters.k_FirstFrameContent, EditorStyles.toolbarButton, () =>
                     {
-                    case SkillEditorState.Edit:
+                        selectFrame(0);
+                    });
+                    EditorUtils.CreateButton(EditorParameters.k_PreviousFrameContent, EditorStyles.toolbarButton, () =>
+                    {
+                        selectFrame(this._CurrentFrame - 1);
+                    });
+                    EditorUtils.CreateButton(EditorParameters.k_PlayFramesContent, EditorStyles.toolbarButton, () =>
+                    {
+                        if (this._CurrentFrame > this._SkillConfig.totalFrames)
                         {
-                            if (this._CurrentFrame > this._SkillConfig.totalFrames)
-                            {
-                                this.selectFrame(0);
-                            }
-                            this._IsPlaying = true;
+                            this.selectFrame(0);
                         }
-                        break;
-
-                    case SkillEditorState.Preview:
+                        this._IsPlaying = true;
+                        
+//                        PreviewSkill();
+                    });
+                    EditorUtils.CreateButton(EditorParameters.k_NextFrameContent, EditorStyles.toolbarButton, () =>
+                    {
+                        selectFrame(this._CurrentFrame + 1);
+                    });
+                    EditorUtils.CreateButton(EditorParameters.k_LastFrameContent, EditorStyles.toolbarButton, () =>
+                    {
+                        selectFrame(this._SkillConfig.totalFrames);
+                    });
+                }
+                else
+                {
+                    // 预览模式
+                    if (EditorApplication.isPaused)
+                    {
+                        // 播放
+                        EditorUtils.CreateButton(EditorParameters.k_PlayFramesContent, EditorStyles.toolbarButton, () =>
                         {
-                            PreviewSkill();
-                        }
-                        break;
+//                            PreviewSkill();
+                            EditorApplication.isPaused = false;
+                        });
                     }
-                });
-                EditorUtils.CreateButton(EditorParameters.k_NextFrameContent, EditorStyles.toolbarButton, () =>
-                {
-                    selectFrame(this._CurrentFrame + 1);
-                });
-                EditorUtils.CreateButton(EditorParameters.k_LastFrameContent, EditorStyles.toolbarButton, () =>
-                {
-                    selectFrame(this._SkillConfig.totalFrames);
-                });
+                    else
+                    {
+                        // 暂停
+                        EditorUtils.CreateButton(EditorParameters.k_PauseFrameContent, EditorStyles.toolbarButton, () =>
+                        {
+                            EditorApplication.isPaused = true;
+                        });
+                    }
+                    EditorUtils.CreateButton(EditorParameters.k_NextFrameContent, EditorStyles.toolbarButton, () =>
+                    {
+                        EditorApplication.isPaused = true;
+                        EditorApplication.Step();
+                    });
+                }
+                
 
                 // 当前帧数
                 EditorUtils.CreateLabel("当前");
@@ -474,9 +499,9 @@ namespace Skill.Editor
                 frame = 0;
             }
 
-            if (frame >= this._SkillConfig.totalFrames)
+            if (frame > this._SkillConfig.totalFrames)
             {
-                frame = this._SkillConfig.totalFrames - 1;
+                frame = this._SkillConfig.totalFrames;
             }
             
             this._IsPlaying = false;

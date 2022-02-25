@@ -49,11 +49,11 @@ namespace Skill
         {
         }
 
-        public override void OnStart(GameObject gameObject)
+        public override void OnStart(GameObject characterObject)
         {
             Debug.Log($"设置timescale:{timescale}");
 //            Time.timeScale = timescale;
-            Animator animator = gameObject.GetComponent<Animator>();
+            Animator animator = characterObject.GetComponent<Animator>();
             animator.speed = timescale;
         }
     } 

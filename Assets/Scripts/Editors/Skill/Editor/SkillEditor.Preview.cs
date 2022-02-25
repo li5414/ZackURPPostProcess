@@ -63,6 +63,7 @@ namespace Skill.Editor
         
         void PreviewSkill()
         {
+            // 保存配置
             this._IsPlaying = false;
             SaveConfig();
             
@@ -71,13 +72,23 @@ namespace Skill.Editor
                 this._Animator.enabled = false;
                 
                 AnimationEventController controller = this._Animator.GetComponent<AnimationEventController>();
+                // 打断技能
+                if (this._RunningSkill >= 0)
+                {
+                    SkillManager.GetInstance().StopSkill(controller, this._RunningSkill);
+                }
+                // 卸载技能
+                if (this._SkillConfig != null)
+                {
+                    SkillManager.GetInstance().UnLoadSkill(this._SkillConfig);
+                }
                 // 清除所有动画事件回调
                 controller.ClearAllAnimationEvents();
                 // 使用技能
                 SkillManager.GetInstance().LoadSkill(this._SkillConfig, () =>
                 {
                     Debug.Log("Load Resource Complete");
-                    SkillManager.GetInstance().UseSkill(controller, this._SkillConfig);
+                    this._RunningSkill = SkillManager.GetInstance().UseSkill(controller, this._SkillConfig);
                     // 播放
                     string stateName = this._SkillConfig.animations[0].state.GetDescription();
                     this._Animator.enabled = true;

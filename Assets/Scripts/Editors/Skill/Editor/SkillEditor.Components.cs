@@ -27,6 +27,7 @@ namespace Skill.Editor
          
          using (new GUILayoutVertical(EditorStyles.helpBox, GUILayout.Height(k_ElementHeight)))
          {
+            // 属性
             drawComponentProperties(component);
          }
 
@@ -210,6 +211,23 @@ namespace Skill.Editor
             }
             
                
+         }
+
+         
+         // PrefabComponent类型的对象需要更新Transform信息按钮
+         if (typeof(PrefabComponent).IsInstanceOfType(component))
+         {
+            EditorUtils.CreateButton("刷新位置信息", EditorParameters.k_ACButton, () =>
+            {
+               if (Selection.transforms.Length > 0)
+               {
+                  PrefabComponent prefabComponent = component as PrefabComponent;
+                  Transform transform = Selection.transforms[0];
+                  prefabComponent.position = transform.localPosition;
+                  prefabComponent.eulerAngles = transform.localEulerAngles;
+                  prefabComponent.scale = transform.localScale;
+               }
+            }, GUILayout.Height(k_ElementHeight));
          }
       }
       // =========================SkillEventAction的组件=======================================

@@ -24,6 +24,8 @@ namespace Zack.Editor
         // GUIContent
         // 播放按钮
         public static readonly GUIContent k_PlayFramesContent = EditorGUIUtility.IconContent("Animation.Play", "Play");
+        // 暂停
+        public static readonly GUIContent k_PauseFrameContent = EditorGUIUtility.IconContent("PauseButton", "Pause");
         // 上一帧
         public static readonly GUIContent k_PreviousFrameContent = EditorGUIUtility.IconContent("Animation.PrevKey", "Previous Key Frame");
         // 下一帧

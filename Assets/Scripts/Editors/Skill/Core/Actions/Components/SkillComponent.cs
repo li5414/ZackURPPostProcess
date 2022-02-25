@@ -64,8 +64,8 @@ namespace Skill
             }
         }
         // 执行start (SkillEventAction只需调用此接口)
-        public virtual void OnStart(GameObject gameObject) {}
+        public virtual void OnStart(GameObject characterObject) {}
         // 执行end
-        public virtual void OnEnd(GameObject gameObject) {}
+        public virtual void OnEnd(GameObject characterObject) {}
     }
 }

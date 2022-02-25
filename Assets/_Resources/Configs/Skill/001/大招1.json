@@ -16,17 +16,12 @@
       "startClipName": "Skill",
       "endClipName": "Skill",
       "prefabEffect": {
-        "effectObject": {
+        "speed": 2.0,
+        "prefabObject": {
           "type": 0,
-          "bundleName": "fdsfdfds",
-          "assetName": "GameObject",
-          "guid": "cdefa107898396a4594681865593281d"
-        },
-        "effectObject2": {
-          "type": 0,
-          "bundleName": "asdfvcvx",
-          "assetName": "test",
-          "guid": "e93b835a7763d194cb2366dae72f4531"
+          "bundleName": "a",
+          "assetName": "test 1",
+          "guid": ""
         },
         "bindNodeType": 0,
         "position": {
@@ -43,25 +38,19 @@
           "x": 7.0,
           "y": 8.0,
           "z": 9.0
-        },
-        "speed": 1.0
+        }
       },
       "timelineData": {
         "start": 0,
-        "length": 3
+        "length": 34
       }
     },
     {
       "startClipName": "Skill",
       "endClipName": "Skill",
       "prefabEffect": {
-        "effectObject": {
-          "type": 0,
-          "bundleName": "a",
-          "assetName": "test 1",
-          "guid": "a6098508f96f32b4fb6758f32f04feb0"
-        },
-        "effectObject2": {
+        "speed": 0.5,
+        "prefabObject": {
           "type": 0,
           "bundleName": "b",
           "assetName": "test 2",
@@ -69,21 +58,20 @@
         },
         "bindNodeType": 0,
         "position": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 0.0
+          "x": -0.05100157,
+          "y": 0.98191607,
+          "z": -0.0568308346
         },
         "eulerAngles": {
-          "x": 0.0,
-          "y": 0.0,
+          "x": 270.0,
+          "y": 129.999924,
           "z": 0.0
         },
         "scale": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 0.0
-        },
-        "speed": 0.0
+          "x": 0.99999994,
+          "y": 0.99999994,
+          "z": 0.99999994
+        }
       },
       "timelineData": {
         "start": 16,
@@ -117,7 +105,7 @@
           "type": 1,
           "bundleName": null,
           "assetName": null,
-          "guid": "cdefa107898396a4594681865593281d"
+          "guid": ""
         }
       },
       "timelineData": {

@@ -32,7 +32,7 @@ namespace Skill.Editor
         // 滚动层偏移
         private Vector2 _HierarchyScrollPosition;
         private Vector2 _InspectorScrollPosition;
-        // 当前是否正在播放
+        // 当前是否正在播放 (用于编辑器模式控制查看动画)
         private bool _IsPlaying = false;
         // 当前播放到第几帧
         private int _CurrentFrame = 0;
@@ -52,7 +52,8 @@ namespace Skill.Editor
         private GameObject _MainCharacter;
         // 人物Animator组件
         private Animator _Animator;
-        
+        // 当前播放的技能
+        private int _RunningSkill = -1;
         
         // Skill Config
         private SkillConfig _SkillConfig;

@@ -237,9 +237,9 @@ namespace Skill.Editor
          {
             int length = timelineData.length;
             Rect rect = EditorUtils.CalculateTimeRect(timelineData.start, timelineData.end, k_ElementHeight);
-            rect.x -= EditorParameters.k_TickGap / 2;
             
             float halfWidth = rect.width / 2;
+            if (length == 0) { halfWidth = 3; }   // 事件帧
             GUILayout.Space(rect.x);
 //            using (new GUIColor(length > 0 ? GUI.color : Color.red))
             {

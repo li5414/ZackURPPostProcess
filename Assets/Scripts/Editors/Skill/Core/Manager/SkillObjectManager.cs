@@ -60,7 +60,7 @@ namespace Skill
         private int time = 1;
         IEnumerator tttttt(Action callback)
         {
-            yield return new WaitForSeconds(time++);
+            yield return new WaitForSeconds(time);
             
             callback?.Invoke();
         }
