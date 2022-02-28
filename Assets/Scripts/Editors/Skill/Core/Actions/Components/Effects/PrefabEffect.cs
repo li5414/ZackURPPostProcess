@@ -18,22 +18,23 @@ namespace Skill
         [Description("播放速度")]
         public float speed;
 
-        
-        public PrefabEffect()
-        {
-        }
 
-        public override void OnStart(GameObject characterObject)
+        public override void OnStart(SkillActionArguments args)
         {
             Debug.Log($"显示特效:{this.prefabObject.bundleName}  -  {this.prefabObject.assetName}");
-            BindGameObject(characterObject);
+            
+            // 绑定物体
+            GameObject characterGameObject = args.characterGameObject;
+            BindGameObject(characterGameObject);
             // 设置speed
-            SkillUtils.SetEffectSpeed(this.prefabObject.mainObject as GameObject, this.speed);
+            SkillUtils.SetEffectSpeed(this.prefabObject.runtimeObject as GameObject, this.speed);
         }
 
-        public override void OnEnd(GameObject characterObject)
+        public override void OnEnd(SkillActionArguments args)
         {
             Debug.Log($"隐藏特效:{this.prefabObject.bundleName}  -  {this.prefabObject.assetName}");
+            
+            // 解绑物体
             UnBindGameObject();
         }
         

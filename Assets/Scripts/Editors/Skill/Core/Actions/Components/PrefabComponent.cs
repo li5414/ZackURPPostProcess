@@ -52,11 +52,15 @@ namespace Skill
             }
         }
         
-        // 绑定GameObject并设置Transform
+        // 运行时绑定GameObject并设置Transform
         protected void BindGameObject(GameObject characterObject)
         {
             // 创建object
             GameObject gameObject = SkillObjectManager.GetInstance().PopObject(this.prefabObject.bundleName, this.prefabObject.assetName);
+            this.BindGameObject(characterObject, gameObject);
+        }
+        public void BindGameObject(GameObject characterObject, GameObject gameObject)
+        {
             Transform transform = gameObject.transform;
             // 设置父节点
             switch (this.bindNodeType)
@@ -75,15 +79,15 @@ namespace Skill
             // 激活
             gameObject.SetActive(true);
 
-            this.prefabObject.mainObject = gameObject;
+            this.prefabObject.runtimeObject = gameObject;
         }
-        // 解绑GameObject
+        // 运行时解绑GameObject
         protected void UnBindGameObject()
         {
-            if (this.prefabObject.mainObject != null)
+            if (this.prefabObject.runtimeObject != null)
             {
-                SkillObjectManager.GetInstance().PushObject(this.prefabObject.bundleName, this.prefabObject.assetName, this.prefabObject.mainObject as GameObject);
-                this.prefabObject.mainObject = null;
+                SkillObjectManager.GetInstance().PushObject(this.prefabObject.bundleName, this.prefabObject.assetName, this.prefabObject.runtimeObject as GameObject);
+                this.prefabObject.runtimeObject = null;
             }
         }
 

@@ -41,6 +41,9 @@ namespace Skill
             this._AssetName = assetName;
             this._MainObject = mainObject;
             updateNodeName();
+            
+            // 注意：ab包的卸载和对象池GameObject绑定
+            ABLoader.AddTracker(node.gameObject, this._BundleName);
         }
 
         public void Retain()
@@ -74,7 +77,6 @@ namespace Skill
             if (this._MainObject != null)
             {
                 gameObject = GameObject.Instantiate(this._MainObject, Vector3.zero, Quaternion.identity);
-                ABLoader.AddTracker(gameObject, this._BundleName);
             }
 
             return gameObject;

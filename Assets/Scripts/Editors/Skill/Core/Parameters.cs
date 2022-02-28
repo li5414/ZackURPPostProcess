@@ -27,6 +27,8 @@ namespace Skill
         // 角色预制体目录
         public static readonly string k_CharacterPrefabFilePath;
         public static readonly string k_CharacterPrefabAssetPath;
+        // 技能配置ab包名
+        public static readonly string k_SkillConfigBundleName = "skillConfig";
         
         static Parameters()
         {

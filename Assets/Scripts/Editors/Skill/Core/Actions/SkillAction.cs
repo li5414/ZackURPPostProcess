@@ -130,7 +130,7 @@ namespace Skill
             
         }
         // 注册事件
-        public virtual void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds) {}
+        public virtual void RegisterAnimationEvent(SkillActionArguments args, List<int> eventIds) {}
     }
     
     // 动画
@@ -190,14 +190,16 @@ namespace Skill
         /// 注册事件
         /// </summary>
         /// <param name="eventController"></param>
-        public override void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds)
+        public override void RegisterAnimationEvent(SkillActionArguments args, List<int> eventIds)
         {
+            AnimationEventController eventController = args.eventController;
+            
             int eventId;
             // OnStart事件
             {
                 eventId = eventController.AddAnimationEvent(this.startClipName, this.timelineData.start, ()=>{
                     Debug.Log($"============SkillEffectAction OnStart===========frame: {this.timelineData.start}====");
-                    this.OnStart(eventController.gameObject);
+                    this.OnStart(args);
                 });
                 eventIds.Add(eventId);
             }
@@ -205,25 +207,25 @@ namespace Skill
             {
                 eventId = eventController.AddAnimationEvent(this.endClipName, this.timelineData.end, ()=>{
                     Debug.Log($"============SkillEffectAction OnEnd===========frame: {this.timelineData.end}====");
-                    this.OnEnd(eventController.gameObject);
+                    this.OnEnd(args);
                 });
                 eventIds.Add(eventId);
             }
         }
 
-        protected void OnStart(GameObject gameObject)
+        protected void OnStart(SkillActionArguments args)
         {
             if (this.prefabEffect != null)
             {
-                this.prefabEffect.OnStart(gameObject);
+                this.prefabEffect.OnStart(args);
             }
         }
 
-        protected void OnEnd(GameObject gameObject)
+        protected void OnEnd(SkillActionArguments args)
         {
             if (this.prefabEffect != null)
             {
-                this.prefabEffect.OnEnd(gameObject);
+                this.prefabEffect.OnEnd(args);
             }
         }
     }
@@ -261,11 +263,13 @@ namespace Skill
         /// 注册事件
         /// </summary>
         /// <param name="eventController"></param>
-        public override void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds)
+        public override void RegisterAnimationEvent(SkillActionArguments args, List<int> eventIds)
         {
+            AnimationEventController eventController = args.eventController;
+
             int eventId = eventController.AddAnimationEvent(this.clipName, this.timelineData.start, ()=>{
                 Debug.Log($"============SkillEventAction callback===========frame: {this.timelineData.start}====");
-                this.Execute(eventController.gameObject);
+                this.Execute(args);
             });
             eventIds.Add(eventId);
         }
@@ -274,12 +278,12 @@ namespace Skill
         /// 执行事件
         /// </summary>
         /// <param name="gameObject"></param>
-        public void Execute(GameObject gameObject)
+        public void Execute(SkillActionArguments args)
         {
             // timescale event
             if (timescaleEvent != null)
             {
-                timescaleEvent.OnStart(gameObject);
+                timescaleEvent.OnStart(args);
             }
         }
 
@@ -308,8 +312,9 @@ namespace Skill
         /// 注册事件
         /// </summary>
         /// <param name="eventController"></param>
-        public override void RegisterAnimationEvent(AnimationEventController eventController, List<int> eventIds)
+        public override void RegisterAnimationEvent(SkillActionArguments args, List<int> eventIds)
         {
+            AnimationEventController eventController = args.eventController;
             eventController.RegisiterAnimationEvent(this.clipName, this.timelineData.start, this.functionName);
         }
 

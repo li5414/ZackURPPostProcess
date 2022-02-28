@@ -48,7 +48,8 @@ namespace Skill
             // 未加载
             ABLoader.GetInstance().LoadAssetFromBundle(bundleName, assetName, (obj) =>
             {
-                pool = new ObjectPool(createPoolNode(bundleName, assetName), bundleName, assetName, obj as GameObject);
+                Transform poolNode = createPoolNode(bundleName, assetName);
+                pool = new ObjectPool(poolNode, bundleName, assetName, obj as GameObject);
                 pool.Retain();
                 bundlePools.Add(assetName, pool);
 //                callback?.Invoke();
@@ -163,6 +164,7 @@ public class ABLoader : Singleton<ABLoader>
     {
         act?.Invoke(new GameObject(assetName));
     }
+    public void UnloadAssetBundle(string bundleName) {}
     
     public static void AddTracker(GameObject go, string bundleName) {}
 }

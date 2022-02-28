@@ -149,7 +149,7 @@ namespace Skill.Editor
         string getAnimationStateName(int frame)
         {
             List<SkillAction> actions = this._Groups[(int) SkillActionType.Animation].actions;
-            for (int i = actions.Count-1; i>=0; --i)
+            for (int i = actions.Count - 1; i >= 0; --i)
             {
                 SkillAnimationAction action = actions[i] as SkillAnimationAction;
                 if (action.timelineData.start <= frame && frame <= action.timelineData.end)
@@ -160,12 +160,15 @@ namespace Skill.Editor
 
             return ((SkillAnimatorState) 0).GetDescription();
         }
-        
+
         /// <summary>
         /// 存储配置
         /// </summary>
         void SaveConfig()
         {
+            // 更新动画帧
+            UpdateAnimationActions();
+            
             string filepath = Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}.json");
             // Animation
             {
@@ -218,6 +221,53 @@ namespace Skill.Editor
             Debug.Log($"保存配置完成: {filepath}");
             AssetDatabase.Refresh();
         }
+        
+        /// <summary>
+        /// 新建配置
+        /// </summary>
+        /// <param name="skillId"></param>
+        public void NewConfig(string skillId)
+        {
+            string filepath = Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{skillId}.json");
+            
+            // 新建技能
+            SkillConfig skillConfig = new SkillConfig();
+            skillConfig.id = skillId;
+            // Animation
+            skillConfig.animations = new List<SkillAnimationAction>();
+            // Effect
+            skillConfig.effects = new List<SkillEffectAction>();
+            // Event
+            skillConfig.events = new List<SkillEventAction>();
+            // CustomEvent
+            skillConfig.customEvents = new List<SkillCustomEventAction>();
+
+            // 写入文件
+            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+            JsonUtils.SerializeObjectToFile(skillConfig, filepath);
+
+            Debug.Log($"保存配置完成: {filepath}");
+            AssetDatabase.Refresh();
+            
+            // 更新技能列表
+            this._SkillIDs = browserSkills();
+        }
+        
+        // 删除配置
+        void DeleteConfig()
+        {
+            string filepath = Path.Combine(Parameters.k_SkillConfigFilePath, $"{this._SelectedCharacterID}/{this._SelectedSkillID}.json");
+            File.Delete(filepath);
+            AssetDatabase.Refresh();
+
+            Debug.Log($"删除配置完成: {filepath}");
+            // 更新技能列表
+            this._SkillIDs = browserSkills();
+            // 重置
+            this._SkillConfig = null;
+            this._SelectedSkillID = null;
+            this._Groups.Clear();
+        }
 
         // 添加Action
         public void AddSkillAction(SkillActionType actionType)
@@ -232,6 +282,9 @@ namespace Skill.Editor
                     SkillAnimationAction action = new SkillAnimationAction(0, frames);
                     action.state = state;
                     this._Groups[(int)actionType].actions.Add(action);    
+                    
+                    // 更新动画帧
+                    UpdateAnimationActions();
                 }
                 break;
             case SkillActionType.Effect:

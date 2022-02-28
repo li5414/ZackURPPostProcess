@@ -47,7 +47,7 @@ namespace Skill.Editor
         // 刷新动画显示
         void updateAnimation()
         {
-            if (this._Animator!=null && this._SkillConfig!=null)
+            if (this._Animator!=null && this._SkillConfig!=null && this._SkillConfig.totalFrames!=0)
             {
                 string stateName = getAnimationStateName(this._CurrentFrame);
                 AnimationClip clip = getAnimationClip(stateName);
@@ -75,7 +75,7 @@ namespace Skill.Editor
                 // 打断技能
                 if (this._RunningSkill >= 0)
                 {
-                    SkillManager.GetInstance().StopSkill(controller, this._RunningSkill);
+                    SkillManager.GetInstance().StopSkill(this._MainCharacter, this._RunningSkill);
                 }
                 // 卸载技能
                 if (this._SkillConfig != null)
@@ -88,7 +88,7 @@ namespace Skill.Editor
                 SkillManager.GetInstance().LoadSkill(this._SkillConfig, () =>
                 {
                     Debug.Log("Load Resource Complete");
-                    this._RunningSkill = SkillManager.GetInstance().UseSkill(controller, this._SkillConfig);
+                    this._RunningSkill = SkillManager.GetInstance().UseSkill(this._MainCharacter, this._SkillConfig);
                     // 播放
                     string stateName = this._SkillConfig.animations[0].state.GetDescription();
                     this._Animator.enabled = true;

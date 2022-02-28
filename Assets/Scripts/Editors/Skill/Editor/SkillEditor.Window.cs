@@ -27,6 +27,7 @@ namespace Skill.Editor
         {
             EditorParameters.k_Foldout.fixedHeight = k_ElementHeight;
             this.minSize = new Vector2(k_HierarchyPanelWidth + k_InspectorPanelWidth + 500, 500);
+            this.title = "技能编辑";
 
             // 遍历角色
             this._CharacterIDs = browserCharacters();
@@ -44,7 +45,6 @@ namespace Skill.Editor
         {
             EditorApplication.ExitPlaymode();
         }
-
 
         void OnGUI()
         {
@@ -111,7 +111,6 @@ namespace Skill.Editor
             
         }
 
-
         void drawTopToolbar()
         {
             using (new GUILayoutHorizontal(EditorStyles.toolbar))
@@ -150,6 +149,16 @@ namespace Skill.Editor
                         });
                     }, GUILayout.Width(83));
 
+                    EditorUtils.CreateButton("新建", EditorStyles.toolbarButton, () =>
+                    {
+                        if (this._SelectedCharacterID == null || this._SelectedCharacterID==string.Empty)
+                        {
+                            Debug.Log("请先选择角色");
+                            return;
+                        }
+                        EditorWindow.GetWindow<SkillEditorNewConfig>().Show();
+                    }, GUILayout.Width(100));
+                    
                     EditorUtils.CreateButton("保存", EditorStyles.toolbarButton, () =>
                     {
                         if (this._SkillConfig != null)
@@ -158,7 +167,19 @@ namespace Skill.Editor
                         }
                     }, GUILayout.Width(100));
 
+                    if (this._SkillConfig != null)
+                    {
+                        EditorUtils.CreateButton("删除", EditorStyles.toolbarButton, () =>
+                        {
+                            if (EditorUtility.DisplayDialog("删除", $"是否确认删除技能{this._SelectedSkillID}?", "确认", "取消"))
+                            {
+                                DeleteConfig();
+                            }
+                        }, GUILayout.Width(100));
+                    }
+                    
 
+                    GUILayout.FlexibleSpace();
                     Color color_edit = Color.green;
                     Color color_preview = GUI.color;
                     if (this._EditorState == SkillEditorState.Preview)

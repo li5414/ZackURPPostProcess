@@ -50,6 +50,8 @@ namespace Skill
         public string guid;
         // 资源 (用于技能编辑时指定资源)
         public UnityEngine.Object mainObject;
+        // 运行时资源
+        public UnityEngine.Object runtimeObject;
     }
     
     
