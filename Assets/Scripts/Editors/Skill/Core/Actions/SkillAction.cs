@@ -216,25 +216,25 @@ namespace Skill
 
         protected void OnStart(SkillActionArguments args)
         {
-            if (this.prefabEffect != null)
+            for (int i = 0; i < this._Components.Count; ++i)
             {
-                this.prefabEffect.OnStart(args);
+                this._Components[i].OnStart(args);
             }
         }
 
         protected void OnEnd(SkillActionArguments args)
         {
-            if (this.prefabEffect != null)
+            for (int i = 0; i < this._Components.Count; ++i)
             {
-                this.prefabEffect.OnEnd(args);
+                this._Components[i].OnEnd(args);
             }
         }
 
         public void OnStop(SkillActionArguments args)
         {
-            if (this.prefabEffect != null)
+            for (int i = 0; i < this._Components.Count; ++i)
             {
-                this.prefabEffect.OnStop(args);
+                this._Components[i].OnStop(args);
             }
         }
     }
@@ -295,10 +295,10 @@ namespace Skill
         /// <param name="args"></param>
         public void Execute(SkillActionArguments args)
         {
-            // timescale event
-            if (timescaleEvent != null)
+            for (int i = 0; i < this._Components.Count; ++i)
             {
-                timescaleEvent.OnStart(args);
+                this._Components[i].OnStart(args);
+                this._Components[i].OnEnd(args);
             }
         }
 
