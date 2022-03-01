@@ -40,7 +40,7 @@ namespace Skill
                         {
                             callback?.Invoke();
                         }
-                    });
+                    }, asset.guid);
                 }
             }
             else
@@ -63,9 +63,19 @@ namespace Skill
                 }
             }
         }
-        // 执行start (SkillEventAction只需调用此接口)
-        public virtual void OnStart(SkillActionArguments args) {}
-        // 执行end
-        public virtual void OnEnd(SkillActionArguments args) {}
+        
+        
+        // 开始 (SkillEventAction只需调用此接口)
+        public virtual void OnStart(SkillActionArguments args)
+        {
+            args.runningSkillComponents.Add(this);
+        }
+        // 结束
+        public virtual void OnEnd(SkillActionArguments args)
+        {
+            args.runningSkillComponents.Remove(this);
+        }
+        // 打断
+        public virtual void OnStop(SkillActionArguments args) {}
     }
 }

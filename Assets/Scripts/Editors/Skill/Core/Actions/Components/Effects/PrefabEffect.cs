@@ -21,8 +21,9 @@ namespace Skill
 
         public override void OnStart(SkillActionArguments args)
         {
-            Debug.Log($"显示特效:{this.prefabObject.bundleName}  -  {this.prefabObject.assetName}");
+            base.OnStart(args);
             
+            Debug.Log($"显示特效:{this.prefabObject.bundleName}  -  {this.prefabObject.assetName}");
             // 绑定物体
             GameObject characterGameObject = args.characterGameObject;
             BindGameObject(characterGameObject);
@@ -32,8 +33,16 @@ namespace Skill
 
         public override void OnEnd(SkillActionArguments args)
         {
-            Debug.Log($"隐藏特效:{this.prefabObject.bundleName}  -  {this.prefabObject.assetName}");
+            base.OnEnd(args);
             
+            Debug.Log($"隐藏特效:{this.prefabObject.bundleName}  -  {this.prefabObject.assetName}");
+            // 解绑物体
+            UnBindGameObject();
+        }
+        
+        // 打断
+        public override void OnStop(SkillActionArguments args)
+        {
             // 解绑物体
             UnBindGameObject();
         }

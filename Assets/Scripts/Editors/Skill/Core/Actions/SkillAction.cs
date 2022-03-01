@@ -178,9 +178,10 @@ namespace Skill
             {
                 this._Components = new List<SkillComponent>();
                 
-                if (prefabEffect != null)
+                // prefabEffect
+                if (this.prefabEffect != null)
                 {
-                    _Components.Add(prefabEffect);
+                    this._Components.Add(this.prefabEffect);
                 }
             }
         }
@@ -189,7 +190,7 @@ namespace Skill
         /// <summary>
         /// 注册事件
         /// </summary>
-        /// <param name="eventController"></param>
+        /// <param name="args"></param>
         public override void RegisterAnimationEvent(SkillActionArguments args, List<int> eventIds)
         {
             AnimationEventController eventController = args.eventController;
@@ -228,6 +229,14 @@ namespace Skill
                 this.prefabEffect.OnEnd(args);
             }
         }
+
+        public void OnStop(SkillActionArguments args)
+        {
+            if (this.prefabEffect != null)
+            {
+                this.prefabEffect.OnStop(args);
+            }
+        }
     }
     
     /// <summary>
@@ -257,6 +266,12 @@ namespace Skill
             {
                 this._Components = new List<SkillComponent>();
             }
+            
+            // timescaleEvent       
+            if (this.timescaleEvent != null)
+            {
+                this._Components.Add(this.timescaleEvent);
+            }
         }
         
         /// <summary>
@@ -277,7 +292,7 @@ namespace Skill
         /// <summary>
         /// 执行事件
         /// </summary>
-        /// <param name="gameObject"></param>
+        /// <param name="args"></param>
         public void Execute(SkillActionArguments args)
         {
             // timescale event

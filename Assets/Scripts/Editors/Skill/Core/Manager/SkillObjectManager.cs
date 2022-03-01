@@ -1,11 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Framework.Utils;
-using Newtonsoft.Json;
 using UnityEngine;
-using Object = System.Object;
 
 namespace Skill
 {
@@ -20,14 +17,14 @@ namespace Skill
         {
             
         }
-        
+
         /// <summary>
         /// 加载对象
         /// </summary>
         /// <param name="bundleName"></param>
         /// <param name="assetName"></param>
         /// <param name="callback"></param>
-        public void LoadResource(string bundleName, string assetName, Action callback)
+        public void LoadResource(string bundleName, string assetName, Action callback, string guid = "")    //TODO
         {
             Dictionary<string, ObjectPool> bundlePools;
             if (!this._ObjectPools.TryGetValue(bundleName, out bundlePools))
@@ -48,6 +45,8 @@ namespace Skill
             // 未加载
             ABLoader.GetInstance().LoadAssetFromBundle(bundleName, assetName, (obj) =>
             {
+                obj = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid));    // TODO
+                
                 Transform poolNode = createPoolNode(bundleName, assetName);
                 pool = new ObjectPool(poolNode, bundleName, assetName, obj as GameObject);
                 pool.Retain();

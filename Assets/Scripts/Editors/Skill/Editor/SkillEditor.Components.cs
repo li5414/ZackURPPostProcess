@@ -219,7 +219,7 @@ namespace Skill.Editor
          {
             PrefabComponent prefabComponent = component as PrefabComponent;
             
-            EditorUtils.CreateButton("刷新位置信息", EditorParameters.k_ACButton, () =>
+            EditorUtils.CreateButton("复制选中节点信息", EditorParameters.k_ACButton, () =>
             {
                if (Selection.transforms.Length > 0)
                {
@@ -248,6 +248,12 @@ namespace Skill.Editor
                      }
                   }
             });
+            
+            // 更新模型位置
+            if (prefabComponent.prefabObject.runtimeObject)
+            {
+               prefabComponent.BindGameObject(this._MainCharacter, prefabComponent.prefabObject.runtimeObject as GameObject);
+            }
          }
       }
       // =========================SkillEventAction的组件=======================================

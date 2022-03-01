@@ -71,8 +71,8 @@ namespace Skill
         
         // 技能配置列表 <bundleName, <assetName, ConfigAssetObject>>
         private Dictionary<string, SkillConfigAsset> _SkillConfigAssets = new Dictionary<string, SkillConfigAsset>(); 
-        // 技能事件列表
-        private Dictionary<int, List<int>> _SkillEventIds = new Dictionary<int, List<int>>();
+        // 当前运行的技能数据
+        private Dictionary<int, SkillActionArguments> _SkillActionArguments = new Dictionary<int, SkillActionArguments>(); 
         // 当前运行技能标识生成器
         IdentityGenerator _SkillIDGenerator = new IdentityGenerator();
 
@@ -102,14 +102,14 @@ namespace Skill
         /// <param name="skillConfig"></param>
         public int UseSkill(GameObject characterGO, SkillConfig skillConfig, Action completeCallback = null)
         {
-            // 事件id列表
-            List<int> eventIds = new List<int>();
             // 记录eventIds
             int id = this._SkillIDGenerator.GenerateId();
-            this._SkillEventIds.Add(id, eventIds);
             // 技能参数
             SkillActionArguments args = new SkillActionArguments(id, characterGO);
-            
+            this._SkillActionArguments.Add(id, args);
+
+            // 事件id列表
+            List<int> eventIds = args.eventIds;
             AnimationEventController eventController = args.eventController;
             // 添加onCompelete回调
             // 注意：最先调用是因为AnimationEventList是按照从Count-1到0的顺序执行事件回调数组的，所以onCompete应当是最后一个被调用的。不然技能会被stop，就打断了剩下的最后一帧的事件
@@ -174,20 +174,28 @@ namespace Skill
         public void StopSkill(GameObject characterGO, int id)
         {
             Debug.Log($"StopSkill = {id}");
-            List<int> eventIds;
-            if (this._SkillEventIds.TryGetValue(id, out eventIds))
+            SkillActionArguments args;
+            if (this._SkillActionArguments.TryGetValue(id, out args))
             {
-                AnimationEventController eventController = characterGO.GetComponent<AnimationEventController>();
-                
                 // 移除事件
-                for (int i = 0; i < eventIds.Count; ++i)
                 {
-                    eventController.RemoveAnimationEvent(eventIds[i]);
+                    List<int> eventIds = args.eventIds;
+                    AnimationEventController eventController = args.eventController;
+                    for (int i = 0; i < eventIds.Count; ++i)
+                    {
+                        eventController.RemoveAnimationEvent(eventIds[i]);
+                    }
                 }
-                // TODO:打断正在执行的事件...
-                
-                
-                this._SkillEventIds.Remove(id);
+                // 打断正在执行的SkillComponent
+                {
+                    HashSet<SkillComponent> runningSkillComponents = args.runningSkillComponents;
+                    foreach (SkillComponent skillComponent in runningSkillComponents)
+                    {
+                        skillComponent.OnStop(args);
+                    }
+                }
+
+                this._SkillActionArguments.Remove(id);
             }
         }
 

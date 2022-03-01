@@ -40,7 +40,7 @@ namespace Skill
         // 缩放
         [JsonProperty, JsonConverter(typeof(Vector3Converter))]
         [Description("缩放")]
-        public Vector3 scale;
+        public Vector3 scale = Vector3.one;
 
 
         protected override void CheckSkillAsset()

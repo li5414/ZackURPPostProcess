@@ -14,6 +14,16 @@ namespace  Skill
         /// SkillManager使用技能的唯一id标识 (readonly)
         /// </summary>
         public int id { get; }
+        
+        /// <summary>
+        /// 事件列表
+        /// </summary>
+        public List<int> eventIds { get; }
+
+        /// <summary>
+        /// 运行中的技能组件
+        /// </summary>
+        public HashSet<SkillComponent> runningSkillComponents;
 
         /// <summary>
         /// 角色GameObject
@@ -30,6 +40,9 @@ namespace  Skill
             this.id = id;
             this.characterGameObject = characterGO;
             this.eventController = characterGO.GetComponent<AnimationEventController>();
+            
+            this.eventIds = new List<int>();
+            this.runningSkillComponents = new HashSet<SkillComponent>();
         }
         
     }
