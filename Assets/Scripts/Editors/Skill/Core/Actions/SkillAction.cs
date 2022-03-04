@@ -216,6 +216,8 @@ namespace Skill
 
         protected void OnStart(SkillActionArguments args)
         {
+            CheckComponents();
+            
             for (int i = 0; i < this._Components.Count; ++i)
             {
                 this._Components[i].OnStart(args);
@@ -265,12 +267,12 @@ namespace Skill
             if (this._Components == null)
             {
                 this._Components = new List<SkillComponent>();
-            }
-            
-            // timescaleEvent       
-            if (this.timescaleEvent != null)
-            {
-                this._Components.Add(this.timescaleEvent);
+                
+                // timescaleEvent       
+                if (this.timescaleEvent != null)
+                {
+                    this._Components.Add(this.timescaleEvent);
+                }
             }
         }
         
@@ -295,9 +297,10 @@ namespace Skill
         /// <param name="args"></param>
         public void Execute(SkillActionArguments args)
         {
+            CheckComponents();
             for (int i = 0; i < this._Components.Count; ++i)
             {
-                this._Components[i].OnStart(args);
+                this._Components[i].OnStart( args);
                 this._Components[i].OnEnd(args);
             }
         }

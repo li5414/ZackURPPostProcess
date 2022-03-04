@@ -16,33 +16,33 @@
       "startClipName": "Skill",
       "endClipName": "Skill",
       "prefabEffect": {
-        "speed": 2.0,
+        "speed": 1.0,
         "prefabObject": {
           "type": 0,
-          "bundleName": "a",
-          "assetName": "test 1",
-          "guid": ""
+          "bundleName": "",
+          "assetName": "Axe_Particle",
+          "guid": "d1e6232d6d0dab54cad33576794573c0"
         },
         "bindNodeType": 0,
         "position": {
-          "x": 1.0,
-          "y": 2.0,
-          "z": 3.0
+          "x": -0.24,
+          "y": 1.81,
+          "z": 0.78
         },
         "eulerAngles": {
-          "x": 4.0,
-          "y": 5.0,
-          "z": 6.0
+          "x": 0.0,
+          "y": 270.0,
+          "z": 270.0
         },
         "scale": {
-          "x": 7.0,
-          "y": 8.0,
-          "z": 9.0
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
         }
       },
       "timelineData": {
-        "start": 0,
-        "length": 34
+        "start": 13,
+        "length": 38
       }
     },
     {
@@ -58,9 +58,9 @@
         },
         "bindNodeType": 0,
         "position": {
-          "x": -0.05100157,
-          "y": 0.98191607,
-          "z": -0.0568308346
+          "x": -0.17,
+          "y": 1.93,
+          "z": 0.19
         },
         "eulerAngles": {
           "x": 270.0,
@@ -68,14 +68,23 @@
           "z": 0.0
         },
         "scale": {
-          "x": 0.99999994,
-          "y": 0.99999994,
-          "z": 0.99999994
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
         }
       },
       "timelineData": {
-        "start": 16,
-        "length": 5
+        "start": 0,
+        "length": 13
+      }
+    },
+    {
+      "startClipName": "Skill",
+      "endClipName": "Skill",
+      "prefabEffect": null,
+      "timelineData": {
+        "start": 22,
+        "length": 0
       }
     }
   ],
@@ -83,7 +92,7 @@
     {
       "clipName": "Skill",
       "timescaleEvent": {
-        "timescale": 0.05,
+        "timescale": 0.32,
         "state": 0,
         "vec4": {
           "x": 0.0,
@@ -109,7 +118,7 @@
         }
       },
       "timelineData": {
-        "start": 8,
+        "start": 13,
         "length": 0
       }
     },
