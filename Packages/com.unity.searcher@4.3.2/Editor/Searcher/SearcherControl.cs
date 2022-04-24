@@ -212,7 +212,7 @@ namespace UnityEditor.Searcher
 
             m_ListView.itemsSource = m_VisibleResults;
             m_ListView.makeItem = m_Searcher.Adapter.MakeItem;
-            m_ListView.Refresh();
+            m_ListView.Rebuild();
 
             SetSelectedElementInResultsList(visibleIndex);
         }
@@ -441,7 +441,7 @@ namespace UnityEditor.Searcher
             RegenerateVisibleResults();
             HideUnexpandedItems();
 
-            m_ListView.Refresh();
+            m_ListView.Rebuild();
         }
 
         void Collapse(SearcherItem item)
@@ -461,7 +461,7 @@ namespace UnityEditor.Searcher
             HideUnexpandedItems();
 
             // TODO: understand what happened
-            m_ListView.Refresh();
+            m_ListView.Rebuild();
 
             // RefreshListViewOn();
         }

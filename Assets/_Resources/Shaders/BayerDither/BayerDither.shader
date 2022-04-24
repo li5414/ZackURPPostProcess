@@ -33,7 +33,7 @@
             };
             struct Varyings
             {
-                half4 positionCS : SV_POSITION;
+                float4 positionCS : SV_POSITION;
                 float disappearAlpha : TEXCOORD0;
                 
                 UNITY_VERTEX_OUTPUT_STEREO
