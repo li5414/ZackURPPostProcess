@@ -221,7 +221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d4be0f8337743f0a0ec9803575c8ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ParabolableGameObject: {fileID: 7762011567250297657, guid: cf7e407c3965947399950855c5d281ab, type: 3}
+  _ParabolableGameObject: {fileID: 7762011567250297657, guid: b843209a1ca98482fb6e512fcff4dd00, type: 3}
   _Parabola: {fileID: 261444465}
 --- !u!120 &261444464
 LineRenderer:
@@ -427,14 +427,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 318922829}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.24167885, w: 0.9703563}
   m_LocalPosition: {x: 4.25, y: 2.66, z: 1.71}
   m_LocalScale: {x: 0.19, y: 5.99, z: 8.82}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -27.971}
 --- !u!1 &685077419
 GameObject:
   m_ObjectHideFlags: 0
@@ -611,7 +611,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 921981763}
   m_LocalRotation: {x: 0.27106437, y: -0.0028876804, z: 0.00081319414, w: 0.9625566}
-  m_LocalPosition: {x: 0.46091357, y: 6.8440504, z: -9.472681}
+  m_LocalPosition: {x: 3.5127833, y: 5.7671013, z: -6.351079}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
