@@ -7,15 +7,87 @@ public class Parabola : MonoBehaviour
 {
     private LineRenderer _LineRenderer;
 
+    // 物理预测信息
+    // 物理碰撞LayerMask
+    [SerializeField]
+    private LayerMask _LayerMask;
+    // 每次预测的步长 (几次FixedUpdate)
+    [SerializeField] 
+    private int _PredictStep = 2;
+    // 初始预测数量
+    [SerializeField]
+    private int _PredictCount = 5;
+    // 后续每次预测数量 (直到达到最大值 或者 碰撞到物体)
+    [SerializeField]
+    private int _AddPredictCount = 5;
+    // 最大预测数量
+    [SerializeField]
+    private int _MaxPredictCount = 200;
+    // 物理预测数据记录
+    private List<Vector3[]> _PredictDatas = new List<Vector3[]>();
+    
+    RaycastHit _HitInfo = new RaycastHit();
+
+    // 绘制采样点
     private List<Vector3> _Points = new List<Vector3>();
     
     void Awake()
     {
         this._LineRenderer = this.GetComponent<LineRenderer>();
-
     }
 
     // Update is called once per frame
+    public void SetRigidbodyForce(Rigidbody rigidbody, Vector3 startPoint, Vector3 force)
+    {
+        // 计算刚体现有速度
+        Vector3 velocity = !rigidbody.isKinematic ? rigidbody.velocity : Vector3.zero;
+        // 计算刚体重力
+        Vector3 gravity = (rigidbody.useGravity && !rigidbody.isKinematic) ? Physics.gravity : Vector3.zero;
+        // 刚体质量
+        float mass = rigidbody.mass;
+        // 刚体阻力
+        float drag = rigidbody.drag;
+        // 碰撞检测两点的index
+        int colStartIndex = 0; 
+        int colEndIdx = 0;
+        // 
+        Vector3 point1, point2;
+        Vector3 vector;
+        
+        _PredictDatas.Clear();
+        RigidbodyUtils.CalculateMovements(_PredictDatas, rigidbody.transform.position, velocity, gravity, _PredictCount, _PredictStep, force, mass, drag);
+
+        while (_PredictDatas.Count<_MaxPredictCount)
+        {
+            // 找出最新预测的起始点和结束点，做碰撞检测
+            colStartIndex = colEndIdx;
+            colEndIdx = _PredictDatas.Count-1;
+            point1 = _PredictDatas[colStartIndex][0];   // start
+            point2 = _PredictDatas[colEndIdx][0];   // end
+            vector = point2 - point1;
+
+            // 预测抛物线碰撞到物体
+            if (Physics.Raycast(point1, vector.normalized, out _HitInfo, vector.magnitude, _LayerMask))
+            {
+                break;
+            }
+            
+            // 没有碰撞到物体，继续预测
+            Vector3[] lastPredictData = _PredictDatas[_PredictDatas.Count - 1]; // 0: position 1: velocity
+            RigidbodyUtils.CalculateMovements(_PredictDatas, lastPredictData[0], lastPredictData[1], gravity, _AddPredictCount, _PredictStep, Vector3.zero, mass, drag);
+        }
+
+
+
+        _Points.Clear();
+        _Points.Add(startPoint);
+        for (int i = 0; i < _PredictDatas.Count; ++i)
+        {
+            _Points.Add(_PredictDatas[i][0]);
+        }
+
+    }
+
     void Update()
     {
         if (_Points.Count > 0)
@@ -33,7 +105,6 @@ public class Parabola : MonoBehaviour
     {
         _Points.Clear();
         _Points.AddRange(points);
-
     }
     
 }
