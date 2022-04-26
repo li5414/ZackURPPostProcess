@@ -15,30 +15,39 @@ public class ParabolaClickTest : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift))
+        // 投掷
+        if (Input.GetMouseButtonDown(0))
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray.origin, ray.direction, out _HitInfo, 1000, 1<<LayerMask.NameToLayer("Ground")))
+            {
+                Vector3 endPoint = _HitInfo.point;
+                Vector3 startPoint = transform.position;
+                {
+                    GameObject go = GameObject.Instantiate(_ParabolableGameObject);
+                    go.transform.position = startPoint;
+                    Rigidbody rigidbody = go.GetComponent<Rigidbody>();
+                    _Parabola.AddRigidbodyForce(rigidbody, startPoint, endPoint);
+                }
+            }
+        }
+
+        // 预测
+        if (Input.GetMouseButton(1))
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray.origin, ray.direction, out _HitInfo, 1000, 1<<LayerMask.NameToLayer("Ground")))
             {
                 Vector3 startPoint = transform.position;
                 Vector3 endPoint = _HitInfo.point;
-                
-                // 投掷
                 {
-                    GameObject go = GameObject.Instantiate(_ParabolableGameObject);
-                    go.transform.position = startPoint;
-                    // Parabolable parabolable = go.GetComponent<Parabolable>();
-                    // parabolable.SetPoints(_Parabola.GetBezierPoints());
-                    Rigidbody rigidbody = go.GetComponent<Rigidbody>();
-
-                    Vector3 force = RigidbodyUtils.CalculateForce(rigidbody.mass, startPoint, endPoint, 4);
-
-                    Debug.Log(force);
-                    _Parabola.SetRigidbodyForce(rigidbody, startPoint, force);
-                    
-                    rigidbody.AddForce(force);
+                    Rigidbody rigidbody = _ParabolableGameObject.GetComponent<Rigidbody>();
+                    _Parabola.PredictParabola(rigidbody, startPoint, endPoint);
                 }
+                
             }
         }
+
+
     }
 }

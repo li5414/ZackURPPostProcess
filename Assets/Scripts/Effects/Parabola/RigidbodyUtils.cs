@@ -13,7 +13,7 @@ public class RigidbodyUtils
     /// <param name="maxHeightOffset">高度</param>
     /// <param name="rangeOffset"></param>
     /// <returns></returns>
-    public static Vector3 CalculateForce(float mass, Vector3 startPosition, Vector3 finalPosition, float maxHeightOffset = 0.0f,
+    public static Vector3 CalculateParabolaForce(float mass, Vector3 startPosition, Vector3 finalPosition, float maxHeightOffset = 0.0f,
         float rangeOffset = 0.11f)
     {
         Vector3 initVelocity = FindInitialVelocity(startPosition, finalPosition, maxHeightOffset, rangeOffset);

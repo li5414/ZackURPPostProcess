@@ -221,7 +221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d4be0f8337743f0a0ec9803575c8ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ParabolableGameObject: {fileID: 7762011567250297657, guid: b843209a1ca98482fb6e512fcff4dd00, type: 3}
+  _ParabolableGameObject: {fileID: 3111357424964278251, guid: efa78c9217eec43378268ffe6691fa7b, type: 3}
   _Parabola: {fileID: 261444465}
 --- !u!120 &261444464
 LineRenderer:
@@ -337,6 +337,7 @@ MonoBehaviour:
   _LayerMask:
     serializedVersion: 2
     m_Bits: 72
+  _MaxHeight: 3
   _PredictStep: 5
   _PredictCount: 2
   _AddPredictCount: 1
@@ -367,7 +368,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 318922829}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 1d10ea2e5ace34d4f85a356bd83a9294, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2

@@ -11,6 +11,8 @@ public class Parabola : MonoBehaviour
     // 物理碰撞LayerMask
     [SerializeField]
     private LayerMask _LayerMask;
+    [SerializeField] 
+    private float _MaxHeight = 3;
     // 每次预测的步长 (几次FixedUpdate)
     [SerializeField] 
     private int _PredictStep = 2;
@@ -35,9 +37,9 @@ public class Parabola : MonoBehaviour
     {
         this._LineRenderer = this.GetComponent<LineRenderer>();
     }
-
+    
     // Update is called once per frame
-    public void SetRigidbodyForce(Rigidbody rigidbody, Vector3 startPoint, Vector3 force)
+    public void PredictParabola(Rigidbody rigidbody, Vector3 startPoint, Vector3 endPoint)
     {
         // 计算刚体现有速度
         Vector3 velocity = !rigidbody.isKinematic ? rigidbody.velocity : Vector3.zero;
@@ -54,9 +56,16 @@ public class Parabola : MonoBehaviour
         Vector3 point1, point2;
         Vector3 vector;
         
-        _PredictDatas.Clear();
-        RigidbodyUtils.CalculateMovements(_PredictDatas, rigidbody.transform.position, velocity, gravity, _PredictCount, _PredictStep, force, mass, drag);
+        Debug.Log(velocity);
+        
+        // 获取完刚体现有速度信息，才能给刚体加力
+        Vector3 force = RigidbodyUtils.CalculateParabolaForce(rigidbody.mass, startPoint, endPoint, _MaxHeight);
 
+        // 开始预测抛物线
+        _PredictDatas.Clear();
+        RigidbodyUtils.CalculateMovements(_PredictDatas, startPoint, velocity, gravity, _PredictCount, _PredictStep, force, mass, drag);
+
+        // 持续预测直到发生碰撞或达到预测最大数量
         while (_PredictDatas.Count<_MaxPredictCount)
         {
             // 找出最新预测的起始点和结束点，做碰撞检测
@@ -77,15 +86,20 @@ public class Parabola : MonoBehaviour
             RigidbodyUtils.CalculateMovements(_PredictDatas, lastPredictData[0], lastPredictData[1], gravity, _AddPredictCount, _PredictStep, Vector3.zero, mass, drag);
         }
 
-
-
+        // 划线数据
         _Points.Clear();
         _Points.Add(startPoint);
         for (int i = 0; i < _PredictDatas.Count; ++i)
         {
             _Points.Add(_PredictDatas[i][0]);
         }
+    }
 
+    public void AddRigidbodyForce(Rigidbody rigidbody, Vector3 startPoint, Vector3 endPoint)
+    {
+        // 获取完刚体现有速度信息，才能给刚体加力
+        Vector3 force = RigidbodyUtils.CalculateParabolaForce(rigidbody.mass, startPoint, endPoint, _MaxHeight);
+        rigidbody.AddForce(force);
     }
 
     void Update()
