@@ -1,5 +1,5 @@
-#ifndef ZACK_URP_LIBRARY_INCLUDE
-#define ZACK_URP_LIBRARY_INCLUDE
+#ifndef ZACK_URP_MATH_INCLUDE
+#define ZACK_URP_MATH_INCLUDE
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
 
@@ -20,4 +20,4 @@ float4 ComputeGrabScreenPos(float4 positionCS)
     return o;
 }
 
-#endif // ZACK_URP_LIBRARY_INCLUDE
+#endif // ZACK_URP_MATH_INCLUDE

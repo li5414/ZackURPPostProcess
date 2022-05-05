@@ -1,5 +1,7 @@
-Shader "ZackURP/Effect/Parabola" {
- Properties {
+Shader "ZackURP/Effect/Parabola" 
+{
+    Properties 
+    {
         _Color ("Color", Color) = (0.5,0.5,0.5,0.5)
         // mainTex
         _MainTex ("MainTex", 2D) = "white" {}
@@ -12,7 +14,8 @@ Shader "ZackURP/Effect/Parabola" {
         _MaskSpeedU ("MaskSpeedU", Float ) = 0
         _MaskSpeedV ("MaskSpeedV", Float ) = 0 
     }
-    SubShader {
+    SubShader 
+    {
         HLSLINCLUDE
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             CBUFFER_START(UnityPerMaterial)
@@ -34,13 +37,15 @@ Shader "ZackURP/Effect/Parabola" {
             TEXTURE2D(_MaskTex);
             SAMPLER(sampler_MaskTex);
 
-            struct Attributes {
+            struct Attributes
+            {
                 float4 positionOS : POSITION;
                 float2 texcoord0 : TEXCOORD0;
                 half4 vertexColor : COLOR;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
-            struct Varyings {
+            struct Varyings
+            {
                 float4 positionCS : SV_POSITION;
                 float2 texcoord0 : TEXCOORD0;
                 float2 movingUV :TEXCOORD1;
@@ -79,7 +84,8 @@ Shader "ZackURP/Effect/Parabola" {
         ENDHLSL
         
         Tags { "IgnoreProjector"="True" "Queue"="Transparent" "RenderType"="Transparent" }
-        Pass {
+        Pass 
+        {
        
             Blend SrcAlpha OneMinusSrcAlpha
             Cull Off
