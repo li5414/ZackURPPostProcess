@@ -1,10 +1,10 @@
-Shader "ZackURP/Effect/Circle"
+Shader "ZackURP/Effect/AttackRangeCircle"
 {
     Properties 
     {
-		_AttackRangeCenter ("Scanner Center Position", vector) = (0, 0, 0, 0)
-		_AttackRangeParams ("Scanner Parameters", vector) = (1, 1, 0, 0)
-		_AttackRangeColor("Scanner Color", Color) = (0, 1, 0, 0)
+		_AttackRangeCenter ("Attack Range Center Position", vector) = (0, 0, 0, 0)
+		_AttackRangeParams ("Attack Range Parameters", vector) = (1, 1, 0, 0)
+		_AttackRangeColor("Attack Range Color", Color) = (0, 1, 0, 0)
     }
     SubShader 
     {
@@ -35,9 +35,7 @@ Shader "ZackURP/Effect/Circle"
 		    {
 			    half4 positionCS : SV_POSITION;
 		        half3 positionWS : TEXCOORD0;
-			    half2 texcoord : TEXCOORD1;
 				float4 grabPos : TEXCOORD2;
-		    	float4 depthUV : TEXCOORD3;
 			    UNITY_VERTEX_OUTPUT_STEREO
 		    };
 

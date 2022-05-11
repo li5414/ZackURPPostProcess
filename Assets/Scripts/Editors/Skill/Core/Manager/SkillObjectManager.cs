@@ -45,7 +45,7 @@ namespace Skill
             // 未加载
             ABLoader.GetInstance().LoadAssetFromBundle(bundleName, assetName, (obj) =>
             {
-                // obj = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid));    // TODO
+                obj = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid));    // TODO
                 
                 Transform poolNode = createPoolNode(bundleName, assetName);
                 pool = new ObjectPool(poolNode, bundleName, assetName, obj as GameObject);

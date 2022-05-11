@@ -3,6 +3,12 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
 
+// 模型空间(ObjectSpace) -> 相机空间(ViewSpace)
+float4 TransformObjectToView(float3 positionOS)
+{
+    return mul(GetWorldToViewMatrix(), mul(GetObjectToWorldMatrix(), float4(positionOS, 1.0)));
+}
+
 // 获取屏幕坐标
 float4 ComputeGrabScreenPos(float4 positionCS) 
 {
