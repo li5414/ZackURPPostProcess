@@ -217,18 +217,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: BrickImpact
       objectReference: {fileID: 0}
-    - target: {fileID: 151174, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 451174, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 451174, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 451184, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -272,74 +260,6 @@ PrefabInstance:
     - target: {fileID: 451184, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851180, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startSizeY.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851180, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startSizeZ.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851180, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startRotationX.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851180, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startRotationY.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851182, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startSizeY.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851182, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startSizeZ.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851182, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startRotationX.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851182, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startRotationY.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851184, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startSizeY.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851184, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startSizeZ.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851184, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startRotationX.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19851184, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: InitialModule.startRotationY.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 19900688, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 19951180, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 19951182, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 19951184, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 19951186, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
