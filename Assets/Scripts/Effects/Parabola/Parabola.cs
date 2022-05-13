@@ -13,6 +13,7 @@ public class Parabola : MonoBehaviour
     private LayerMask _LayerMask;
     [SerializeField] 
     private float _MaxHeight = 3;
+    public float MaxHeight => _MaxHeight;
     // 每次预测的步长 (几次FixedUpdate)
     [SerializeField] 
     private int _PredictStep = 2;
@@ -55,8 +56,6 @@ public class Parabola : MonoBehaviour
         // 
         Vector3 point1, point2;
         Vector3 vector;
-        
-        Debug.Log(velocity);
         
         // 获取完刚体现有速度信息，才能给刚体加力
         Vector3 force = RigidbodyUtils.CalculateParabolaForce(rigidbody.mass, startPoint, endPoint, _MaxHeight);
