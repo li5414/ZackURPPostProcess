@@ -67,6 +67,18 @@ namespace Zack.Editor
             }
             return (attributes[0] as SkillAssetAttribute).type;
         }
+
+        public static int GetAnimatorLayer(Enum e)
+        {
+            var fieldInfo = e.GetType().GetField(e.ToString());
+            var descriptions = fieldInfo.GetCustomAttributes(typeof(AnimatorLayerAttribute), false);
+            if (descriptions.Length == 0)
+            {
+                return 0;
+            }
+
+            return (descriptions[0] as AnimatorLayerAttribute).layer;
+        }
         
         /// <summary>
         /// 创建按钮
@@ -114,6 +126,20 @@ namespace Zack.Editor
         public static int CreateIntField(string title, int value, params GUILayoutOption[] options)
         {
             return EditorGUILayout.IntField(title, value, options);
+        }
+        public static int CreateIntField(string title, int value, int min, int max, params GUILayoutOption[] options)
+        {
+            value = EditorGUILayout.IntField(title, value, options);
+            if (value < min)
+            {
+                value = min;
+            }
+            else if (value > max)
+            {
+                value = max;
+            }
+
+            return value;
         }
         public static void CreateIntField(ref int value, int min, int max, params GUILayoutOption[] options)
         {
@@ -250,6 +276,10 @@ namespace Zack.Editor
         public static void CreateToggle(ref bool value, string text, GUIStyle style, params GUILayoutOption[] options)
         {
             value = GUILayout.Toggle(value, text, style, options);
+        }
+        public static void CreateToggle(bool value, string text, GUIStyle style, params GUILayoutOption[] options)
+        {
+            GUILayout.Toggle(value, text, style, options);
         }
 
         /// <summary>

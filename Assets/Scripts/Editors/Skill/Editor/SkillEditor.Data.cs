@@ -161,6 +161,22 @@ namespace Skill.Editor
             return ((SkillAnimatorState) 0).GetDescription();
         }
 
+        // 根据帧数获取动画layer
+        int getAnimationStateLayer(int frame)
+        {
+            List<SkillAction> actions = this._Groups[(int) SkillActionType.Animation].actions;
+            for (int i = actions.Count - 1; i >= 0; --i)
+            {
+                SkillAnimationAction action = actions[i] as SkillAnimationAction;
+                if (action.timelineData.start <= frame && frame <= action.timelineData.end)
+                {
+                    return EditorUtils.GetAnimatorLayer(action.state);
+                }
+            }
+
+            return 0;
+        }
+
         /// <summary>
         /// 存储配置
         /// </summary>

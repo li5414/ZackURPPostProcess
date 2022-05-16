@@ -8,9 +8,9 @@ using UnityEngine;
 using UnityEditor.SceneManagement;
 using Zack.Editor;
 
-namespace Skill.Editor
+namespace AnimationEventEditor
 {
-    public partial class SkillEditor
+    public partial class AnimationEventEditor
     {
         /// <summary>
         /// 加载主角模型
@@ -47,13 +47,14 @@ namespace Skill.Editor
         // 刷新动画显示
         void updateAnimation()
         {
-            if (this._Animator!=null && this._SkillConfig!=null && this._SkillConfig.totalFrames!=0)
+            if (this._Animator!=null && this._TotalFrames!=0)
             {
                 string stateName = getAnimationStateName(this._CurrentFrame);
                 this._AnimatorLayer = getAnimationStateLayer(this._CurrentFrame);
                 AnimationClip clip = getAnimationClip(stateName);
                 
-                float percent = this._CurrentFrame / (float)this._SkillConfig.totalFrames;
+                float percent = this._CurrentFrame / (float)this._TotalFrames;
+                this._Animator.applyRootMotion = this._ApplyRootMotion;
                 this._Animator.Play(stateName, this._AnimatorLayer, percent);
                 if (!EditorApplication.isPlaying)
                 {
@@ -66,38 +67,17 @@ namespace Skill.Editor
         {
             // 保存配置
             this._IsPlaying = false;
-            SaveConfig();
             
             if (this._Animator)
             {
                 this._Animator.enabled = false;
                 
-                AnimationEventController controller = this._Animator.GetComponent<AnimationEventController>();
-                // 打断技能
-                if (this._RunningSkill >= 0)
-                {
-                    SkillManager.GetInstance().StopSkill(this._MainCharacter, this._RunningSkill);
-                }
-                // 卸载技能
-                if (this._SkillConfig != null)
-                {
-                    SkillManager.GetInstance().UnLoadSkill(this._SkillConfig);
-                }
-                // 清除所有动画事件回调
-                controller.ClearAllAnimationEvents();
-                // 使用技能
-                SkillManager.GetInstance().LoadSkill(this._SkillConfig, () =>
-                {
-                    Debug.Log("Load Resource Complete");
-                    this._RunningSkill = SkillManager.GetInstance().UseSkill(this._MainCharacter, this._SkillConfig);
-                    // 播放
-                    SkillAnimatorState skillAnimatorState = this._SkillConfig.animations[0].state;
-                    string stateName = skillAnimatorState.GetDescription();
-                    this._AnimatorLayer = EditorUtils.GetAnimatorLayer(skillAnimatorState);
-                    this._Animator.enabled = true;
-                    this._Animator.Play(stateName, this._AnimatorLayer, 0);
-                });
-
+                // 播放
+                string stateName = this._SelectedState.GetDescription();
+                this._AnimatorLayer = EditorUtils.GetAnimatorLayer(this._SelectedState);
+                this._Animator.enabled = true;
+                this._Animator.applyRootMotion = _ApplyRootMotion;
+                this._Animator.Play(stateName, this._AnimatorLayer, 0);
             }
         }
         
@@ -127,6 +107,15 @@ namespace Skill.Editor
             if (clip)
             {
                 return Mathf.FloorToInt(clip.length * clip.frameRate);
+            }
+            return 0;
+        }
+
+        int convertTime2Frame(AnimationClip clip, float time)
+        {
+            if (clip)
+            {
+                return Mathf.FloorToInt(time * clip.frameRate);
             }
             return 0;
         }

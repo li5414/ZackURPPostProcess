@@ -7,16 +7,26 @@ using UnityEngine;
 
 namespace Skill
 {
+    public class AnimatorLayerAttribute : Attribute
+    {
+        public int layer;
+
+        public AnimatorLayerAttribute(int animLayer = 0)
+        {
+            this.layer = animLayer;
+        }
+    }
+    
     /// <summary>
     /// 动画类型 (注意和AnimatorController同名)
     /// </summary>
     public enum SkillAnimatorState
     {
-        [Description("Attack1")]
+        [Description("Attack1"), AnimatorLayerAttribute(0)]
         Attack1 = 0,
-        [Description("Attack2")]
+        [Description("Attack2"), AnimatorLayerAttribute(0)]
         Attack2,
-        [Description("Skill")]
+        [Description("Skill"), AnimatorLayerAttribute(0)]
         Skill,
     };
     

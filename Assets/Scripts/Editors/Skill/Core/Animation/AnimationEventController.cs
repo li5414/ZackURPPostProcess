@@ -11,6 +11,8 @@ namespace Skill
         private Animator _animator;
         // controller： 用于获取AnimationClip
         private AnimatorOverrideController _controller;
+        // override动画健值对列表
+        private List<KeyValuePair<AnimationClip, AnimationClip>> _overrides;
         // 动画回调处理
         public AnimationEventHandler _eventHandler = new AnimationEventHandler();
 
@@ -19,7 +21,61 @@ namespace Skill
         {
             this._animator = this.gameObject.GetComponent<Animator>();
             this._controller = new AnimatorOverrideController();
-            this._controller.runtimeAnimatorController = this._animator.runtimeAnimatorController;
+            AnimatorOverrideController animatorOverrideController = this._animator.runtimeAnimatorController as AnimatorOverrideController;
+            if (!animatorOverrideController)
+            {
+                // 使用原始AnimatorController
+                this._controller.runtimeAnimatorController = this._animator.runtimeAnimatorController;
+            }
+            else
+            {
+                // 使用AniamtorOverrideController
+                this._controller.runtimeAnimatorController = animatorOverrideController.runtimeAnimatorController;  // 原始AnimatorController
+                // 获取overrides列表
+                this._overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>();
+                animatorOverrideController.GetOverrides(this._overrides);
+            }
+        }
+
+        /// <summary>
+        /// 通过clipName获取AnimationClip
+        /// </summary>
+        /// <param name="clipName">动画名</param>
+        /// <returns></returns>
+        public AnimationClip GetAnimationClip(string clipName)
+        {
+            AnimationClip clip = this._controller[clipName];    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
+
+            // 检测是否使用AnimatorOverrideController的AnimationClip
+            AnimationClip overrideClip = getOverrideAnimationClip(clipName);
+            if (overrideClip)
+            {
+                clip = overrideClip;
+            }
+
+            return clip;
+        }
+
+        /// <summary>
+        /// 从AnimatorOverrideController中获取override的AnimationClip
+        /// </summary>
+        /// <param name="clipName"></param>
+        /// <returns></returns>
+        private AnimationClip getOverrideAnimationClip(string clipName)
+        {
+            if (this._overrides != null && this._overrides.Count > 0)
+            {
+                for (int i = 0; i < this._overrides.Count; ++i)
+                {
+                    KeyValuePair<AnimationClip, AnimationClip> pair = this._overrides[i];
+                    if (pair.Value != null && pair.Value.name == clipName)
+                    {
+                        return pair.Value;
+                    }
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -32,7 +88,7 @@ namespace Skill
             // 添加完成回调事件
             if (completeCallback != null)
             {
-                AnimationClip clip = this._controller[clipName];    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
+                AnimationClip clip = GetAnimationClip(clipName);    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
                 if (clip != null)
                 {
                     return this._eventHandler.AddEvent(clip, clip.length, completeCallback);
@@ -50,7 +106,7 @@ namespace Skill
         /// <param name="functionName"></param>
         public void RegisiterAnimationEvent(string clipName, int frame, string functionName)
         {
-            AnimationClip clip = this._controller[clipName];    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
+            AnimationClip clip = GetAnimationClip(clipName);    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
             if (clip != null)
             {
                 float time = frame / clip.frameRate;
@@ -78,7 +134,7 @@ namespace Skill
             // 添加完成回调事件
             if (callback != null)
             {
-                AnimationClip clip = this._controller[clipName];    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
+                AnimationClip clip = GetAnimationClip(clipName);    // 注意：这里的name是animation的名称(即State中的Motion名称)，不是State的名字
                 if (clip != null)
                 {
                     float time = frame / clip.frameRate;
