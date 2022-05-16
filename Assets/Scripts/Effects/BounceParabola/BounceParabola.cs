@@ -90,8 +90,6 @@ public class BounceParabola : MonoBehaviour
     {
         this._LineRenderer.enabled = true;
         this._Dirty = true;
-        
-
     }
 
     public void HideParabola()

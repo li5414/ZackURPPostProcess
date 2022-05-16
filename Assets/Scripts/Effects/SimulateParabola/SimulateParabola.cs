@@ -7,32 +7,58 @@ public class SimulateParabola : MonoBehaviour
 {
     private LineRenderer _LineRenderer;
 
-    // 原始点 (3个点绘制一段曲线: start, highest, end)
-    private List<Vector3> _Points = new List<Vector3>();
-
-    // Bezier曲线上的点
+    // 采样频率
     [SerializeField]
-    private int _BezierPointCount = 10;
-    private List<Vector3> _BezierPoints = new List<Vector3>();
-
+    private int _PointCountPerSecond = 20;
+    // 曲线上的点
+    private List<Vector3> _Points = new List<Vector3>();
     // 发生回弹LayerMask
     [SerializeField] 
-    private LayerMask _ReflectLayerMask;
-    
+    private LayerMask _BounceLayerMask;
+    // 地面LayerMask
+    [SerializeField] 
+    private LayerMask _GroundLayerMask;
+
+    // 起始点 
+    private Vector3 _StartPoint = Vector3.zero;
+    // 结束点
+    private Vector3 _EndPoint = Vector3.zero;
+    // 最大高度
+    private float _MaxHeight = 5f;
+    // 采样时长
+    private float _Duration = 1f;
+    // 脏标记
+    private bool _Dirty = true;
+
+    // 采样点
+    public List<Vector3> Points => this._Points;
+    // 每次采样间隔
+    public float Interval => 1f / (float)(this._PointCountPerSecond - 1);
+
+
     void Awake()
     {
         this._LineRenderer = this.GetComponent<LineRenderer>();
-
-        CalculateBezierPoints();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_BezierPoints.Count > 0)
+        if (!this._LineRenderer.enabled)
         {
-            _LineRenderer.SetVertexCount(_BezierPoints.Count);
-            _LineRenderer.SetPositions(_BezierPoints.ToArray());
+            return;
+        }
+        
+        if (this._Dirty)
+        {
+            this._Dirty = false;
+            CalculateBezierPoints();
+        }
+        
+        if (_Points.Count > 0)
+        {
+            _LineRenderer.SetVertexCount(_Points.Count);
+            _LineRenderer.SetPositions(_Points.ToArray());
         }
         else
         {
@@ -40,61 +66,104 @@ public class SimulateParabola : MonoBehaviour
         }
     }
 
-    public void SetPoints(Vector3[] points)
+    public void ShowParabola()
     {
-        _Points.Clear();
-        _Points.AddRange(points);
-        // 重新计算        
-        CalculateBezierPoints();
+        this._LineRenderer.enabled = true;
+        this._Dirty = true;
     }
 
-    public void SetBezierPointCount(int count)
+    public void HideParabola()
     {
-        _BezierPointCount = count;
-        // 重新计算        
-        CalculateBezierPoints();
+        this._LineRenderer.enabled = false;
+        this._Points.Clear();
+        this._LineRenderer.SetVertexCount(0);
     }
     
-    public Vector3[] GetBezierPoints()
+    public void SetPointCountPerSecond(int cnt)
     {
-        return this._BezierPoints.ToArray();
+        this._PointCountPerSecond = cnt;
+        this._Dirty = true;
+    }
+    public void SetStartPoint(Vector3 startPoint)
+    {
+        this._StartPoint = startPoint;
+        this._Dirty = true;
+    }
+    public void SetEndPoint(Vector3 endPoint)
+    {
+        this._EndPoint = endPoint;
+        this._Dirty = true;
+    }
+    public void SetMaxHeight(float height)
+    {
+        this._MaxHeight = height;
+        this._Dirty = true;
+    }
+    public void SetDuration(float duration)
+    {
+        this._Duration = duration;
+        this._Dirty = true;
     }
 
     RaycastHit _HitInfo = new RaycastHit();
     void CalculateBezierPoints()
     {
-        _BezierPoints.Clear();
-        int bezierCount = _Points.Count / 3;
-        for (int i = 0; i < bezierCount; ++i)
+        _Points.Clear();
+
+        // 每次采样间隔
+        float interval = Interval;
+        // 当前抛物线初始速度
+        Vector3 initialVelocity = SimulateParabolaUtils.CalculateParabolaInitialVelocity(this._StartPoint, this._EndPoint, this._MaxHeight);
+        // 当前抛物线时间
+        float time = 0;
+        // 总耗时
+        float totalTime = 0;
+        // 抛物线起点
+        Vector3 startPoint = this._StartPoint;
+        // 总采样次数
+        int sampleCount = (int)this._Duration * this._PointCountPerSecond;
+        
+        this._Points.Add(startPoint);
+        time += interval;
+        totalTime += interval;
+        
+        for (int i = 1; i < sampleCount; ++i)
         {
-            Vector3 pos1 = _Points[i * 3];
-            Vector3 pos2 = _Points[i * 3 + 1];
-            Vector3 pos3 = _Points[i * 3 + 2];
-            for (float rIdx = 0; rIdx <= _BezierPointCount; ++rIdx)
+            Vector3 point = SimulateParabolaUtils.SampleParabolaPoint(startPoint, initialVelocity, time);
+            
+            // 碰撞检测
+            Vector3 origin = this._Points[i - 1];
+            Vector3 vector = point - origin;
+            if (Physics.Raycast(origin, vector.normalized, out _HitInfo, vector.magnitude, _BounceLayerMask))
             {
-                float ratio = rIdx / _BezierPointCount;
-                var tangentLineVertex1 = Vector3.Lerp(pos1, pos2, ratio);
-                var tangentLineVertex2 = Vector3.Lerp(pos2, pos3, ratio);
-                var bezierpoint = Vector3.Lerp(tangentLineVertex1, tangentLineVertex2, ratio);
-                _BezierPoints.Add(bezierpoint);
+                // 碰撞到墙体，反弹
+                float percent = Math.Min(Vector3.Distance(_HitInfo.point, origin) / vector.magnitude, 1);
+                float t = interval * percent;
+                time += t;
+                totalTime += t;
+            
+                // 反弹
+                startPoint = _HitInfo.point;
+                this._Points.Add(startPoint);
+                initialVelocity = SimulateParabolaUtils.CalculateBounceVelocity(initialVelocity, time, _HitInfo.normal);
+                time = 0;
             }
-            // Vector3[] bezierPoints = BezierUtils.GetThreePowerBeizerList(pos1, pos2, pos3, pos4, _BezierPointCount);
-            // _BezierPoints.AddRange(bezierPoints);
-        }
-        // 判断线段是否发生碰撞
-        for (int i = 0; i < _BezierPoints.Count - 1; ++i)
-        {
-            Vector3 origin = _BezierPoints[i];
-            Vector3 direction = _BezierPoints[i + 1] - origin;
-            if (Physics.Raycast(origin, direction.normalized, out _HitInfo, direction.magnitude, _ReflectLayerMask))
+            else if (Physics.Raycast(origin, vector.normalized, out _HitInfo, vector.magnitude, _GroundLayerMask))
             {
-                ParabolaUtils.GetReflectSymmetryPoints(origin, _HitInfo.point, _HitInfo.normal, _BezierPoints, i, _BezierPoints.Count);
-                _BezierPoints.Insert(i, _HitInfo.point);
+                // 碰撞到地面，结束
+                this._Points.Add(_HitInfo.point);
                 break;
             }
+            else
+            {
+                // 无碰撞
+                this._Points.Add(point);
 
+                time += interval;
+                totalTime += interval;
+            }
         }
+        
     }
-    
     
 }
