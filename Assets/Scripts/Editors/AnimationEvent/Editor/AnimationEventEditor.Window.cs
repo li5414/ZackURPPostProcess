@@ -106,7 +106,7 @@ namespace AnimationEventEditor
                             // 加载角色
                             LoadMainCharacter(Path.Combine(Skill.Parameters.k_CharacterPrefabAssetPath, $"{this._SelectedCharacterID}/{this._SelectedCharacterID}.prefab"));
                         });
-                    }, GUILayout.Width(83));
+                    }, GUILayout.Width(150));
                     
                     EditorUtils.CreateText("状态基:", EditorParameters.k_Label, GUILayout.Width(40));
                     EditorUtils.CreateButton(this._SelectedState, EditorParameters.k_DropDownButton, () =>
@@ -118,7 +118,7 @@ namespace AnimationEventEditor
                             this._AnimatorLayer = this._StateLayers[index];
                             UpdateAnimationInfo();
                         });
-                    }, GUILayout.Width(83));
+                    }, GUILayout.Width(150));
 
                 }
                 
