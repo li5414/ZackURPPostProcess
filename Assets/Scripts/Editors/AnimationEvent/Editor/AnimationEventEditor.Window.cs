@@ -105,17 +105,17 @@ namespace AnimationEventEditor
                             
                             // 加载角色
                             LoadMainCharacter(Path.Combine(Skill.Parameters.k_CharacterPrefabAssetPath, $"{this._SelectedCharacterID}/{this._SelectedCharacterID}.prefab"));
-                            
-                            UpdateAnimationInfo();
                         });
                     }, GUILayout.Width(83));
                     
-                    EditorUtils.CreateText("技能:", EditorParameters.k_Label, GUILayout.Width(40));
-                    EditorUtils.CreateButton(this._SelectedState.GetDescription(), EditorParameters.k_DropDownButton, () =>
+                    EditorUtils.CreateText("状态基:", EditorParameters.k_Label, GUILayout.Width(40));
+                    EditorUtils.CreateButton(this._SelectedState, EditorParameters.k_DropDownButton, () =>
                     {
-                        EditorUtils.CreateMenu<AEEditorAnimatorState>(-1, (index) =>
+                        int seletedIndex = getSelectedIndex(this._SelectedState, this._StateNames);
+                        EditorUtils.CreateMenu(this._ShowStateNames, seletedIndex, (index) =>
                         {
-                            this._SelectedState = (AEEditorAnimatorState) index;
+                            this._SelectedState = this._StateNames[index];
+                            this._AnimatorLayer = this._StateLayers[index];
                             UpdateAnimationInfo();
                         });
                     }, GUILayout.Width(83));

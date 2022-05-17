@@ -8,6 +8,12 @@ namespace AnimationEventEditor
     {
         // 人物列表
         private string[] _CharacterIDs;
+        // 状态名列表
+        private string[] _StateNames;
+        // 状态显示名列表 (包含Layer，怕菜单中选择时重名不好辨认)
+        private string[] _ShowStateNames;
+        // 状态Layer列表
+        private int[] _StateLayers;
         
         // 节点列表面板宽度 (左)
         private const int k_HierarchyPanelWidth = 250;    
@@ -32,7 +38,7 @@ namespace AnimationEventEditor
         // 选择人物ID
         private string _SelectedCharacterID = string.Empty;
         // 选择动画
-        private AEEditorAnimatorState _SelectedState = AEEditorAnimatorState.Attack1;
+        private string _SelectedState = string.Empty;
         
         // 人物guid
         private string _MainCharacterResourceGuid;

@@ -290,6 +290,10 @@ namespace Zack.Editor
         /// <param name="callback"></param>
         public static void CreateMenu(string[] texts, int selectedIndex, System.Action<int> callback)
         {
+            if (texts == null)
+            {
+                return;
+            }
             GenericMenu menu = new GenericMenu();
             for (int i = 0; i < texts.Length; ++i)
             {

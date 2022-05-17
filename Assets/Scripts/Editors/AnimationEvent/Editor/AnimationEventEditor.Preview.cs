@@ -40,7 +40,9 @@ namespace AnimationEventEditor
                     this._MainCharacter = GameObject.Instantiate(this._MainCharacterResource, Vector3.zero, Quaternion.identity);
                     this._Animator = this._MainCharacter.GetComponent<Animator>();
                 }
-                
+
+                // 遍历动画状态
+                browserAnimatorStates(this._Animator, out this._StateNames, out this._StateLayers, out this._ShowStateNames);
             }
         }
 
@@ -49,8 +51,7 @@ namespace AnimationEventEditor
         {
             if (this._Animator!=null && this._TotalFrames!=0)
             {
-                string stateName = getAnimationStateName(this._CurrentFrame);
-                this._AnimatorLayer = getAnimationStateLayer(this._CurrentFrame);
+                string stateName = this._SelectedState;
                 AnimationClip clip = getAnimationClip(stateName);
                 
                 float percent = this._CurrentFrame / (float)this._TotalFrames;
@@ -73,8 +74,7 @@ namespace AnimationEventEditor
                 this._Animator.enabled = false;
                 
                 // 播放
-                string stateName = this._SelectedState.GetDescription();
-                this._AnimatorLayer = EditorUtils.GetAnimatorLayer(this._SelectedState);
+                string stateName = this._SelectedState;
                 this._Animator.enabled = true;
                 this._Animator.applyRootMotion = _ApplyRootMotion;
                 this._Animator.Play(stateName, this._AnimatorLayer, 0);

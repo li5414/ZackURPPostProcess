@@ -7,22 +7,12 @@ using UnityEngine;
 using Zack.Editor;
 using System.ComponentModel;
 using Skill;
+using UnityEditor.Animations;
 
 namespace AnimationEventEditor
 {
    public partial class AnimationEventEditor
    {
-       /// <summary>
-       /// 动画事件编辑器支持的动画状态
-       /// </summary>
-       public enum AEEditorAnimatorState
-       {
-           [Description("Attack1"), AnimatorLayer(0)]
-           Attack1 = 0,
-           [Description("Attack2"), AnimatorLayer(0)]
-           Attack2,
-       }
-
        public enum AEEditorActionType
        {
            [Description("音效事件")]
@@ -43,6 +33,42 @@ namespace AnimationEventEditor
                folders.Add(Path.GetFileName(path));
            }
            return folders.ToArray();
+       }
+
+       // 遍历获取animator的所有AnimatorState信息
+       void browserAnimatorStates(Animator animator, out string[] stateNames, out int[] layers, out string[] showStateNames)
+       {
+            List<string> stateNameVec = new List<string>();
+            List<int> layerVec = new List<int>();
+            List<string> showStateNameVec = new List<string>();
+
+            if (animator)
+            {
+                AnimatorController controller = animator.runtimeAnimatorController as AnimatorController;
+                AnimatorOverrideController overrideController = null;
+                if (!controller)
+                {
+                    // 使用AnimatorOverrideController
+                    overrideController = animator.runtimeAnimatorController as AnimatorOverrideController;
+                    controller = overrideController.runtimeAnimatorController as AnimatorController;
+                }
+
+                for (int layer = 0; layer < controller.layers.Length; ++layer)
+                {
+                    ChildAnimatorState[] childAnimatorStates = controller.layers[layer].stateMachine.states;
+                    for (int i = 0; i < childAnimatorStates.Length; ++i)
+                    {
+                        AnimatorState animatorState = childAnimatorStates[i].state;
+                        stateNameVec.Add(animatorState.name);
+                        layerVec.Add(layer);
+                        showStateNameVec.Add($"{animatorState.name} ({layer})");
+                    }
+                }
+            }
+
+           stateNames = stateNameVec.ToArray();
+           layers = layerVec.ToArray();
+           showStateNames = showStateNameVec.ToArray();
        }
 
        int getSelectedIndex(string id, string[] ids)
@@ -66,25 +92,13 @@ namespace AnimationEventEditor
         // 更新动画帧数
         void UpdateAnimationInfo()
         {
-            string stateName = this._SelectedState.GetDescription();
+            string stateName = this._SelectedState;
             AnimationClip clip = getAnimationClip(stateName);
             this._AnimationClip = clip;
             this._TotalFrames = getAnimationStateFrames(clip);
             this._AnimationEvents = AnimationEventEditorUtils.GetAnimationEvents(clip);
         }
         
-        // 根据帧数获取动画状态
-        string getAnimationStateName(int frame)
-        {
-            return this._SelectedState.GetDescription();
-        }
-
-        // 根据帧数获取动画layer
-        int getAnimationStateLayer(int frame)
-        {
-            return EditorUtils.GetAnimatorLayer(this._SelectedState);
-        }
-
         // 添加Action
         public void addAnimationEventAction(AEEditorActionType actionType)
         {
