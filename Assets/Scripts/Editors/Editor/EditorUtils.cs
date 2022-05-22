@@ -102,6 +102,11 @@ namespace Zack.Editor
             }
         }
 
+        public static void CreateCurveField(string title, ref AnimationCurve curve, params GUILayoutOption[] options)
+        {
+            curve = EditorGUILayout.CurveField(title, curve, options);
+        }
+
         public static void CreateTextField(string title, ref string text, params GUILayoutOption[] options)
         {
             text = EditorGUILayout.TextField(title, text, options);
