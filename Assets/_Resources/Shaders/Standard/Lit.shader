@@ -21,26 +21,8 @@ Shader "ZackURP/Standard/Lit"
     }
     SubShader
     {
-        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "Lit" }
-
-        // ------------------------------------------------------------------
-        //  Forward pass. Shades all light in a single pass. GI + emission + Fog
-        Pass
-        {
-            // Lightmode matches the ShaderPassName set in UniversalRenderPipeline.cs. SRPDefaultUnlit and passes with
-            // no LightMode tag are also rendered by Universal Render Pipeline
-            Name "ForwardLit"
-            Tags{"LightMode" = "UniversalForward"}
-
-            Blend[_SrcBlend][_DstBlend]
-            ZWrite[_ZWrite]
-            Cull[_Cull]
-
-            HLSLPROGRAM
-
+        HLSLINCLUDE
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Scripts/URP/ShaderLibrary/Math.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
@@ -63,6 +45,50 @@ Shader "ZackURP/Standard/Lit"
             // _BaseMap
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
+
+            half4 SampleAlbedoAlpha(float2 uv, TEXTURE2D_PARAM(albedoAlphaMap, sampler_albedoAlphaMap))
+            {
+                return SAMPLE_TEXTURE2D(albedoAlphaMap, sampler_albedoAlphaMap, uv);
+            }
+
+            half Alpha(half albedoAlpha, half4 color, half cutoff)
+            {
+            #if !defined(_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A) && !defined(_GLOSSINESS_FROM_BASE_ALPHA)
+                half alpha = albedoAlpha * color.a;
+            #else
+                half alpha = color.a;
+            #endif
+            
+            #if defined(_ALPHATEST_ON)
+                clip(alpha - cutoff);
+            #endif
+            
+                return alpha;
+            }
+
+        ENDHLSL
+        
+        
+        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "Lit" }
+
+        // ------------------------------------------------------------------
+        //  Forward pass. Shades all light in a single pass. GI + emission + Fog
+        Pass
+        {
+            // Lightmode matches the ShaderPassName set in UniversalRenderPipeline.cs. SRPDefaultUnlit and passes with
+            // no LightMode tag are also rendered by Universal Render Pipeline
+            Name "ForwardLit"
+            Tags{"LightMode" = "UniversalForward"}
+
+            Blend[_SrcBlend][_DstBlend]
+            ZWrite[_ZWrite]
+            Cull[_Cull]
+
+            HLSLPROGRAM
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Assets/Scripts/URP/ShaderLibrary/Math.hlsl"
 
             // 受伤特效
             // HurtMap
@@ -104,21 +130,6 @@ Shader "ZackURP/Standard/Lit"
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
-
-            half Alpha(half albedoAlpha, half4 color, half cutoff)
-            {
-            #if !defined(_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A) && !defined(_GLOSSINESS_FROM_BASE_ALPHA)
-                half alpha = albedoAlpha * color.a;
-            #else
-                half alpha = color.a;
-            #endif
-            
-            #if defined(_ALPHATEST_ON)
-                clip(alpha - cutoff);
-            #endif
-            
-                return alpha;
-            }
 
             Varyings Vertex(Attributes input)
             {
@@ -163,7 +174,6 @@ Shader "ZackURP/Standard/Lit"
                 float hurtTimestamp = _HurtParameter.x;
                 float oneDivHurtDuration = _HurtParameter.y;
                 output.hurtParam = float2((_Time.y-hurtTimestamp)*oneDivHurtDuration, 0.5);
-                
 
                 return output;
             }
@@ -312,8 +322,6 @@ Shader "ZackURP/Standard/Lit"
             Cull[_Cull]
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
-            #pragma target 4.5
 
             // -------------------------------------
             // Material Keywords
@@ -328,7 +336,11 @@ Shader "ZackURP/Standard/Lit"
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+            // #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
+
             #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
             ENDHLSL
         }
@@ -344,8 +356,6 @@ Shader "ZackURP/Standard/Lit"
             Cull[_Cull]
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
-            #pragma target 4.5
 
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
@@ -360,7 +370,6 @@ Shader "ZackURP/Standard/Lit"
             #pragma multi_compile_instancing
             #pragma multi_compile _ DOTS_INSTANCING_ON
 
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
             ENDHLSL
         }
@@ -375,8 +384,6 @@ Shader "ZackURP/Standard/Lit"
             Cull[_Cull]
 
             HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
-            #pragma target 4.5
 
             #pragma vertex DepthNormalsVertex
             #pragma fragment DepthNormalsFragment
@@ -392,40 +399,37 @@ Shader "ZackURP/Standard/Lit"
             #pragma multi_compile_instancing
             #pragma multi_compile _ DOTS_INSTANCING_ON
 
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthNormalsPass.hlsl"
             ENDHLSL
         }
 
-        // This pass it not used during regular rendering, only for lightmap baking.
-        Pass
-        {
-            Name "Meta"
-            Tags{"LightMode" = "Meta"}
-
-            Cull Off
-
-            HLSLPROGRAM
-            #pragma exclude_renderers gles gles3 glcore
-            #pragma target 4.5
-
-            #pragma vertex UniversalVertexMeta
-            #pragma fragment UniversalFragmentMeta
-
-            #pragma shader_feature_local_fragment _SPECULAR_SETUP
-            #pragma shader_feature_local_fragment _EMISSION
-            #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
-            #pragma shader_feature_local_fragment _ALPHATEST_ON
-            #pragma shader_feature_local_fragment _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
-            #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
-
-            #pragma shader_feature_local_fragment _SPECGLOSSMAP
-
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
-
-            ENDHLSL
-        }
+//        // This pass it not used during regular rendering, only for lightmap baking.
+//        Pass
+//        {
+//            Name "Meta"
+//            Tags{"LightMode" = "Meta"}
+//
+//            Cull Off
+//
+//            HLSLPROGRAM
+//
+//            #pragma vertex UniversalVertexMeta
+//            #pragma fragment UniversalFragmentMeta
+//
+//            #pragma shader_feature_local_fragment _SPECULAR_SETUP
+//            #pragma shader_feature_local_fragment _EMISSION
+//            #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
+//            #pragma shader_feature_local_fragment _ALPHATEST_ON
+//            #pragma shader_feature_local_fragment _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+//            #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
+//
+//            #pragma shader_feature_local_fragment _SPECGLOSSMAP
+//
+//            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+//            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
+//
+//            ENDHLSL
+//        }
         
         
     }
