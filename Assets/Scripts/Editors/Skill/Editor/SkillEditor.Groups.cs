@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using Unity.Plastic.Antlr3.Runtime.Misc;
 using UnityEditor;
 using UnityEditor.VersionControl;
@@ -16,12 +17,10 @@ namespace Skill.Editor
          // Group的Hierarchy样式枚举
          protected enum GroupHierarchyStyle
          {
-            // "[start~end]"
-            ShowStartEnd,
-            // "[start]"
-            OnlyStart,
-            // 自定义 (显示_HierarchyText内容)
-            Custom,
+            Animation,
+            Effect,
+            Event,
+            CustomeEvent,
          }
 
          // timeline数据编辑样式枚举
@@ -42,8 +41,7 @@ namespace Skill.Editor
          // action列表
          public List<SkillAction> actions = new ListStack<SkillAction>();
          // Hierarchy显示样式
-         protected GroupHierarchyStyle _HierarchyStyle = GroupHierarchyStyle.ShowStartEnd;
-         protected string _HierarchyText = string.Empty;
+         protected GroupHierarchyStyle _HierarchyStyle = GroupHierarchyStyle.Animation;
          // timeline编辑样式
          protected TimelineEditStyle _TimelineEditStyle = TimelineEditStyle.StartAndDuration;
 
@@ -84,14 +82,17 @@ namespace Skill.Editor
                {
                   switch (this._HierarchyStyle)
                   {
-                  case GroupHierarchyStyle.ShowStartEnd:
-                     GUILayout.Label($"[{action.timelineData.start}~{action.timelineData.end}]", EditorParameters.k_Label);   // 注意GUIStyle会影响高度
+                  case GroupHierarchyStyle.Animation:
+                     GUILayout.Label($"[{action.timelineData.start}~{action.timelineData.end}]: {(action as SkillAnimationAction).clipName}", EditorParameters.k_Label);   // 注意GUIStyle会影响高度
                      break;
-                  case GroupHierarchyStyle.OnlyStart:
-                     GUILayout.Label($"[{action.timelineData.start}]", EditorParameters.k_Label);   // 注意GUIStyle会影响高度
+                  case GroupHierarchyStyle.Effect:
+                     GUILayout.Label($"[{action.timelineData.start}~{action.timelineData.end}]: {window.getSkillComponentDescriptions(action)}", EditorParameters.k_Label);   // 注意GUIStyle会影响高度
                      break;
-                  case GroupHierarchyStyle.Custom:
-                     GUILayout.Label(this._HierarchyText, EditorParameters.k_Label);   // 注意GUIStyle会影响高度
+                  case GroupHierarchyStyle.Event:
+                     GUILayout.Label($"[{action.timelineData.start}]: {window.getSkillComponentDescriptions(action)}", EditorParameters.k_Label);   // 注意GUIStyle会影响高度
+                     break;
+                  case GroupHierarchyStyle.CustomeEvent:
+                     GUILayout.Label($"[{action.timelineData.start}]: {(action as SkillCustomEventAction).functionName}", EditorParameters.k_Label);   // 注意GUIStyle会影响高度
                      break;
                   }
                   GUILayout.FlexibleSpace();
@@ -256,6 +257,7 @@ namespace Skill.Editor
          public SkillAnimationGroup()
          {
             this._Title = "动画";
+            this._HierarchyStyle = GroupHierarchyStyle.Animation;
             this._TimelineEditStyle = TimelineEditStyle.Nothing;
          }
 
@@ -313,6 +315,7 @@ namespace Skill.Editor
          public SkillEffectGroup()
          {
             this._Title = "特效";
+            this._HierarchyStyle = GroupHierarchyStyle.Effect;
          }
 
          public override int OnGroupHierarchyGUI(SkillEditor window, bool isGroupSelected, int selectedItemIndex)
@@ -342,13 +345,22 @@ namespace Skill.Editor
          {
             GenericMenu menu = new GenericMenu();
             
-            // timescaleEvent
-            if (!window.drawPrefabEffectComponent(action))
+            // 遍历用反射获取组件
+            Type type = action.GetType();
+            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            foreach (var field in fields)
             {
-               menu.AddItem(new GUIContent(action.prefabEffect.GetDescripthion()), false, () =>
+               if (!window.drawEffectComponent(action, field.Name))
                {
-                  action.prefabEffect = new PrefabEffect();
-               });
+                  string title = field.FieldType.GetDescripthion();
+                  if (title != null && title != string.Empty)
+                  {
+                     menu.AddItem(new GUIContent(title), false, () =>
+                     {
+                        field.SetValue(action, Activator.CreateInstance(field.FieldType));
+                     });
+                  }
+               }
             }
 
             // 打开菜单
@@ -366,7 +378,7 @@ namespace Skill.Editor
          public SkillEventGroup()
          {
             this._Title = "事件";
-            this._HierarchyStyle = GroupHierarchyStyle.OnlyStart;
+            this._HierarchyStyle = GroupHierarchyStyle.Event;
             this._TimelineEditStyle = TimelineEditStyle.OnlyStart;
          }
 
@@ -402,13 +414,22 @@ namespace Skill.Editor
          {
             GenericMenu menu = new GenericMenu();
             
-            // timescaleEvent
-            if (!window.drawTimescaleComponent(action))
+            // 遍历用反射获取组件
+            Type type = action.GetType();
+            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            foreach (var field in fields)
             {
-               menu.AddItem(new GUIContent(action.timescaleEvent.GetDescripthion()), false, () =>
+               if (!window.drawEventComponent(action, field.Name))
                {
-                  action.timescaleEvent = new TimescaleEvent();
-               });
+                  string title = field.FieldType.GetDescripthion();
+                  if (title != null && title != string.Empty)
+                  {
+                     menu.AddItem(new GUIContent(title), false, () =>
+                     {
+                        field.SetValue(action, Activator.CreateInstance(field.FieldType));
+                     });
+                  }
+               }
             }
 
             // 打开菜单
@@ -426,7 +447,7 @@ namespace Skill.Editor
          public SkillCustomEventGroup()
          {
             this._Title = "自定义回调";
-            this._HierarchyStyle = GroupHierarchyStyle.OnlyStart;
+            this._HierarchyStyle = GroupHierarchyStyle.CustomeEvent;
             this._TimelineEditStyle = TimelineEditStyle.OnlyStart;
          }
 

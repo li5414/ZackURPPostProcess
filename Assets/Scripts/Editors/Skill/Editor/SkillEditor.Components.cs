@@ -16,27 +16,37 @@ namespace Skill.Editor
    {
       // 绘制组件
       // =========================SkillEffectAction的组件=======================================
-      // 特效组件
-      bool drawPrefabEffectComponent(SkillEffectAction action)
+      bool drawEffectComponent(SkillEffectAction action, string fieldName)
       {
-         PrefabEffect component = action.prefabEffect;
+         SkillComponent component = null;
+
+         var field = action.GetType().GetField(fieldName,
+            BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+         if (field != null)
+         {
+            component = field.GetValue(action) as SkillComponent;
+         }
+
          if (component == null)
          {
             return false;
          }
-         
+
          using (new GUILayoutVertical(EditorStyles.helpBox, GUILayout.Height(k_ElementHeight)))
          {
             // 属性
             drawComponentProperties(component);
          }
-
+         
          // 点击事件
          if(HitTest())
          {
             EditorUtils.CreateMenu(new string[]{"删除"}, -1, (index) =>
             {
-               action.prefabEffect = null;
+               if (field != null)
+               {
+                  field.SetValue(action, null);
+               }
             });
          }
          
@@ -46,31 +56,43 @@ namespace Skill.Editor
 
       
       // =========================SkillEventAction的组件=======================================
-      // timescale组件
-      bool drawTimescaleComponent(SkillEventAction action)
+      bool drawEventComponent(SkillEventAction action, string fieldName)
       {
-         TimescaleEvent component = action.timescaleEvent;
+         SkillComponent component = null;
+
+         var field = action.GetType().GetField(fieldName,
+            BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+         if (field != null)
+         {
+            component = field.GetValue(action) as SkillComponent;
+         }
+
          if (component == null)
          {
             return false;
          }
-         
+
          using (new GUILayoutVertical(EditorStyles.helpBox, GUILayout.Height(k_ElementHeight)))
          {
+            // 属性
             drawComponentProperties(component);
          }
-
+         
          // 点击事件
          if(HitTest())
          {
             EditorUtils.CreateMenu(new string[]{"删除"}, -1, (index) =>
             {
-               action.timescaleEvent = null;
+               if (field != null)
+               {
+                  field.SetValue(action, null);
+               }
             });
          }
          
          return true;
       }
+      // =========================SkillEventAction的组件=======================================
 
       bool HitTest()
       {
@@ -88,11 +110,11 @@ namespace Skill.Editor
 
       void drawComponentProperties<T>(T component) where T : SkillComponent
       {
-         // Title
-         EditorUtils.CreateText((component as T).GetDescripthion(), EditorParameters.k_BoldLabel);
-         
          // 属性列表
          Type type = component.GetType();
+         // Title
+         EditorUtils.CreateText(type.GetDescripthion(), EditorParameters.k_BoldLabel);
+         
          FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
          foreach (var field in fields)
          {

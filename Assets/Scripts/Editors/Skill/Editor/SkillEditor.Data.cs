@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Unity.Plastic.Antlr3.Runtime.Misc;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -175,6 +176,35 @@ namespace Skill.Editor
             }
 
             return 0;
+        }
+
+        // 获取SkillAction上所有组件的Description，用于编辑器上展示
+        string getSkillComponentDescriptions(SkillAction action)
+        {
+            string title = string.Empty;
+
+            Type type = action.GetType();
+            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            foreach (var field in fields)
+            {
+                // 属性描述
+                var component = field.GetValue(action) as SkillComponent;
+                if (component != null)
+                {
+                    var desc = field.FieldType.GetDescripthion();
+                    if (desc != null && desc != string.Empty)
+                    {
+                        if (title != string.Empty)
+                        {
+                            title += ";";
+                        }
+
+                        title += desc;
+                    }
+                }
+            }
+
+            return title;
         }
 
         /// <summary>

@@ -376,7 +376,7 @@ namespace AnimationEventEditor
             }
             
             Event e = Event.current;
-            if (e.button == 0 && e.type == EventType.MouseUp && rect.Contains(e.mousePosition))
+            if (e.button == 0 && (e.type == EventType.MouseUp || e.type == EventType.MouseDrag) && rect.Contains(e.mousePosition))
             {
                 GUI.FocusControl(null);
                 e.Use();

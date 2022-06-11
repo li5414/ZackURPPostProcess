@@ -35,6 +35,17 @@ namespace Zack.Editor
 
             return (descriptions[0] as System.ComponentModel.DescriptionAttribute).Description;
         }
+
+        public static string GetDescripthion(this Type type)
+        {
+            var descriptions = type.GetCustomAttributes(typeof(System.ComponentModel.DescriptionAttribute), false);
+            if (descriptions.Length == 0)
+            {
+                return null;
+            }
+
+            return (descriptions[0] as System.ComponentModel.DescriptionAttribute).Description;
+        }
         
         public static string GetDescripthion(this FieldInfo field)
         {
