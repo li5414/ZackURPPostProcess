@@ -8,38 +8,7 @@ public class SpellIndicatorTest : MonoBehaviour
    public SpellIndicator _SpellIndicator;
    public SpellIndicator.SpellIndicatorType _Type = SpellIndicator.SpellIndicatorType.Line;
 
-   RaycastHit _HitInfo = new RaycastHit();
-
-   private GUIStyle k_Label;
-   void Awake()
-   {
-      k_Label = new GUIStyle("label");
-      k_Label.fontSize = 20;
-      k_Label.normal.textColor = Color.blue;
-      k_Label.alignment = TextAnchor.LowerLeft;
-      k_Label.stretchHeight = true;
-      k_Label.margin.top = 0;
-      k_Label.margin.bottom = 0;
-   }
-
-   void OnGUI()
-   {
-      float y = 0;
-      addPropertyGUI("按下鼠标左键控制拖动，显示技能指向。", ref y);
-      addPropertyGUI("按A键: 切换箭头类型", ref y);
-      addPropertyGUI("按B键: 切换带缩放的箭头类型", ref y);
-      addPropertyGUI("按C键: 切换扇区类型", ref y);
-      addPropertyGUI("按D键: 切换圆形类型", ref y);
-   }
-
-   private float margin = 10;
-   private float height = 30;
-   private float width = Screen.width;
-   void addPropertyGUI(string content, ref float y)
-   {
-      GUI.Label(new Rect(margin, y, width, height), content, k_Label);
-      y += height;
-   }
+   RaycastHit _HitInfo;
 
    void Update()
    {
