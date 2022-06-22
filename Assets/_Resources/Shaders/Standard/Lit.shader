@@ -2,20 +2,42 @@ Shader "ZackURP/Standard/Lit"
 {
     Properties
     {
+        // Specular vs Metallic workflow
+        [HideInInspector] _WorkflowMode("WorkflowMode", Float) = 1.0
+        
         [MainTexture] _BaseMap("Base Map", 2D) = "white" {}
         [MainColor][HDR] _BaseColor("Base Color", Color) = (1,1,1,1)
-        _Metallic("Metallic", Range(0.0, 1.0)) = 0.0
+        
+        // 金属度
+        _Metallic("Metallic", Range(0.0, 1.0)) = 0.0    // 与_MetallicGlossMap互斥
+        _MetallicGlossMap("Metallic", 2D) = "white" {}  // 与_Metallic互斥
+        // 光滑度
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
+        
+        // 法线贴图
+        _BumpScale("Scale", Float) = 1.0
+        _BumpMap("Normal Map", 2D) = "bump" {}
+        
+        // 遮挡贴图
+        _OcclusionStrength("Strength", Range(0.0, 1.0)) = 1.0
+        _OcclusionMap("Occlusion", 2D) = "white" {}
+        
+        // 裁切
         [HideInInspector]_Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5 
         
-        [HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend("Src Blend", Float) = 1.0
-        [HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_DstBlend("Dest Blend", Float) = 0.0
-        [HideInInspector][Enum(Off, 0, On, 1)]_ZWrite("ZWrite", Float) = 1.0
-        [HideInInspector][Enum(UnityEngine.Rendering.CullMode)]_Cull("Cull", Float) = 2.0
+        // Blending state
+        [HideInInspector] _Surface("__surface", Float) = 0.0
+        [HideInInspector] _Blend("__blend", Float) = 0.0
+        [HideInInspector] _AlphaClip("__clip", Float) = 0.0
+        [HideInInspector] _SrcBlend("__src", Float) = 1.0
+        [HideInInspector] _DstBlend("__dst", Float) = 0.0
+        [HideInInspector] _ZWrite("__zw", Float) = 1.0
+        [HideInInspector] _Cull("__cull", Float) = 2.0
         
         // 受伤特效
+        [HideInInspector] _UseHurt("__hurt", Float) = 0.0
         _HurtMap("Hurt Map", 2D) = "black" {}   // 注意WarpMode要为Clamp，不能是Repeat。且边界灰度为0
-        [HideInInspector]_HurtColor("Hurt Color", Color) = (1,1,1,1)
+        _HurtColor("Hurt Color", Color) = (1,1,1,1)
         [HideInInspector]_HurtParameter("Hurt Parameters", vector) = (0,0,0,0)
         
     }
@@ -23,6 +45,7 @@ Shader "ZackURP/Standard/Lit"
     {
         HLSLINCLUDE
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
@@ -32,6 +55,10 @@ Shader "ZackURP/Standard/Lit"
                 float _Metallic;
                 // 光滑度
                 float _Smoothness;
+                // 法线缩放
+                half _BumpScale;
+                // 遮挡强度
+                half _OcclusionStrength;
                 // 透明度裁切
                 float _Cutoff;
 
@@ -45,6 +72,18 @@ Shader "ZackURP/Standard/Lit"
             // _BaseMap
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
+
+            // _BumpMap
+            TEXTURE2D(_BumpMap);
+            SAMPLER(sampler_BumpMap);
+
+            // _MetallicGlossMap
+            TEXTURE2D(_MetallicGlossMap);
+            SAMPLER(sampler_MetallicGlossMap);
+
+            // _OcclusionMap
+            TEXTURE2D(_OcclusionMap);
+            SAMPLER(sampler_OcclusionMap);
 
             half4 SampleAlbedoAlpha(float2 uv, TEXTURE2D_PARAM(albedoAlphaMap, sampler_albedoAlphaMap))
             {
@@ -64,6 +103,69 @@ Shader "ZackURP/Standard/Lit"
             #endif
             
                 return alpha;
+            }
+
+            half3 SampleNormal(float2 uv, TEXTURE2D_PARAM(bumpMap, sampler_bumpMap), half scale = 1.0h)
+            {
+                #ifdef _NORMALMAP
+                    half4 n = SAMPLE_TEXTURE2D(bumpMap, sampler_bumpMap, uv);
+                    #if BUMP_SCALE_NOT_SUPPORTED
+                        return UnpackNormal(n);
+                    #else
+                        return UnpackNormalScale(n, scale);
+                    #endif
+                #else
+                    return half3(0.0h, 0.0h, 1.0h);
+                #endif
+            }
+
+            half SampleOcclusion(float2 uv)
+            {
+                #ifdef _OCCLUSIONMAP
+                // TODO: Controls things like these by exposing SHADER_QUALITY levels (low, medium, high)
+                #if defined(SHADER_API_GLES)
+                    return SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv).g;
+                #else
+                    half occ = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv).g;
+                    return LerpWhiteTo(occ, _OcclusionStrength);
+                #endif
+                #else
+                    return 1.0;
+                #endif
+            }
+
+            #ifdef _SPECULAR_SETUP
+                #define SAMPLE_METALLICSPECULAR(uv) SAMPLE_TEXTURE2D(_SpecGlossMap, sampler_SpecGlossMap, uv)
+            #else
+                #define SAMPLE_METALLICSPECULAR(uv) SAMPLE_TEXTURE2D(_MetallicGlossMap, sampler_MetallicGlossMap, uv)
+            #endif
+
+            half4 SampleMetallicSpecGloss(float2 uv, half albedoAlpha)
+            {
+                half4 specGloss;
+
+            #ifdef _METALLICSPECGLOSSMAP
+                specGloss = SAMPLE_METALLICSPECULAR(uv);
+                #ifdef _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+                    specGloss.a = albedoAlpha * _Smoothness;
+                #else
+                    specGloss.a *= _Smoothness;
+                #endif
+            #else // _METALLICSPECGLOSSMAP
+                #if _SPECULAR_SETUP
+                    specGloss.rgb = _SpecColor.rgb;
+                #else
+                    specGloss.rgb = _Metallic.rrr;
+                #endif
+
+                #ifdef _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+                    specGloss.a = albedoAlpha * _Smoothness;
+                #else
+                    specGloss.a = _Smoothness;
+                #endif
+            #endif
+
+                return specGloss;
             }
 
         ENDHLSL
@@ -171,10 +273,12 @@ Shader "ZackURP/Standard/Lit"
 				#endif
 
                 // 受伤特效
-                float hurtTimestamp = _HurtParameter.x;
-                float oneDivHurtDuration = _HurtParameter.y;
-                output.hurtParam = float2((_Time.y-hurtTimestamp)*oneDivHurtDuration, 0.5);
-
+                #if _USE_HURT
+                    float hurtTimestamp = _HurtParameter.x;
+                    float oneDivHurtDuration = _HurtParameter.y;
+                    output.hurtParam = float2((_Time.y-hurtTimestamp)*oneDivHurtDuration, 0.5);
+                #endif
+                
                 return output;
             }
 
@@ -184,18 +288,6 @@ Shader "ZackURP/Standard/Lit"
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 
                 half4 albedoAlpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv.xy);
-
-                half occlusion;
-                #ifdef _OCCLUSIONMAP
-                    #if defined(SHADER_API_GLES)
-                        occlusion = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv).g;
-                    #else
-                        half occ = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv).g;
-                        occlusion = LerpWhiteTo(occ, _OcclusionStrength);
-                    #endif
-                #else
-                    occlusion = 1.0;
-                #endif
 
                 // // Must match Universal ShaderGraph master node
                 // struct SurfaceData
@@ -212,14 +304,24 @@ Shader "ZackURP/Standard/Lit"
                 //     half  clearCoatSmoothness;
                 // };
                 SurfaceData surfaceData;
+                half4 specGloss = SampleMetallicSpecGloss(input.uv, albedoAlpha.a);
                 surfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
-                surfaceData.metallic = _Metallic;
-                surfaceData.smoothness = _Smoothness;
+                #if _SPECULAR_SETUP
+                    outSurfaceData.metallic = 1.0h;
+                    outSurfaceData.specular = specGloss.rgb;
+                #else
+                    surfaceData.metallic = specGloss.r;
+                    surfaceData.specular = half3(0.0h, 0.0h, 0.0h);
+                #endif
+                // surfaceData.metallic = _Metallic;
+                surfaceData.smoothness = specGloss.a;
                 surfaceData.specular = 0;
-                surfaceData.normalTS = half3(0, 1, 0);
-                surfaceData.occlusion = occlusion;
+                surfaceData.normalTS = SampleNormal(input.uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale);//half3(0, 1, 0);
+                surfaceData.occlusion = SampleOcclusion(input.uv);;
                 surfaceData.emission = 0;
                 surfaceData.alpha = Alpha(albedoAlpha.a, _BaseColor, _Cutoff);
+                surfaceData.clearCoatMask = 0;
+                surfaceData.clearCoatSmoothness = 0;
 
                 // struct InputData
                 // {
@@ -235,7 +337,12 @@ Shader "ZackURP/Standard/Lit"
                 // };
                 InputData inputData;
                 inputData.positionWS = input.positionWS;
-                inputData.normalWS = NormalizeNormalPerPixel(input.normalWS);
+                #if defined(_NORMALMAP) || defined(_DETAIL)
+                    inputData.normalWS = TransformTangentToWorld(surfaceData.normalTS, half3x3(input.tangentWS, input.bitangentWS, input.normalWS));
+                #else
+                    inputData.normalWS = input.normalWS;
+                #endif
+                inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
                 inputData.viewDirectionWS = SafeNormalize(input.viewDirectionWS);
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                     inputData.shadowCoord = input.shadowCoord;
@@ -260,8 +367,12 @@ Shader "ZackURP/Standard/Lit"
                 finalColor.a = 1;   //OutputAlpha(finalColor, _Surface);
 
                 // 受伤特效
-                half4 hurtColor = lerp(float4(1,1,1,1), _HurtColor, SAMPLE_TEXTURE2D(_HurtMap, sampler_HurtMap, input.hurtParam).r);
-                finalColor *= hurtColor;
+                #if _USE_HURT
+                    half4 hurtColor = lerp(float4(1,1,1,1), _HurtColor, SAMPLE_TEXTURE2D(_HurtMap, sampler_HurtMap, input.hurtParam).r);
+                    finalColor *= hurtColor;
+                    // finalColor *= _HurtColor;
+                #endif
+                
                 
                 return finalColor;
             }
@@ -281,6 +392,8 @@ Shader "ZackURP/Standard/Lit"
             #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
             #pragma shader_feature_local_fragment _SPECULAR_SETUP
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+            // 受伤特效
+            #pragma shader_feature_local _USE_HURT
 
             // -------------------------------------
             // Universal Pipeline keywords
@@ -433,4 +546,7 @@ Shader "ZackURP/Standard/Lit"
         
         
     }
+    
+    CustomEditor "Zack.UniversalRP.ShaderGUI.LitShader"
+
 }
