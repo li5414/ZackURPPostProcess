@@ -262,6 +262,10 @@ namespace Skill.Editor
 
             // 写入文件
             Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+            ObjectValueChecker.RecurseObjectToCheckValue<SkillAsset>(this._SkillConfig, asset =>
+            {
+                Debug.Log($"find skill asset = {asset.guid}");
+            });
             JsonUtils.SerializeObjectToFile(this._SkillConfig, filepath);
 
             Debug.Log($"保存配置完成: {filepath}");
