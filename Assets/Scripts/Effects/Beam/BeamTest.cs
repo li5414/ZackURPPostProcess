@@ -38,10 +38,10 @@ public class BeamTest : MonoBehaviour
          this._Beam.SetBeamInfo(this.transform);
          this._Beam.gameObject.SetActive(true);
       }
-      // if (Input.GetMouseButtonUp(0))
-      // {
-      //    this._Beam.gameObject.SetActive(false);   
-      // }
+      if (Input.GetMouseButtonUp(0))
+      {
+         this._Beam.gameObject.SetActive(false);   
+      }
       
       if (Input.GetMouseButton(0))
       {

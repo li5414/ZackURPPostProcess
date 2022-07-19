@@ -53,9 +53,8 @@ public class Beam : MonoBehaviour
     
     // 光束细节参数
     [Header("Adjustable Variables")]
-    public Vector3 _BeamEndOffset = Vector3.zero; //How far from the raycast hit point the end effect is positioned
-    public float _TextureScrollSpeed = 8f; //How fast the texture scrolls along the beam
-    public float _TextureLengthScale = 3; //Length of the beam texture
+    public float _BeamEndOffset = 0.4f; //How far from the raycast hit point the end effect is positioned
+    public float _TextureLengthScale = 3; // Length of the beam texture
     public int _SimulatePointCount = 10;    // 模拟光束的点的个数
     public float _Speed = 1;    // 光束喷射速度
     
@@ -67,6 +66,8 @@ public class Beam : MonoBehaviour
     private float _PointInterval;
     
     // 可配参数
+    // 是否可穿透
+    public bool _Penetrate = false;
     // 最大距离
     private float _MaxDistance = 10;
 
@@ -96,8 +97,11 @@ public class Beam : MonoBehaviour
             distance = this._PointInterval * i;
             this._Points.Add(new BeamPoint(start + transform.forward * distance, transform.forward, distance));
         }
+        
+        this._LineRenderer.sharedMaterial.mainTextureScale = new Vector2(this._MaxDistance / _TextureLengthScale, 1);
     }
 
+    // 计算光束采样点
     public void UpdatePoints()
     {
         float deltaDistance = Time.deltaTime * this._Speed;
@@ -112,45 +116,76 @@ public class Beam : MonoBehaviour
             }
             this._Points[i].UpdateBeamPoint(this._Points[lstPointIdx], deltaDistance);
         }
-
+        // 发射点直接给父节点位置和旋转
         this._Points[0].UpdateBeamPoint(transform.position, transform.forward);
     }
 
+    // 显示光束
     void UpdateLineRenderer()
     {
         int showCount = this._SimulatePointCount - 1;
         
         Vector3 direction = this._Points[0].direction;
         Vector3 start = this._Points[0].position;
-        RaycastHit hit;
-        if (Physics.Raycast(start, direction, out hit, this._MaxDistance))
-        {
-            // end = hit.point - (dir.normalized * _BeamEndOffset);
-            float distance = Vector3.Distance(start, hit.point);
-            showCount = (int)Math.Min(Math.Ceiling(distance / this._PointInterval), this._SimulatePointCount-1);
-        }
         Vector3 end = this._Points[showCount].position;
+        bool isHit = false;
+        
+        // 光束是否可穿透物体
+        if (!_Penetrate)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(start, direction, out hit, this._MaxDistance))
+            {
+                isHit = true;
+                float distance = Vector3.Distance(start, hit.point);
+                showCount = (int)Math.Min(Math.Ceiling(distance / this._PointInterval), this._SimulatePointCount-1);
 
+                float percent = distance % this._PointInterval / this._PointInterval; 
+                end = Vector3.Lerp(this._Points[showCount-1].position, this._Points[showCount].position, percent);//this._Points[showCount].position;
+            }
+        }
         
         // 提交光束顶点
         {
             this._LineRenderer.positionCount = showCount + 1;
             int i;
-            for (i = 0; i <= showCount; ++i)
+            for (i = 0; i < showCount; ++i)
             {
                 this._LineRenderer.SetPosition(i, this._Points[i].position);
             }
-        
-            this._LineRenderer.sharedMaterial.mainTextureScale = new Vector2(this._MaxDistance / _TextureLengthScale, 1);
-            this._LineRenderer.sharedMaterial.mainTextureOffset -= new Vector2(Time.deltaTime * _TextureScrollSpeed, 0);
+            this._LineRenderer.SetPosition(i, end);
+            
+            // CalculateCurvePath(showCount);
+            // this._LineRenderer.positionCount = this._TempVectors.Count;
+            // this._LineRenderer.SetPositions(this._TempVectors.ToArray());
         }
         
         this._BeamStart.transform.position = start;
-        this._BeamEnd.transform.position = end;
+        this._BeamEnd.transform.position = isHit ? (end - this._Points[showCount].direction*_BeamEndOffset) : end;
         this._BeamStart.transform.LookAt(end);
         this._BeamEnd.transform.LookAt(start);
 
     }
+
+    // private List<Vector3> _TempVectors = new List<Vector3>();
+    //
+    // void CalculateCurvePath(int showCount)
+    // {
+    //     this._TempVectors.Clear();
+    //     for (int i = 0; i <= showCount; ++i)
+    //     {
+    //         if (i == 0 || i == this._Points.Count-1)
+    //         {
+    //             this._TempVectors.Add(this._Points[i].position);
+    //         }
+    //         else
+    //         {
+    //             Vector3 before = this._Points[i].position;
+    //             Vector3 after = this._Points[i + 1].position;
+    //             this._TempVectors.AddRange(ParabolaUtils.GetLineBeizerList(before, after, 6));
+    //         }
+    //     }
+    // }
 
     // Update is called once per frame
     void Update()
@@ -180,6 +215,5 @@ public class Beam : MonoBehaviour
     //     
     //     float distance = Vector3.Distance(start, end);
     //     this._LineRenderer.sharedMaterial.mainTextureScale = new Vector2(distance / _TextureLengthScale, 1);
-    //     this._LineRenderer.sharedMaterial.mainTextureOffset -= new Vector2(Time.deltaTime * _TextureScrollSpeed, 0);
     // }
 }
