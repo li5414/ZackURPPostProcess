@@ -57,6 +57,7 @@ public class Beam : MonoBehaviour
     public float _TextureLengthScale = 3; // Length of the beam texture
     public int _SimulatePointCount = 10;    // 模拟光束的点的个数
     public float _Speed = 1;    // 光束喷射速度
+    public float _IterateTime = 0.01f;    // 迭代时间间隔
     
     // LineRenderer
     private LineRenderer _LineRenderer;
@@ -64,6 +65,8 @@ public class Beam : MonoBehaviour
     private List<BeamPoint> _Points;
     // 模拟点间隔
     private float _PointInterval;
+    // 上次方向
+    private Vector3 _LastDirection = Vector3.zero;
     
     // 可配参数
     // 是否可穿透
@@ -89,6 +92,7 @@ public class Beam : MonoBehaviour
         this.gameObject.transform.parent = parent;
         this.gameObject.transform.position = start;
         
+        this._LastDirection = transform.forward;
         this._PointInterval = this._MaxDistance / (float)this._SimulatePointCount;
         this._Points.Clear();
         float distance;
@@ -97,15 +101,31 @@ public class Beam : MonoBehaviour
             distance = this._PointInterval * i;
             this._Points.Add(new BeamPoint(start + transform.forward * distance, transform.forward, distance));
         }
-        
+
         this._LineRenderer.sharedMaterial.mainTextureScale = new Vector2(this._MaxDistance / _TextureLengthScale, 1);
     }
 
     // 计算光束采样点
     public void UpdatePoints()
     {
-        float deltaDistance = Time.deltaTime * this._Speed;
+        float totalTime = Time.deltaTime;
+        float timer = 0;
+        while (timer < totalTime)
+        {
+            timer += this._IterateTime;
+
+            Vector3 forward = Vector3.Lerp(this._LastDirection, transform.forward, timer);
+            iteratePoints(forward);
+        }
+
+        this._LastDirection = transform.forward;
+    }
+
+    void iteratePoints(Vector3 forward)
+    {
+        float deltaDistance = this._IterateTime * this._Speed;
         int skipCount = (int)Math.Ceiling(deltaDistance / this._PointInterval);
+        Debug.Log(skipCount);
         
         for (int i = this._SimulatePointCount - 1; i > 0; --i)
         {
@@ -117,8 +137,9 @@ public class Beam : MonoBehaviour
             this._Points[i].UpdateBeamPoint(this._Points[lstPointIdx], deltaDistance);
         }
         // 发射点直接给父节点位置和旋转
-        this._Points[0].UpdateBeamPoint(transform.position, transform.forward);
+        this._Points[0].UpdateBeamPoint(transform.position, forward);
     }
+    
 
     // 显示光束
     void UpdateLineRenderer()

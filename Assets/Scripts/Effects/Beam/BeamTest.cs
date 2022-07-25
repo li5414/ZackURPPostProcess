@@ -11,6 +11,7 @@ public class BeamTest : MonoBehaviour
 
    void Awake()
    {
+//      Application.targetFrameRate = 20;
    }
 
    void Start()
