@@ -114,7 +114,7 @@ public class Beam : MonoBehaviour
         {
             timer += this._IterateTime;
 
-            Vector3 forward = Vector3.Lerp(this._LastDirection, transform.forward, timer);
+            Vector3 forward = Vector3.Lerp(this._LastDirection, transform.forward, timer/totalTime);
             iteratePoints(forward);
         }
 
