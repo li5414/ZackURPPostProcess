@@ -231,6 +231,45 @@ namespace Skill.Editor
                bool value = EditorUtils.CreateBoolField(desc, (bool)field.GetValue(component));
                field.SetValue(component, value);
             }
+            else if (field.FieldType == typeof(List<SkillAsset>))
+            {
+               // List<SkillAsset>类型属性
+               EditorUtils.CreateLabel(desc);
+               
+               // test list
+               List<SkillAsset> value = (List<SkillAsset>) field.GetValue(component);
+               if (value == null)
+               {
+                  value = new List<SkillAsset>();
+               }
+               EditorUtils.CreateListField(value, item =>
+               {
+                  if (item.mainObject==null && item.guid!=string.Empty)
+                  {
+                     item.mainObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetDatabase.GUIDToAssetPath(item.guid));
+                  }
+
+                  SkillAssetType assetType = EditorUtils.GetSkillAssetType(field);
+                  Type unityAssetType;
+                  switch (assetType)
+                  {
+                     case SkillAssetType.GameObject:
+                        unityAssetType = typeof(GameObject);
+                        break;
+                     case SkillAssetType.AudioClip:
+                        unityAssetType = typeof(AudioClip);
+                        break;
+                     default:
+                        unityAssetType = typeof(GameObject);
+                        break;
+                  }
+                  
+                  item.mainObject = EditorGUILayout.ObjectField(desc, item.mainObject, unityAssetType, false);
+                  item.guid = EditorUtils.GetGameObjectGUID(item.mainObject);
+                  item.type = assetType;
+               });
+               field.SetValue(component, value);
+            }
             
                
          }

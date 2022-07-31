@@ -43,6 +43,10 @@ namespace Skill
         [JsonProperty]
         [Description("asset"), SkillAssetAttribute(SkillAssetType.AudioClip)]
         public SkillAsset asset;
+
+        [JsonProperty]
+        [Description("List<SkillAsset>")]
+        public List<SkillAsset> listSkillAsset;
         
 
         public TimescaleEvent()

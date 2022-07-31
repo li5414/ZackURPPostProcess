@@ -36,6 +36,10 @@ namespace Zack.Editor
         public static readonly GUIContent k_LastFrameContent = EditorGUIUtility.IconContent("Animation.LastKey", "Last Key Frame");
         // 循环
         public static readonly GUIContent k_LoopFrameContent = EditorGUIUtility.IconContent("preAudioLoopOff", "Loop");
+        // +
+        public static readonly GUIContent k_ToolbarPlus = EditorGUIUtility.TrIconContent("Toolbar Plus", "Add to the list");
+        // -
+        public static readonly GUIContent k_ToolbarMinus = EditorGUIUtility.TrIconContent("Toolbar Minus", "Remove selection from the list");
         
         // GUIStyle
         public static readonly GUIStyle k_Label = new GUIStyle("label");
@@ -43,6 +47,7 @@ namespace Zack.Editor
         public static readonly GUIStyle k_TimelineRuler = new GUIStyle("MeTimeLabel");
         public static readonly GUIStyle k_FrameBackground = new GUIStyle("FrameBox");
         public static readonly GUIStyle k_WindowBackground = new GUIStyle("OL box NoExpand");
+        public static readonly GUIStyle k_HelpBox = new GUIStyle("HelpBox");
         public static readonly GUIStyle k_BackgroundSelected = new GUIStyle("OL SelectedRow");
         public static readonly GUIStyle k_BackgroundEven = new GUIStyle("OL EntryBackEven");
         public static readonly GUIStyle k_TimelineBlockLeft = new GUIStyle("MeTransOnLeft");
@@ -90,6 +95,11 @@ namespace Zack.Editor
             k_WindowBackground.padding = offset;
             k_WindowBackground.border = offset;
             k_WindowBackground.padding.top = 1;
+            // k_HelpBox
+            k_HelpBox.margin = offset;
+            k_HelpBox.padding = offset;
+            k_HelpBox.border = offset;
+            k_HelpBox.padding.top = 1;
             // k_BackgroundSelected 
             k_BackgroundSelected.margin = offset;
             k_BackgroundSelected.padding = offset;
