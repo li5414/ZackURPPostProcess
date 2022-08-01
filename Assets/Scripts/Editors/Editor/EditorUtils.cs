@@ -386,15 +386,27 @@ namespace Zack.Editor
             using (new GUILayoutVertical(EditorParameters.k_HelpBox))
             {
                 Type type = typeof(T);
-                for (int i = 0; i < list.Count; ++i)
-                {
-                    using (new GUILayoutVertical(EditorParameters.k_HelpBox))
-                    {
-                        EditorUtils.CreateText($"元素[{i}]", EditorParameters.k_BoldLabel);
-                        // 绘制item
-                        drawItemFunc?.Invoke(list[i]);
-                    }
-                }
+				if(list.Count > 0)
+				{
+					for (int i = 0; i < list.Count; ++i)
+					{
+						using (new GUILayoutVertical(EditorParameters.k_HelpBox))
+						{
+							EditorUtils.CreateText($"元素[{i}]", EditorParameters.k_BoldLabel);
+							// 绘制item
+							drawItemFunc?.Invoke(list[i]);
+						}
+					}
+				}
+				else
+				{
+					using (new GUILayoutHorizontal())
+					{
+						GUILayout.FlexibleSpace();
+						CreateLabel("<空>", GUILayout.Width(30));
+						GUILayout.FlexibleSpace();
+					}
+				}
             }
 
             using (new GUILayoutHorizontal())
