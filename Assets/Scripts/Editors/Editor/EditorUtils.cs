@@ -381,6 +381,53 @@ namespace Zack.Editor
             menu.ShowAsContext();
         }
 
+        public static void CreateListField<T>(List<T> list, Action<T> drawItemFunc) where T : class, new()
+        {
+            using (new GUILayoutVertical(EditorParameters.k_HelpBox))
+            {
+                Type type = typeof(T);
+				if(list.Count > 0)
+				{
+					for (int i = 0; i < list.Count; ++i)
+					{
+						using (new GUILayoutVertical(EditorParameters.k_HelpBox))
+						{
+							EditorUtils.CreateText($"元素[{i}]", EditorParameters.k_BoldLabel);
+							// 绘制item
+							drawItemFunc?.Invoke(list[i]);
+						}
+					}
+				}
+				else
+				{
+					using (new GUILayoutHorizontal())
+					{
+						GUILayout.FlexibleSpace();
+						CreateLabel("<空>", GUILayout.Width(30));
+						GUILayout.FlexibleSpace();
+					}
+				}
+            }
+
+            using (new GUILayoutHorizontal())
+            {
+                GUILayout.FlexibleSpace();
+                // +
+                EditorUtils.CreateButton(EditorParameters.k_ToolbarPlus, EditorStyles.miniButtonLeft, () =>
+                {
+                    list.Add(new T());
+                }, GUILayout.Width(30));
+                // -
+                EditorUtils.CreateButton(EditorParameters.k_ToolbarMinus, EditorStyles.miniButtonRight, () =>
+                {
+                    if (list.Count > 0)
+                    {
+                        list.RemoveAt(list.Count-1);
+                    }
+                }, GUILayout.Width(30));
+            }
+        }
+
         /// <summary>
         /// 获取UnityEngine.Object的GUID
         /// </summary>
@@ -604,6 +651,25 @@ namespace Zack.Editor
         public void Dispose()
         {
             GUI.color = srcColor;
+        }
+    }
+
+    /// <summary>
+    /// 临时替换EditorGUIUtility.labelWidth
+    /// </summary>
+    public class GUILabelWidth : IDisposable
+    {
+        private float srcWidth;
+
+        public GUILabelWidth(float width)
+        {
+            srcWidth = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = width;
+        }
+
+        public void Dispose()
+        {
+            EditorGUIUtility.labelWidth = srcWidth;
         }
     }
 

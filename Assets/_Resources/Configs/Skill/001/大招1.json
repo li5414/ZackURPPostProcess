@@ -115,7 +115,27 @@
           "bundleName": null,
           "assetName": null,
           "guid": ""
-        }
+        },
+        "listSkillAsset": [
+          {
+            "type": 0,
+            "bundleName": null,
+            "assetName": null,
+            "guid": ""
+          },
+          {
+            "type": 0,
+            "bundleName": null,
+            "assetName": null,
+            "guid": ""
+          },
+          {
+            "type": 0,
+            "bundleName": null,
+            "assetName": null,
+            "guid": ""
+          }
+        ]
       },
       "timelineData": {
         "start": 13,
@@ -148,7 +168,8 @@
           "bundleName": null,
           "assetName": null,
           "guid": ""
-        }
+        },
+        "listSkillAsset": null
       },
       "timelineData": {
         "start": 19,
